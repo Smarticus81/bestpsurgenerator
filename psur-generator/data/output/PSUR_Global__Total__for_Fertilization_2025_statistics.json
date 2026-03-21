@@ -1,0 +1,342 @@
+{
+  "surveillance_period": {
+    "start_date": "2023-07-01",
+    "end_date": "2025-06-30"
+  },
+  "denominator_type": "units",
+  "denominator_description": "units distributed within the reporting period",
+  "total_units_sold": 60476,
+  "units_by_region": {
+    "Brazil": 579,
+    "Canada": 6942,
+    "Japan": 2074,
+    "United States": 26039,
+    "Rest of World \u2075": 24842
+  },
+  "units_by_month": {
+    "2023-07": 1689.0,
+    "2023-08": 1684.0,
+    "2023-09": 1601.0,
+    "2023-10": 1645.0,
+    "2023-11": 1635.0,
+    "2023-12": 1404.0,
+    "2024-01": 2666.0,
+    "2024-02": 1042.0,
+    "2024-03": 2146.0,
+    "2024-04": 1780.0,
+    "2024-05": 1826.0,
+    "2024-06": 1608.0,
+    "2024-07": 1624.0,
+    "2024-08": 1489.0,
+    "2024-09": 1787.0,
+    "2024-10": 2484.0,
+    "2024-11": 682.0,
+    "2024-12": 2069.0,
+    "2025-01": 1741.0,
+    "2025-02": 1630.0,
+    "2025-03": 1515.0,
+    "2025-04": 1772.0,
+    "2025-05": 1741.0,
+    "2025-06": 1613.0
+  },
+  "units_by_product": {},
+  "total_complaints": 5,
+  "complaints_by_imdrf": {
+    "Inadequate device performance in analytical / diagnostic testing": 2,
+    "Packaging seal failure": 1,
+    "Device material issue": 2
+  },
+  "complaints_by_harm": {
+    "No Harm": 5
+  },
+  "complaints_by_region": {},
+  "complaints_by_month": {
+    "2023-07": 0,
+    "2023-08": 0,
+    "2023-09": 0,
+    "2023-10": 0,
+    "2023-11": 0,
+    "2023-12": 2,
+    "2024-01": 0,
+    "2024-02": 1,
+    "2024-03": 0,
+    "2024-04": 0,
+    "2024-05": 0,
+    "2024-06": 0,
+    "2024-07": 1,
+    "2024-08": 0,
+    "2024-09": 1,
+    "2024-10": 0,
+    "2024-11": 0,
+    "2024-12": 0,
+    "2025-01": 0,
+    "2025-02": 0,
+    "2025-03": 0,
+    "2025-04": 0,
+    "2025-05": 0,
+    "2025-06": 0
+  },
+  "harm_by_imdrf": {
+    "No Harm": {
+      "Inadequate device performance in analytical / diagnostic testing": 2,
+      "Packaging seal failure": 1,
+      "Device material issue": 2
+    }
+  },
+  "serious_by_region_imdrf": {},
+  "serious_incidents_detail": [],
+  "eea_units": 0,
+  "eea_countries": [],
+  "uk_units": 0,
+  "uk_complaints": 0,
+  "uk_market_detected": false,
+  "section_c_region_rows": [
+    {
+      "region": "EEA+TR+XI",
+      "units": 0
+    },
+    {
+      "region": "Rest of World",
+      "units": 60476
+    },
+    {
+      "region": "Worldwide",
+      "units": 60476
+    }
+  ],
+  "serious_incident_count": 0,
+  "serious_incidents_by_imdrf": {},
+  "overall_complaint_rate": 8.268e-05,
+  "overall_complaint_percentage": 0.0083,
+  "overall_rate_display": "5 / 60,476 units (0.000083)",
+  "serious_incident_rate": 0.0,
+  "serious_incident_rate_display": "0 / 60,476 units (0.000000)",
+  "rates_by_imdrf": [
+    {
+      "category": "Inadequate device performance in analytical / diagnostic testing",
+      "complaint_count": 2,
+      "denominator": 60476,
+      "denominator_type": "units",
+      "rate": 3.307e-05,
+      "percentage": 0.0033
+    },
+    {
+      "category": "Device material issue",
+      "complaint_count": 2,
+      "denominator": 60476,
+      "denominator_type": "units",
+      "rate": 3.307e-05,
+      "percentage": 0.0033
+    },
+    {
+      "category": "Packaging seal failure",
+      "complaint_count": 1,
+      "denominator": 60476,
+      "denominator_type": "units",
+      "rate": 1.654e-05,
+      "percentage": 0.0017
+    }
+  ],
+  "rates_by_harm": [
+    {
+      "category": "No Harm",
+      "complaint_count": 5,
+      "denominator": 60476,
+      "denominator_type": "units",
+      "rate": 8.268e-05,
+      "percentage": 0.0083
+    }
+  ],
+  "trend_analysis": {
+    "mean": 0.00014831,
+    "std_dev": 0.00036799,
+    "ucl_3sigma": 0.00125229,
+    "lcl_3sigma": 0,
+    "current_rate": 0.0,
+    "status": "ALERT",
+    "western_electric_violations": [
+      "Rule 1: 2023-12 exceeds 3-sigma",
+      "Rule 2: 2023-12-2024-02, 2/3 above 2-sigma",
+      "Rule 4: Run of 9 consecutive months below mean (2024-10 to 2025-06)"
+    ],
+    "data_points": 24,
+    "monthly_rates": [
+      0.0,
+      0.0,
+      0.0,
+      0.0,
+      0.0,
+      0.0014245,
+      0.0,
+      0.00095969,
+      0.0,
+      0.0,
+      0.0,
+      0.0,
+      0.00061576,
+      0.0,
+      0.0005596,
+      0.0,
+      0.0,
+      0.0,
+      0.0,
+      0.0,
+      0.0,
+      0.0,
+      0.0,
+      0.0
+    ],
+    "monthly_labels": [
+      "2023-07",
+      "2023-08",
+      "2023-09",
+      "2023-10",
+      "2023-11",
+      "2023-12",
+      "2024-01",
+      "2024-02",
+      "2024-03",
+      "2024-04",
+      "2024-05",
+      "2024-06",
+      "2024-07",
+      "2024-08",
+      "2024-09",
+      "2024-10",
+      "2024-11",
+      "2024-12",
+      "2025-01",
+      "2025-02",
+      "2025-03",
+      "2025-04",
+      "2025-05",
+      "2025-06"
+    ],
+    "mean_pct": 0.01,
+    "std_dev_pct": 0.04,
+    "ucl_3sigma_pct": 0.13,
+    "lcl_3sigma_pct": 0,
+    "current_rate_pct": 0.0,
+    "monthly_rates_pct": [
+      0.0,
+      0.0,
+      0.0,
+      0.0,
+      0.0,
+      0.14,
+      0.0,
+      0.1,
+      0.0,
+      0.0,
+      0.0,
+      0.0,
+      0.06,
+      0.0,
+      0.06,
+      0.0,
+      0.0,
+      0.0,
+      0.0,
+      0.0,
+      0.0,
+      0.0,
+      0.0,
+      0.0
+    ]
+  },
+  "yoy_rate_change": null,
+  "yoy_volume_change": null,
+  "table7_rows": [
+    {
+      "harm": "No Harm",
+      "medical_device_problem": "Inadequate device performance in analytical / diagnostic testing",
+      "complaint_count": 2,
+      "complaint_rate": 3.307e-05,
+      "complaint_percentage": 0.0033,
+      "occurrence_code": "O1",
+      "occurrence_label": "Improbable",
+      "occurrence_description": "So unlikely that it can be assumed occurrence may not be experienced",
+      "occurrence_max_expected_rate": 0.0001,
+      "ract_max_expected_rate": null,
+      "rate_vs_ract": "NO_RACT_DATA",
+      "ract_ratio": null
+    },
+    {
+      "harm": "No Harm",
+      "medical_device_problem": "Device material issue",
+      "complaint_count": 2,
+      "complaint_rate": 3.307e-05,
+      "complaint_percentage": 0.0033,
+      "occurrence_code": "O1",
+      "occurrence_label": "Improbable",
+      "occurrence_description": "So unlikely that it can be assumed occurrence may not be experienced",
+      "occurrence_max_expected_rate": 0.0001,
+      "ract_max_expected_rate": null,
+      "rate_vs_ract": "NO_RACT_DATA",
+      "ract_ratio": null
+    },
+    {
+      "harm": "No Harm",
+      "medical_device_problem": "Packaging seal failure",
+      "complaint_count": 1,
+      "complaint_rate": 1.654e-05,
+      "complaint_percentage": 0.0017,
+      "occurrence_code": "O1",
+      "occurrence_label": "Improbable",
+      "occurrence_description": "So unlikely that it can be assumed occurrence may not be experienced",
+      "occurrence_max_expected_rate": 0.0001,
+      "ract_max_expected_rate": null,
+      "rate_vs_ract": "NO_RACT_DATA",
+      "ract_ratio": null
+    }
+  ],
+  "rates_by_region": [
+    {
+      "region": "Brazil",
+      "units_distributed": 579,
+      "complaints": 0,
+      "complaint_rate": 0.0,
+      "complaint_percentage": 0.0,
+      "rate_display": "0 / 579 units (0.000000)"
+    },
+    {
+      "region": "Canada",
+      "units_distributed": 6942,
+      "complaints": 0,
+      "complaint_rate": 0.0,
+      "complaint_percentage": 0.0,
+      "rate_display": "0 / 6,942 units (0.000000)"
+    },
+    {
+      "region": "Japan",
+      "units_distributed": 2074,
+      "complaints": 0,
+      "complaint_rate": 0.0,
+      "complaint_percentage": 0.0,
+      "rate_display": "0 / 2,074 units (0.000000)"
+    },
+    {
+      "region": "Rest of World \u2075",
+      "units_distributed": 24842,
+      "complaints": 0,
+      "complaint_rate": 0.0,
+      "complaint_percentage": 0.0,
+      "rate_display": "0 / 24,842 units (0.000000)"
+    },
+    {
+      "region": "United States",
+      "units_distributed": 26039,
+      "complaints": 0,
+      "complaint_rate": 0.0,
+      "complaint_percentage": 0.0,
+      "rate_display": "0 / 26,039 units (0.000000)"
+    }
+  ],
+  "countries_above_5pct": [
+    "United States of America",
+    "Canada",
+    "Korea"
+  ],
+  "has_previous_period_data": false,
+  "complaint_number_format": "2023-12-0000241"
+}

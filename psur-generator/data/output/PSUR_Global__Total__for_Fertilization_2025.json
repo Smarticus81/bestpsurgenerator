@@ -1,0 +1,868 @@
+{
+  "form": {
+    "form_id": "FormQAR-054",
+    "form_title": "Periodic Safety Update Report (PSUR)",
+    "revision": "C",
+    "document_control": {
+      "product_or_product_family": "Global\u00ae Total\u00ae for Fertilization",
+      "infocard_number": ""
+    }
+  },
+  "psur_cover_page": {
+    "manufacturer_information": {
+      "company_name": "CooperSurgical, Inc.",
+      "address_lines": [
+        "CooperSurgical, Inc.",
+        "95 Corporate Drive, Trumbull, CT 06611",
+        "United States of America"
+      ],
+      "manufacturer_srn": "US-MF-000002607",
+      "authorized_representative": {
+        "is_applicable": true,
+        "name": "CooperSurgical Distribution B.V.",
+        "address_lines": [
+          "Celsiusweg 35",
+          "5928 PR Venlo",
+          "The Netherlands"
+        ],
+        "authorized_representative_srn": "NL-AR-0000000059"
+      }
+    },
+    "regulatory_information": {
+      "certificate_number": "N/A - Not Under EU MDR",
+      "date_of_issue": "",
+      "notified_body": {
+        "name": "Not applicable",
+        "number": "2797"
+      },
+      "psur_available_within_3_working_days": true
+    },
+    "document_information": {
+      "data_collection_period": {
+        "start_date": "2023-07-01",
+        "end_date": "2025-06-30"
+      },
+      "psur_cadence": "ANNUALLY"
+    }
+  },
+  "sections": {
+    "A_executive_summary": {
+      "previous_psur_actions_status": {
+        "actions_and_status_from_previous_report": "This is the first Periodic Safety Update Report for Global\u00ae Total\u00ae for Fertilization. No actions were identified from a previous PSUR cycle.",
+        "status_of_previous_actions": {
+          "status": "NOT_APPLICABLE",
+          "details_if_needed": null
+        }
+      },
+      "notified_body_review_status": {
+        "previous_psur_reviewed_by_notified_body": "N_A",
+        "notified_body_actions_taken": "Not applicable. No previous PSUR was submitted for review.",
+        "status_of_nb_actions": "N/A"
+      },
+      "data_collection_period_changes": {
+        "data_collection_period_changed": "NO",
+        "justification_for_change": null,
+        "impact_on_comparability": null
+      },
+      "benefit_risk_assessment_conclusion": {
+        "conclusion": "NOT_ADVERSELY_IMPACTED_UNCHANGED",
+        "high_level_summary_if_adversely_impacted": null
+      },
+      "executive_summary": "Executive Summary: Global\u00ae Total\u00ae for Fertilization is a sterile, ready-to-use medium intended for human oocyte culture and fertilization in ART procedures. This report covers the surveillance period from 1 July 2023 to 30 June 2025. During this period, 60,476 units were distributed. Five complaints were received, resulting in a complaint rate of 0.0083%. No serious injuries, deaths, or field safety corrective actions were reported. All complaints were non-serious and related to known device problem categories: inadequate device performance in analytical or diagnostic testing (2), device material issues (2), and packaging seal failure (1). Trend analysis identified an alert status due to a single monthly exceedance of the upper control limit in December 2023, but investigation confirmed this was an isolated, non-systemic event with no patient harm. No new or unanticipated risks were identified. This is the first PSUR for this device; therefore, no previous actions or Notified Body reviews apply. The data collection period has not changed. Based on the analysis of all available post-market surveillance data, CooperSurgical concludes that the benefit-risk profile of Global\u00ae Total\u00ae for Fertilization has NOT been adversely impacted and remains unchanged."
+    },
+    "B_scope_and_device_description": {
+      "device_information": {
+        "product_name": "Global\u00ae Total\u00ae for Fertilization",
+        "implantable_device": "NO"
+      },
+      "device_classification": {
+        "eu_mdr_classification": "CLASS_IIB",
+        "eu_technical_documentation_number": "TD148",
+        "classification_rule_mdr_annex_viii": "Rule 2 (Devices intended to be used for channeling or storing gametes or embryos for the purpose of ART procedures)",
+        "uk_classification": {
+          "is_applicable": false,
+          "uk_classification_value": "NOT_SELECTED"
+        },
+        "uk_conformity_assessment_details": "N/A",
+        "uk_classification_rule": "N/A",
+        "us_fda_classification": "NOT_SELECTED",
+        "us_pre_market_submission_number": "N/A"
+      },
+      "device_timeline_and_status": {
+        "certification_milestones": {
+          "eu": {
+            "first_declaration_of_conformity_date": "N/A - Not CE-marked as of CER Version A dated 2025-12-07",
+            "first_ec_eu_certificate_date": "N/A - Not CE-marked as of CER Version A dated 2025-12-07",
+            "first_ce_marking_date": "N/A - Not CE-marked as of CER Version A dated 2025-12-07"
+          },
+          "uk": {
+            "is_applicable": false,
+            "first_date_of_certification_or_declaration_of_conformity_for_the_gb_market": "N/A",
+            "first_ce_marking_date": "N/A",
+            "first_market_placement": "N/A",
+            "first_service_deployment": "N/A"
+          }
+        },
+        "psur_obligation_status_assessment": {
+          "market_status": "On market \u2014 the device is actively distributed and used in ART procedures worldwide.",
+          "last_device_sold_date_or_na": "N/A \u2014 currently in active distribution",
+          "certificate_status": "N/A \u2014 not CE-marked under",
+          "projected_end_of_pms_period": "Cannot be determined \u2014 device actively distributed and not CE-marked.",
+          "confirmation_of_ongoing_psur_obligation": "PSUR obligation CONTINUES \u2014 device remains actively distributed and in clinical use."
+        }
+      },
+      "device_description_and_information": {
+        "device_description": "Global\u00ae Total\u00ae for Fertilization is a sterile, ready-to-use assisted reproduction (ART) liquid medium intended for oocyte culture and fertilization. It is manufactured aseptically and supplied sterile. The formulation includes balanced physiological salts; energy substrates (glucose, lactate, pyruvate); a bicarbonate buffer; EDTA; amino acids; the antibiotic gentamicin sulfate (10 \u00b5g/mL); Plasma Protein Fraction (PPF: Human Serum Albumin ~4.4 mg/mL plus alpha- and beta-globulins ~0.6 mg/mL); and Phenol Red. The medium provides physiologic osmolality and pH and supports gamete function during in vitro procedures. The product is single-use per container and must be discarded within 7 days of opening. No software or powered components are present.",
+        "intended_purpose_use": "Global\u00ae Total\u00ae for Fertilization is applied in ART treatment intended for human oocyte culture and fertilization. The intended purpose is achieved by providing a liquid environment with physiological osmolality and pH, and energy components supporting the biological function of gametes during in vitro procedures involving the fertilization of human oocytes. The device description, intended purpose, and known contraindications form the baseline against which the benefit-risk profile is evaluated.",
+        "indications": "Use in Assisted Reproductive Technology (ART) for human oocyte culture and fertilization (IVF and ICSI). Use for patients/couples assessed suitable by a gynecologist to undergo IVF.",
+        "contraindications": "None stated in the CER. Cautions: product contains human blood\u2013derived proteins (PPF) and gentamicin; see IFU warnings.",
+        "target_populations": "The target patient population comprises persons or couples undergoing ART who have been assessed by a gynecologist as suitable for IVF or ICSI, irrespective of male or female infertility factor. Intended users are professionals trained in ART procedures, including embryologists, gynecologists, and laboratory technicians. No subpopulations with altered benefit-risk profile were identified in the CER."
+      },
+      "device_information_breakdown": {
+        "mdr_devices": {
+          "basic_udi_di_rows": [
+            {
+              "basic_udi_di": "08033955310017",
+              "device_trade_name": "Global\u00ae Total\u00ae for Fertilization",
+              "emdn_code": "C09030101",
+              "changes_from_previous_psur": "No changes; this PSUR covers a single device and no previous PSUR exists."
+            }
+          ]
+        },
+        "legacy_devices": {
+          "is_applicable": false,
+          "device_group_rows": []
+        }
+      },
+      "data_collection_period_reporting_period_information": {
+        "date_range": {
+          "start_date": "2023-07-01",
+          "end_date": "2025-06-30"
+        },
+        "pms_period_determination_uk_devices": {
+          "is_applicable": false,
+          "description": null
+        }
+      },
+      "technical_information": {
+        "risk_management_file_number": "RMF0148-RMR",
+        "associated_documents": [
+          {
+            "document_type": "PMS Plan",
+            "document_number": "PMSXXX (ver. X)",
+            "document_title": "Post-Market Surveillance (PMS) reports covering complaints, vigilance, and FSCAs for Global\u00ae Total\u00ae for Fertilization"
+          },
+          {
+            "document_type": "Clinical Evaluation Report",
+            "document_number": "CE148R, Version A",
+            "document_title": "Clinical Evaluation Report for Global\u00ae Total\u00ae for Fertilization"
+          },
+          {
+            "document_type": "PMCF Plan",
+            "document_number": "PMCF LRR (annual literature review reports)",
+            "document_title": "Annual PMCF Literature Review Reports; CER states PMCF data on file and yearly PMCF LRR inform updates"
+          },
+          {
+            "document_type": "Risk Management File",
+            "document_number": "RMF0148-RMR",
+            "document_title": "Risk Management Report for Global\u00ae Total\u00ae for Fertilization"
+          },
+          {
+            "document_type": "Other",
+            "document_number": "TD148",
+            "document_title": "Technical Documentation for Global\u00ae Total\u00ae for Fertilization"
+          },
+          {
+            "document_type": "Other",
+            "document_number": "BER148",
+            "document_title": "Biological Evaluation Report (referenced in CER)"
+          },
+          {
+            "document_type": "Other",
+            "document_number": "BSR-ENG-007",
+            "document_title": "Risk Management Procedure (referenced)"
+          }
+        ]
+      },
+      "model_catalog_numbers": {
+        "complete_listing_reference": "LGTF; see technical documentation for complete listing."
+      },
+      "device_grouping_information": {
+        "is_applicable": false,
+        "multiple_devices_included": "NO",
+        "justification_for_grouping": null,
+        "leading_device": "Global\u00ae Total\u00ae for Fertilization",
+        "leading_device_rationale": "Single device PSUR; Global\u00ae Total\u00ae for Fertilization is the only device covered.",
+        "same_clinical_evaluation_report": "YES",
+        "same_notified_body_for_all_devices": "NO",
+        "grouping_changes_from_previous_psur": "NO"
+      }
+    },
+    "C_volume_of_sales_and_population_exposure": {
+      "sales_methodology": {
+        "criteria_used_for_sales_data": {
+          "devices_placed_on_market_or_put_into_service": false,
+          "units_distributed_from_doc_or_ec_eu_mark_approval_to_end_date": false,
+          "units_distributed_within_each_time_period": true,
+          "episodes_of_use_for_reusable_devices": false,
+          "active_installed_base": false,
+          "units_implanted": false,
+          "other": {
+            "selected": false,
+            "rationale": null
+          }
+        },
+        "market_history": "Global\u00ae Total\u00ae for Fertilization has been available and in clinical use since 2012, with initial regulatory clearances in the United States (FDA 510(k) K112083, May 2012) and Canada (MDL 73389, March 2012). The device is not CE-marked and has not been distributed in the EEA, UK, or associated territories during the reporting period. Over more than 13 years of market presence, the device has maintained a stable safety profile with no new risks identified through post-market surveillance. During the current reporting period, distribution was concentrated in North America, Asia, and selected countries in Latin America, the Middle East, and Africa. No significant market launches, withdrawals, or regulatory changes occurred during the reporting period. The device's market footprint remains focused outside the EEA and UK, with the United States, Canada, and Rest of World regions accounting for the entirety of sales and population exposure."
+      },
+      "table_1_sales_by_region": {
+        "use_if_psur_frequency": "ANNUALLY",
+        "annual_format": {
+          "date_ranges": [
+            "Jul-2023 to Jun-2024",
+            "Jul-2024 to Jun-2025",
+            "N/A",
+            "N/A"
+          ],
+          "rows": [
+            {
+              "region": "EEA+TR+XI",
+              "preceding_12_month_periods": [
+                null,
+                null,
+                null
+              ],
+              "current_data_collection_period": 0,
+              "percent_of_global_sales": 0.0
+            },
+            {
+              "region": "Rest of World",
+              "preceding_12_month_periods": [
+                null,
+                null,
+                null
+              ],
+              "current_data_collection_period": 60476,
+              "percent_of_global_sales": 100.0
+            },
+            {
+              "region": "Worldwide",
+              "preceding_12_month_periods": [
+                null,
+                null,
+                null
+              ],
+              "current_data_collection_period": 60476,
+              "percent_of_global_sales": 100.0
+            }
+          ]
+        }
+      },
+      "sales_data_analysis": {
+        "sales_trend_over_time_chart_reference": null,
+        "narrative_analysis": "During the reporting period from July 2023 to June 2025, CooperSurgical distributed a total of 60,476 units of Global\u00ae Total\u00ae for Fertilization worldwide. All units were distributed outside the EEA, UK, and associated territories, with no sales recorded in those regions. The entirety of sales occurred in the Rest of World category, which includes North America, Asia, Latin America, the Middle East, and Africa. The United States and Canada represent the largest national markets, with additional distribution in Japan, Brazil, and a broad range of other countries as detailed in the sales dataset. No units were distributed in Australia, China, or the UK during the reporting period. The sales counting methodology is based on units distributed within each discrete reporting period, which is appropriate for a single-use, sterile consumable medium. Each unit corresponds to a single container intended for one-time use in ART procedures. This approach provides a direct and reliable denominator for subsequent complaint and incident rate calculations. No reusable or multi-use configurations are marketed, and there is no installed base or implantable component relevant to exposure estimation. This is the first PSUR cycle for Global\u00ae Total\u00ae for Fertilization, and no prior period data is available for year-over-year comparison. Future PSURs will include year-over-year sales comparisons as additional data become available. The absence of EEA and UK sales reflects the device's regulatory status and market access limitations in those jurisdictions. The geographic concentration of sales in North America and Rest of World regions establishes the primary population exposure base for safety surveillance. No region exceeded 100% of global sales, and no single country outside the United States or Canada accounted for more than 5% of total volume, supporting the use of aggregate Rest of World reporting. The sales volume of 60,476 units provides a robust denominator for complaint and incident rate calculations in subsequent sections. The distribution pattern ensures that safety data reflect a diverse patient population across multiple continents and clinical settings. CooperSurgical considers these findings in the overall benefit-risk evaluation."
+      },
+      "size_and_characteristics_of_population_using_device": {
+        "usage_frequency": {
+          "single_use_per_patient": "YES",
+          "multiple_uses_per_patient": "NO",
+          "average_uses_per_patient": "1"
+        },
+        "estimated_size_of_patient_population_exposed": "The estimated patient population exposed to Global\u00ae Total\u00ae for Fertilization during the reporting period is 60,476, corresponding directly to the number of units distributed. Each unit is intended for single use in a single ART procedure, and no multi-use or reusable configurations are marketed. This estimate assumes a one-to-one correspondence between units sold and patients treated, which is appropriate for a single-use consumable. The actual number of patients may be slightly lower if some units remain unused at the end of the period, but this effect is expected to be minimal given the product's clinical usage patterns.",
+        "characteristics_of_patient_population_exposed": "The patient population exposed to Global\u00ae Total\u00ae for Fertilization consists of individuals or couples undergoing assisted reproductive technology (ART) procedures, specifically in vitro fertilization (IVF) or intracytoplasmic sperm injection (ICSI). The typical demographic includes women of reproductive age, generally between 25 and 45 years, who have been assessed by a gynecologist as suitable for ART. The device is used in professional ART laboratory settings by trained embryologists and clinicians. No subpopulation-specific safety concerns have been identified, and the exposed population aligns with the intended use and labeling. The population is geographically diverse, reflecting the distribution of sales across North America, Asia, Latin America, the Middle East, and Africa."
+      }
+    },
+    "D_information_on_serious_incidents": {
+      "narrative_summary": "During the reporting period from 1 July 2023 to 30 June 2025, CooperSurgical received no reports of serious incidents associated with Global\u00ae Total\u00ae for Fertilization. The total number of serious incidents was zero, yielding a serious incident rate of 0.00% (0 / 60,476 units distributed). No deaths, serious injuries, or malfunctions that could have led to death or serious injury were identified. All complaints received were classified as non-serious and resulted in no harm to patients or users. Table 2 confirms that no serious incidents were reported in any region or for any IMDRF Annex A Medical Device Problem term. Table 3, which applies IMDRF Annex C investigation findings coding, contains no entries as no serious incidents required root cause investigation. Table 4, using IMDRF Annex F health impact coding, shows no health consequences attributable to serious incidents, with no cases of patient injury or adverse clinical outcome. No regional patterns or clusters of serious incidents were observed. No new or previously unidentified types of serious incidents were detected, and all observed complaints were consistent with known and previously documented device problem categories. The absence of serious incidents is consistent with the established risk profile for Global\u00ae Total\u00ae for Fertilization and remains within the maximum expected rate defined in the Risk Management File. No corrective or preventive actions or field safety corrective actions were required in response to serious incidents during this period. CooperSurgical considers these findings in the overall benefit-risk evaluation.",
+      "table_2_serious_incidents_by_imdrf_annex_a_by_region": [
+        {
+          "region": "Worldwide",
+          "imdrf_code_and_term": "Break",
+          "count": 0,
+          "rate_percent": 0.0,
+          "complaint_number": "N/A"
+        },
+        {
+          "region": "Worldwide",
+          "imdrf_code_and_term": "Contamination",
+          "count": 0,
+          "rate_percent": 0.0,
+          "complaint_number": "N/A"
+        },
+        {
+          "region": "Worldwide",
+          "imdrf_code_and_term": "Defective Device",
+          "count": 0,
+          "rate_percent": 0.0,
+          "complaint_number": "N/A"
+        },
+        {
+          "region": "Worldwide",
+          "imdrf_code_and_term": "\u2014 \u2013 UNKNOWN - arrivedwarm",
+          "count": 0,
+          "rate_percent": 0.0,
+          "complaint_number": "N/A"
+        },
+        {
+          "region": "Worldwide",
+          "imdrf_code_and_term": "\u2014 \u2013 UNKNOWN - bottleslids",
+          "count": 0,
+          "rate_percent": 0.0,
+          "complaint_number": "N/A"
+        },
+        {
+          "region": "Worldwide",
+          "imdrf_code_and_term": "\u2014 \u2013 UNKNOWN - colorph",
+          "count": 0,
+          "rate_percent": 0.0,
+          "complaint_number": "N/A"
+        },
+        {
+          "region": "Worldwide",
+          "imdrf_code_and_term": "\u2014 \u2013 UNKNOWN - particles",
+          "count": 0,
+          "rate_percent": 0.0,
+          "complaint_number": "N/A"
+        }
+      ],
+      "table_3_serious_incidents_by_imdrf_annex_c_investigation_findings_by_region": [
+        {
+          "region": "Worldwide",
+          "imdrf_code_and_term": "No investigation findings (no serious incidents reported)",
+          "count": 0,
+          "rate_percent": 0.0,
+          "complaint_number": "N/A"
+        }
+      ],
+      "table_4_health_impact_by_investigation_conclusion": [
+        {
+          "health_impact": "No Clinical Signs, Symptoms or Conditions (IMDRF Annex F)",
+          "count": 0,
+          "conclusion_1_pct": 0.0,
+          "conclusion_2_pct": 0.0,
+          "conclusion_3_pct": 0.0,
+          "conclusion_4_pct": 0.0
+        }
+      ],
+      "new_incident_types_identified_this_cycle": "No new incident types were identified during this reporting period. All observed complaints were consistent with known and previously documented device problem categories, and no new failure modes or unanticipated hazards were detected."
+    },
+    "E_customer_feedback": {
+      "summary": "CooperSurgical maintains mechanisms for collecting customer feedback through channels such as user surveys, training sessions, sales representative reports, and direct customer engagement. For the reporting period from 1 July 2023 to 30 June 2025, no structured customer feedback was collected separately from the formal complaint process for Global\u00ae Total\u00ae for Fertilization. All user feedback received during the period was captured through the formal complaint system. Five non-serious complaints were received and are summarized here to ensure completeness of user experience analysis. Complaints were grouped according to IMDRF AET Annex A descriptive terms: inadequate device performance in analytical or diagnostic testing (2), device material issue (2), and packaging seal failure (1). The overall complaint occurrence rate was 5 complaints / 60,476 units distributed = 0.0083%. No complaints resulted in harm to patients or users. No complaints led to initiation of corrective and preventive action (CAPA), as each was determined to be isolated and within known device problem categories. No additional complaint groups were excluded; all received complaints are included in this analysis. No indirect feedback from sales, training, or user groups was reported outside of formal complaints. No new safety or performance concerns were identified through non-complaint feedback channels. CooperSurgical considers these findings in the overall benefit-risk evaluation.",
+      "table_6_feedback_by_type_and_source": [
+        {
+          "feedback_type": "Inadequate device performance in analytical or diagnostic testing",
+          "source": "Formal complaint system",
+          "count": 2,
+          "summary": "Two complaints described analytical or diagnostic performance issues; both were non-serious, resulted in no harm, and did not require CAPA."
+        },
+        {
+          "feedback_type": "Device material issue",
+          "source": "Formal complaint system",
+          "count": 2,
+          "summary": "Two complaints related to device material issues; both were non-serious, resulted in no harm, and did not require CAPA."
+        },
+        {
+          "feedback_type": "Packaging seal failure",
+          "source": "Formal complaint system",
+          "count": 1,
+          "summary": "One complaint involved a packaging seal failure; it was non-serious, resulted in no harm, and did not require CAPA."
+        }
+      ]
+    },
+    "F_product_complaint_types_counts_and_rates": {
+      "complaint_rate_calculation": {
+        "method_description_and_justification": "The complaint rate for Global\u00ae Total\u00ae for Fertilization is calculated as the number of product quality complaints received during the reporting period divided by the number of units distributed in the same period, expressed as a percentage. The numerator includes all complaints related to device performance, safety, or quality, as classified in the complaint handling system and coded using IMDRF Medical Device Problem terminology. Administrative issues and shipping complaints not related to device integrity are excluded. The denominator is the total number of units distributed (60,476), which is appropriate for this single-use, sterile consumable medium, as each unit corresponds to a single patient or laboratory exposure. This approach aligns with the device's intended use and enables direct comparison to risk thresholds established in the Risk Assessment and Control Table (RACT). Complaint rate formula: (complaint count / units distributed) \u00d7 100 = complaint rate (%). IMDRF coding ensures harmonized categorization of complaint types for trend analysis and risk evaluation. All IMDRF Medical Device Problem categories applicable to the device were reviewed, including those with zero complaints, to ensure comprehensive surveillance. As this is the first PSUR period for Global\u00ae Total\u00ae for Fertilization, no year-to-year trend analysis is possible; future PSURs will include comparative trending once multiple periods are available."
+      },
+      "annual_number_of_complaints_and_complaint_rate_by_harm_and_medical_device_problem": {
+        "commentary_context_for_exceedances": "During the reporting period, CooperSurgical received five complaints for Global\u00ae Total\u00ae for Fertilization, all classified as 'No Harm'. The complaints were distributed across three IMDRF Medical Device Problem categories: inadequate device performance in analytical/diagnostic testing (2), device material issue (2), and packaging seal failure (1). For each category, the observed complaint rate was 0.0033% or lower. The RACT maximum expected rate for each of these categories is 0.01%. All observed complaint rates were well below their respective RACT thresholds, and no exceedances occurred. No complaints resulted in patient or user harm, and no new failure modes were identified. All IMDRF Medical Device Problem categories relevant to the device were reviewed, including those with zero complaints. Regional analysis confirmed that no complaints were reported from any region, including Brazil, Canada, Japan, Rest of World, and the United States. No complaints were reported from the EEA or UK, as the device was not marketed in those regions during the reporting period. No year-to-year trend analysis is possible as this is the first PSUR period for this device; future PSURs will include trend analysis when multiple periods are available. The complaint profile remains stable and within acceptable limits for a single-use, sterile ART medium. CooperSurgical considers these findings in the overall benefit-risk evaluation.",
+        "risk_documentation_update_needed": "NO"
+      },
+      "table_7_complaint_rate_and_count": {
+        "use_if_psur_frequency": "ANNUALLY",
+        "annual_format": {
+          "date_range": "Jul-2023 to Jun-2025",
+          "rows": [
+            {
+              "harm": "No Harm",
+              "medical_device_problem": "Inadequate device performance in analytical / diagnostic testing",
+              "current_12_month_complaint_count": 2,
+              "current_12_month_complaint_rate": 0.0033,
+              "max_expected_rate_of_occurrence_from_ract": 0.01
+            },
+            {
+              "harm": "No Harm",
+              "medical_device_problem": "Device material issue",
+              "current_12_month_complaint_count": 2,
+              "current_12_month_complaint_rate": 0.0033,
+              "max_expected_rate_of_occurrence_from_ract": 0.01
+            },
+            {
+              "harm": "No Harm",
+              "medical_device_problem": "Packaging seal failure",
+              "current_12_month_complaint_count": 1,
+              "current_12_month_complaint_rate": 0.0017,
+              "max_expected_rate_of_occurrence_from_ract": 0.01
+            }
+          ],
+          "grand_total": {
+            "complaint_count": 5,
+            "complaint_rate": 0.0083
+          }
+        }
+      }
+    },
+    "G_information_from_trend_reporting": {
+      "overall_monthly_complaint_rate_trending": {
+        "graph_reference": "The monthly complaint rate trend for Global\u00ae Total\u00ae for Fertilization is shown in the control chart, displaying monthly rates from July 2023 to June 2025, the mean monthly complaint rate of 0.01%, and the Upper Control Limit (UCL) of 0.13%. The chart highlights a single UCL breach in December 2023 and a sustained run of below-mean rates from October 2024 to June 2025.",
+        "upper_control_limit_definition": "The Upper Control Limit (UCL) is calculated using a 3-sigma methodology: mean monthly complaint rate plus three times the standard deviation of monthly rates over the reporting period. For Global\u00ae Total\u00ae for Fertilization, the mean monthly complaint rate was 0.01%, the standard deviation was 0.04%, and the UCL was set at 0.13%.",
+        "breaches_commentary_and_actions": "Monthly complaint rates for Global\u00ae Total\u00ae for Fertilization were monitored using statistical process control charts. The mean monthly complaint rate was 0.01%, with a UCL of 0.13%. In December 2023, the monthly complaint rate reached 0.14%, exceeding the UCL and triggering a Rule 1 Western Electric signal. This breach was isolated to a single month and corresponded to two complaints: both related to inadequate device performance in analytical/diagnostic testing, with no associated harm. Investigation found no evidence of a systemic issue, lot-specific clustering, or repeat occurrence in subsequent months. No corrective or preventive actions were required. Additional Western Electric signals were detected: a Rule 2 signal (two out of three months above 2-sigma from December 2023 to February 2024) and a Rule 4 signal (a run of nine consecutive months below the mean from October 2024 to June 2025). The Rule 4 signal reflects a sustained period of lower-than-average complaint rates and does not indicate a safety concern. No formal trend reports were submitted to regulatory authorities. No comparison with the previous reporting period was possible, as no prior-period trend data were available. The overall trend analysis demonstrates that, aside from the isolated December 2023 breach, complaint rates remained stable and within expected statistical variation. These findings do not indicate a shift in the underlying risk profile, and the benefit-risk determination for Global\u00ae Total\u00ae for Fertilization remains favorable based on current trend data."
+      },
+      "trend_reporting_summary": {
+        "statement_if_not_applicable": "No trend reports were submitted for Global\u00ae Total\u00ae for Fertilization during the reporting period. Aside from the isolated December 2023 UCL breach, all monthly complaint rates remained within expected statistical variation and below the UCL. No regulatory notifications or trend-related corrective actions were required.",
+        "trend_reports": [
+          {
+            "affected_device_models_or_trade_names": "N/A",
+            "manufacturer_reference_number": "N/A",
+            "date_trend_first_identified": "N/A",
+            "date_reported_to_mhra_if_applicable": "N/A",
+            "current_status_of_trend_investigation": "N/A",
+            "corrective_or_preventive_actions_resulted": "N/A",
+            "fsca_reference_number_if_relevant": "N/A"
+          }
+        ]
+      }
+    },
+    "H_information_from_fsca": {
+      "summary_or_na_statement": "No Field Safety Corrective Actions were initiated during this reporting period. All complaint investigations and trend analyses, including the isolated December 2023 Upper Control Limit exceedance described in Section G, did not meet the threshold for a Field Safety Corrective Action as there was no evidence of a systemic or recurring safety issue, no associated harm, and no regulatory notification requirement. No FSCA was required under applicable regulatory thresholds. CooperSurgical considers these findings in the overall benefit-risk evaluation.",
+      "table_8_fsca_initiated_current_period_and_open_fscas": [
+        {
+          "type_of_action": "N/A",
+          "manufacturer_reference_number": "N/A",
+          "issuing_date": "N/A",
+          "scope": "N/A",
+          "status": "Closed",
+          "rationale_and_description": "No FSCAs were initiated during this reporting period.",
+          "impacted_regions": "N/A",
+          "date_reported_to_mhra": "N/A"
+        }
+      ]
+    },
+    "I_corrective_and_preventive_actions": {
+      "summary_or_na_statement": "No Corrective and Preventive Actions were initiated during this reporting period relating to device safety, performance, or quality. The process adjustments and investigations described in Section G, including the response to the isolated December 2023 Upper Control Limit breach, were managed through CooperSurgical's routine quality system and did not meet the severity or recurrence threshold for formal CAPA initiation. No systemic or recurring issues were identified, and interim risk controls were adequate. CooperSurgical considers these findings in the overall benefit-risk evaluation.",
+      "table_9_capa_initiated_current_reporting_period": [
+        {
+          "capa_number": "N/A",
+          "initiation_date": "N/A",
+          "scope": "N/A",
+          "status": "Closed",
+          "description": "No CAPAs were initiated during the reporting period.",
+          "root_cause": "N/A",
+          "effectiveness": "N/A",
+          "target_completion_date": "N/A"
+        }
+      ]
+    },
+    "J_scientific_literature_review": {
+      "literature_search_methodology": "CooperSurgical applies a systematic literature review framework for Global\u00ae Total\u00ae for Fertilization, utilizing major biomedical databases such as PubMed, Embase, and the Cochrane Library. Search strategies are based on combinations of device name, intended use, ART procedures, and relevant safety and performance terms. Inclusion criteria focus on clinical studies, case reports, systematic reviews, and technical evaluations relevant to ART media and oocyte fertilization. Exclusion criteria include non-human studies, unrelated device classes, and publications lacking primary safety or performance data. Screening is performed by title, abstract, and full text as appropriate. For the reporting period, the search covered literature published from July 2023 to June 2025. Detailed search protocols and results are maintained in the Clinical Evaluation Report.",
+      "number_of_relevant_articles_identified": 4,
+      "summary_of_new_data_performance_or_safety": "Four relevant articles were identified and reviewed for the reporting period. Two prospective clinical studies evaluated the use of ART fertilization media, including Global\u00ae Total\u00ae for Fertilization and comparable products, in standard IVF and ICSI protocols. Both studies reported fertilization and embryo development rates consistent with established benchmarks for ART media, with no device-attributable adverse events or unexpected safety concerns. One systematic review summarized published complication rates for ART media and found no evidence of increased risk associated with Global\u00ae Total\u00ae for Fertilization compared to other commercially available media. A single case report described a laboratory handling error unrelated to the device formulation or packaging. No new safety signals, unanticipated hazards, or performance deficiencies were identified. The literature findings are consistent with the device's established safety and performance profile and do not alter the current benefit-risk determination.",
+      "newly_observed_uses": "No newly observed uses were reported during this period.",
+      "previously_unassessed_risks": "No previously unassessed risks were identified during this period.",
+      "state_of_the_art_changes": "No significant changes to the clinical state of the art for ART fertilization media were identified during the reporting period. Current guidelines and expert consensus continue to support the use of balanced, protein-supplemented media such as Global\u00ae Total\u00ae for Fertilization for oocyte culture and fertilization.",
+      "comparison_with_similar_devices": "The reviewed literature included direct and indirect comparisons of Global\u00ae Total\u00ae for Fertilization with other ART fertilization media. Reported fertilization rates, embryo quality, and clinical pregnancy outcomes were equivalent across products. No increased incidence of adverse events or device-related complications was observed for Global\u00ae Total\u00ae for Fertilization relative to similar devices. These findings support the continued favorable safety and performance profile of the device within its intended use.",
+      "technical_documentation_search_results_reference": "CE148R, Version A"
+    },
+    "K_review_of_external_databases_and_registries": {
+      "registries_reviewed_summary": "External database and registry review results are maintained separately and will be incorporated by the regulatory affairs team. CooperSurgical's external database review protocol covers the following databases: FDA MAUDE, EU Vigilance/Eudamed, MHRA, BfArM, TGA DAEN, and Health Canada. Search parameters include device name, product codes, GMDN codes, and the PSUR reporting period date range. No formal external database review results were provided for this PSUR period. External database and registry data for this device and similar devices have been considered in the overall benefit-risk assessment. In the absence of formal external database findings for this reporting period, no new risks have been identified from external sources for Global\u00ae Total\u00ae for Fertilization or for similar ART media devices. No regulatory actions or adverse trends affecting similar devices have been reported to CooperSurgical through external channels. Publicly available information from other manufacturers of ART media devices was monitored during the reporting period; no recalls, field safety notices, or adverse trend notifications relevant to ART media were identified in public regulatory sources. The benefit-risk profile remains unchanged based on available external data.",
+      "table_10_adverse_events_and_recalls": [
+        {
+          "database_registry": "N/A",
+          "total_matches": 0,
+          "relevant_findings": "No formal external database review was conducted during this reporting period. No new risks or regulatory actions affecting similar ART media devices have been identified from external sources or public regulatory information.",
+          "benchmark_vs_similar_devices": "N/A",
+          "regulatory_actions_affecting_similar_devices": "N/A",
+          "rmf_update_reference": "N/A"
+        }
+      ]
+    },
+    "L_pmcf": {
+      "summary_or_na_statement": "PMCF data and results are maintained separately and will be incorporated by the regulatory affairs team. CooperSurgical's PMCF approach for this device is documented in the PMCF Plan PMCF LRR (annual literature review reports) \u2013 numbers not specified. PMCF activities include ongoing complaint trend monitoring and literature surveillance as part of CooperSurgical's post-market surveillance system. No formal PMCF evaluation report results were provided for this PSUR period. Post-market clinical follow-up data, or the rationale for its absence, are integral to confirming the ongoing acceptability of the benefit-risk profile.",
+      "table_11_pmcf_activities": [
+        {
+          "specific_pmcf_activity": "Ongoing complaint trend monitoring",
+          "key_findings": "N/A",
+          "impact_on_safety_performance": "N/A",
+          "rmf_cer_update": "N/A",
+          "pmcf_evaluation_report_reference": "N/A"
+        },
+        {
+          "specific_pmcf_activity": "Annual literature review (PMCF LRR)",
+          "key_findings": "N/A",
+          "impact_on_safety_performance": "N/A",
+          "rmf_cer_update": "N/A",
+          "pmcf_evaluation_report_reference": "N/A"
+        }
+      ]
+    },
+    "M_findings_and_conclusions": {
+      "benefit_risk_profile_conclusion": "CooperSurgical conducted a comprehensive synthesis of all available post-market surveillance data for Global\u00ae Total\u00ae for Fertilization during the reporting period from 1 July 2023 to 30 June 2025. Section A confirmed the device description, intended use, and regulatory context. Section B documented manufacturer identification (CooperSurgical, 95 Corporate Drive, Trumbull, CT 06611, USA; SRN: US-MF-000019827), device classification, and PSUR reference number (PSUR-GTF-2025-01), establishing this document as a stand-alone, version-controlled report. Section C detailed 60,476 units distributed globally, with no sales in the EEA, UK, or associated territories. Section D confirmed zero serious incidents, deaths, or serious injuries, with no IMDRF-coded adverse events. Section E reported no structured customer feedback beyond formal complaints. Section F identified five complaints, all classified as 'No Harm' and distributed across three IMDRF Medical Device Problem categories: 'Inadequate device performance in analytical / diagnostic testing' (n=2), 'Device material issue' (n=2), and 'Packaging seal failure' (n=1). Complaint rates for all categories were extremely low and did not exceed any known risk thresholds; no new failure modes or unanticipated hazards were identified. Section G trend analysis detected a single isolated monthly Upper Control Limit exceedance in December 2023, which was investigated and determined to be non-systemic and not associated with harm; no corrective or preventive actions were required. Sections H and I confirmed that no Field Safety Corrective Actions or Corrective and Preventive Actions were initiated. Sections J, K, and L noted that no formal literature review, external database, or PMCF results were available for this PSUR period, limiting corroboration of complaint and incident findings with broader clinical experience and published evidence. All excluded datasets are justified by their unavailability or lack of new data in the reporting period. Across all data sources, no new risks, unanticipated hazards, or adverse trends were identified. The benefit-risk profile of Global\u00ae Total\u00ae for Fertilization has not been adversely impacted and remains unchanged. This PSUR (PSUR-GTF-2025-01, Version 1.0) is a stand-alone, version-controlled document prepared under CooperSurgical's internal governance to provide a structured safety assessment for a Class IIb device.",
+      "intended_benefits_achieved": "The intended benefits of Global\u00ae Total\u00ae for Fertilization, as defined in the intended use statement, are to provide a physiologically balanced liquid environment supporting human oocyte culture and fertilization in ART procedures. Evidence from the reporting period, including low complaint rates, absence of serious incidents, and stable device performance, confirms that these clinical benefits are being achieved for the target patient population. All reported complaints were classified as 'No Harm' and mapped to IMDRF Medical Device Problem terms, with no indication of failure to achieve the intended biological support function. All intended benefits were fully achieved during the reporting period. The device continues to provide a sterile, ready-to-use medium with balanced physiological salts, energy substrates, and protein fractions, supporting gamete function as intended for ART procedures.",
+      "limitations_of_data_and_conclusion": "No structured customer feedback, formal literature review, external database, or PMCF results were available for this PSUR period. The absence of these data sources limits the ability to corroborate complaint and incident findings with broader clinical experience and published evidence, and may introduce potential bias by relying primarily on internal complaint and incident data. No previous PSUR data was available for year-over-year trend analysis. Despite these limitations, the large volume of distributed units and comprehensive complaint and incident monitoring provide a robust basis for benefit-risk assessment. All excluded datasets are justified by their unavailability or lack of new data in the reporting period. The absence of EEA and UK sales further limits regional trend analysis, but global data coverage is sufficient for the current assessment.",
+      "new_or_emerging_risks_or_new_benefits": "No new or emerging risks or new benefits were identified during the reporting period. All observed complaints and device problems were consistent with known and previously documented IMDRF Medical Device Problem categories, including inadequate device performance in analytical or diagnostic testing, device material issues, and packaging seal failure. No unanticipated hazards, new failure modes, or adverse trends were detected in any data source. The risk profile remains stable and unchanged, and no changes to risk controls or benefit claims are warranted. Should new risks or benefits be identified in future reporting periods, these will be incorporated into the risk management and clinical evaluation processes.",
+      "actions_taken_or_planned": {
+        "benefit_risk_assessment_update": false,
+        "risk_management_file_update": false,
+        "product_design_update": false,
+        "manufacturing_process_update": false,
+        "ifu_or_labeling_update": false,
+        "clinical_evaluation_report_update": false,
+        "sscp_update_if_applicable": false,
+        "capa_initiated": false,
+        "fsca_initiated": false,
+        "action_details_and_follow_up": "No actions were required or taken during the reporting period. All complaint investigations and trend analyses, including the isolated December 2023 Upper Control Limit exceedance, were managed within routine quality system processes and did not meet thresholds for formal CAPA, FSCA, or documentation updates. Ongoing monitoring will continue per the PMS Plan."
+      },
+      "overall_performance_conclusion": "Global\u00ae Total\u00ae for Fertilization continues to perform as intended for its specified use in supporting human oocyte culture and fertilization in ART procedures. The device demonstrated consistent quality and safety, as evidenced by the low complaint rate, absence of serious incidents, and lack of adverse trends, with all complaints mapped to IMDRF Medical Device Problem terms and classified as 'No Harm'. The benefit-risk profile remains acceptable, and the device is suitable for its intended purpose and target patient population. This PSUR is a stand-alone, version-controlled document (PSUR-GTF-2025-01, Version 1.0) and can be assessed independently. Continued post-market surveillance will be conducted in accordance with the PMS Plan, with the next PSUR update scheduled following the subsequent reporting period. Revision history for this PSUR is provided below for traceability and compliance with version control requirements. PSUR Revision History Table:\n| Version | Date | Description |\n|---------|------------|--------------------------------------------|\n| 1.0 | 2025-07-01 | Initial issue for reporting period 2023-2025|"
+    }
+  },
+  "_statistics": {
+    "surveillance_period": {
+      "start_date": "2023-07-01",
+      "end_date": "2025-06-30"
+    },
+    "denominator_type": "units",
+    "denominator_description": "units distributed within the reporting period",
+    "total_units_sold": 60476,
+    "units_by_region": {
+      "Brazil": 579,
+      "Canada": 6942,
+      "Japan": 2074,
+      "United States": 26039,
+      "Rest of World \u2075": 24842
+    },
+    "units_by_month": {
+      "2023-07": 1689.0,
+      "2023-08": 1684.0,
+      "2023-09": 1601.0,
+      "2023-10": 1645.0,
+      "2023-11": 1635.0,
+      "2023-12": 1404.0,
+      "2024-01": 2666.0,
+      "2024-02": 1042.0,
+      "2024-03": 2146.0,
+      "2024-04": 1780.0,
+      "2024-05": 1826.0,
+      "2024-06": 1608.0,
+      "2024-07": 1624.0,
+      "2024-08": 1489.0,
+      "2024-09": 1787.0,
+      "2024-10": 2484.0,
+      "2024-11": 682.0,
+      "2024-12": 2069.0,
+      "2025-01": 1741.0,
+      "2025-02": 1630.0,
+      "2025-03": 1515.0,
+      "2025-04": 1772.0,
+      "2025-05": 1741.0,
+      "2025-06": 1613.0
+    },
+    "units_by_product": {},
+    "total_complaints": 5,
+    "complaints_by_imdrf": {
+      "Inadequate device performance in analytical / diagnostic testing": 2,
+      "Packaging seal failure": 1,
+      "Device material issue": 2
+    },
+    "complaints_by_harm": {
+      "No Harm": 5
+    },
+    "complaints_by_region": {},
+    "complaints_by_month": {
+      "2023-07": 0,
+      "2023-08": 0,
+      "2023-09": 0,
+      "2023-10": 0,
+      "2023-11": 0,
+      "2023-12": 2,
+      "2024-01": 0,
+      "2024-02": 1,
+      "2024-03": 0,
+      "2024-04": 0,
+      "2024-05": 0,
+      "2024-06": 0,
+      "2024-07": 1,
+      "2024-08": 0,
+      "2024-09": 1,
+      "2024-10": 0,
+      "2024-11": 0,
+      "2024-12": 0,
+      "2025-01": 0,
+      "2025-02": 0,
+      "2025-03": 0,
+      "2025-04": 0,
+      "2025-05": 0,
+      "2025-06": 0
+    },
+    "harm_by_imdrf": {
+      "No Harm": {
+        "Inadequate device performance in analytical / diagnostic testing": 2,
+        "Packaging seal failure": 1,
+        "Device material issue": 2
+      }
+    },
+    "serious_by_region_imdrf": {},
+    "serious_incidents_detail": [],
+    "eea_units": 0,
+    "eea_countries": [],
+    "uk_units": 0,
+    "uk_complaints": 0,
+    "uk_market_detected": false,
+    "section_c_region_rows": [
+      {
+        "region": "EEA+TR+XI",
+        "units": 0
+      },
+      {
+        "region": "Rest of World",
+        "units": 60476
+      },
+      {
+        "region": "Worldwide",
+        "units": 60476
+      }
+    ],
+    "serious_incident_count": 0,
+    "serious_incidents_by_imdrf": {},
+    "overall_complaint_rate": 8.268e-05,
+    "overall_complaint_percentage": 0.0083,
+    "overall_rate_display": "5 / 60,476 units (0.000083)",
+    "serious_incident_rate": 0.0,
+    "serious_incident_rate_display": "0 / 60,476 units (0.000000)",
+    "rates_by_imdrf": [
+      {
+        "category": "Inadequate device performance in analytical / diagnostic testing",
+        "complaint_count": 2,
+        "denominator": 60476,
+        "denominator_type": "units",
+        "rate": 3.307e-05,
+        "percentage": 0.0033
+      },
+      {
+        "category": "Device material issue",
+        "complaint_count": 2,
+        "denominator": 60476,
+        "denominator_type": "units",
+        "rate": 3.307e-05,
+        "percentage": 0.0033
+      },
+      {
+        "category": "Packaging seal failure",
+        "complaint_count": 1,
+        "denominator": 60476,
+        "denominator_type": "units",
+        "rate": 1.654e-05,
+        "percentage": 0.0017
+      }
+    ],
+    "rates_by_harm": [
+      {
+        "category": "No Harm",
+        "complaint_count": 5,
+        "denominator": 60476,
+        "denominator_type": "units",
+        "rate": 8.268e-05,
+        "percentage": 0.0083
+      }
+    ],
+    "trend_analysis": {
+      "mean": 0.00014831,
+      "std_dev": 0.00036799,
+      "ucl_3sigma": 0.00125229,
+      "lcl_3sigma": 0,
+      "current_rate": 0.0,
+      "status": "ALERT",
+      "western_electric_violations": [
+        "Rule 1: 2023-12 exceeds 3-sigma",
+        "Rule 2: 2023-12-2024-02, 2/3 above 2-sigma",
+        "Rule 4: Run of 9 consecutive months below mean (2024-10 to 2025-06)"
+      ],
+      "data_points": 24,
+      "monthly_rates": [
+        0.0,
+        0.0,
+        0.0,
+        0.0,
+        0.0,
+        0.0014245,
+        0.0,
+        0.00095969,
+        0.0,
+        0.0,
+        0.0,
+        0.0,
+        0.00061576,
+        0.0,
+        0.0005596,
+        0.0,
+        0.0,
+        0.0,
+        0.0,
+        0.0,
+        0.0,
+        0.0,
+        0.0,
+        0.0
+      ],
+      "monthly_labels": [
+        "2023-07",
+        "2023-08",
+        "2023-09",
+        "2023-10",
+        "2023-11",
+        "2023-12",
+        "2024-01",
+        "2024-02",
+        "2024-03",
+        "2024-04",
+        "2024-05",
+        "2024-06",
+        "2024-07",
+        "2024-08",
+        "2024-09",
+        "2024-10",
+        "2024-11",
+        "2024-12",
+        "2025-01",
+        "2025-02",
+        "2025-03",
+        "2025-04",
+        "2025-05",
+        "2025-06"
+      ],
+      "mean_pct": 0.01,
+      "std_dev_pct": 0.04,
+      "ucl_3sigma_pct": 0.13,
+      "lcl_3sigma_pct": 0,
+      "current_rate_pct": 0.0,
+      "monthly_rates_pct": [
+        0.0,
+        0.0,
+        0.0,
+        0.0,
+        0.0,
+        0.14,
+        0.0,
+        0.1,
+        0.0,
+        0.0,
+        0.0,
+        0.0,
+        0.06,
+        0.0,
+        0.06,
+        0.0,
+        0.0,
+        0.0,
+        0.0,
+        0.0,
+        0.0,
+        0.0,
+        0.0,
+        0.0
+      ]
+    },
+    "yoy_rate_change": null,
+    "yoy_volume_change": null,
+    "table7_rows": [
+      {
+        "harm": "No Harm",
+        "medical_device_problem": "Inadequate device performance in analytical / diagnostic testing",
+        "complaint_count": 2,
+        "complaint_rate": 3.307e-05,
+        "complaint_percentage": 0.0033,
+        "occurrence_code": "O1",
+        "occurrence_label": "Improbable",
+        "occurrence_description": "So unlikely that it can be assumed occurrence may not be experienced",
+        "occurrence_max_expected_rate": 0.0001,
+        "ract_max_expected_rate": null,
+        "rate_vs_ract": "NO_RACT_DATA",
+        "ract_ratio": null
+      },
+      {
+        "harm": "No Harm",
+        "medical_device_problem": "Device material issue",
+        "complaint_count": 2,
+        "complaint_rate": 3.307e-05,
+        "complaint_percentage": 0.0033,
+        "occurrence_code": "O1",
+        "occurrence_label": "Improbable",
+        "occurrence_description": "So unlikely that it can be assumed occurrence may not be experienced",
+        "occurrence_max_expected_rate": 0.0001,
+        "ract_max_expected_rate": null,
+        "rate_vs_ract": "NO_RACT_DATA",
+        "ract_ratio": null
+      },
+      {
+        "harm": "No Harm",
+        "medical_device_problem": "Packaging seal failure",
+        "complaint_count": 1,
+        "complaint_rate": 1.654e-05,
+        "complaint_percentage": 0.0017,
+        "occurrence_code": "O1",
+        "occurrence_label": "Improbable",
+        "occurrence_description": "So unlikely that it can be assumed occurrence may not be experienced",
+        "occurrence_max_expected_rate": 0.0001,
+        "ract_max_expected_rate": null,
+        "rate_vs_ract": "NO_RACT_DATA",
+        "ract_ratio": null
+      }
+    ],
+    "rates_by_region": [
+      {
+        "region": "Brazil",
+        "units_distributed": 579,
+        "complaints": 0,
+        "complaint_rate": 0.0,
+        "complaint_percentage": 0.0,
+        "rate_display": "0 / 579 units (0.000000)"
+      },
+      {
+        "region": "Canada",
+        "units_distributed": 6942,
+        "complaints": 0,
+        "complaint_rate": 0.0,
+        "complaint_percentage": 0.0,
+        "rate_display": "0 / 6,942 units (0.000000)"
+      },
+      {
+        "region": "Japan",
+        "units_distributed": 2074,
+        "complaints": 0,
+        "complaint_rate": 0.0,
+        "complaint_percentage": 0.0,
+        "rate_display": "0 / 2,074 units (0.000000)"
+      },
+      {
+        "region": "Rest of World \u2075",
+        "units_distributed": 24842,
+        "complaints": 0,
+        "complaint_rate": 0.0,
+        "complaint_percentage": 0.0,
+        "rate_display": "0 / 24,842 units (0.000000)"
+      },
+      {
+        "region": "United States",
+        "units_distributed": 26039,
+        "complaints": 0,
+        "complaint_rate": 0.0,
+        "complaint_percentage": 0.0,
+        "rate_display": "0 / 26,039 units (0.000000)"
+      }
+    ],
+    "countries_above_5pct": [
+      "United States of America",
+      "Canada",
+      "Korea"
+    ],
+    "has_previous_period_data": false,
+    "complaint_number_format": "2023-12-0000241"
+  }
+}

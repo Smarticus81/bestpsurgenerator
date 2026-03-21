@@ -1,0 +1,1828 @@
+{
+  "meta": {
+    "id": "FormQAR-054_UI_SCHEMA_PACK",
+    "source_file": "template.py",
+    "revision": "C",
+    "renderer_targets": [
+      "docx",
+      "pdf",
+      "web"
+    ],
+    "preserve_layout_fidelity": true
+  },
+  "schema": {
+  "$schema": "http://json-schema.org/draft-07/schema#",
+  "$id": "https://thinkerton.ai/schemas/psur/formqar-054-rev-c.json",
+  "title": "PSUR FormQAR-054 Rev C",
+  "description": "Authoritative JSON Schema for Periodic Safety Update Reports conforming to FormQAR-054 Revision C. Covers 13 sections (A-M) per EU MDR Article 86, MDCG 2022-21, MEDDEV 2.7/1 Rev 4, and ISO 14971:2019. This schema defines the canonical data contract between PSUR content generation agents and the Template-Clone-and-Fill renderer.",
+  "version": "1.0.0",
+  "type": "object",
+  "required": [
+    "form",
+    "psur_cover_page",
+    "sections"
+  ],
+  "additionalProperties": true,
+  "properties": {
+    "form": {
+      "type": "object",
+      "description": "Document metadata identifying the form template and revision.",
+      "required": [
+        "form_id",
+        "form_title",
+        "revision",
+        "document_control"
+      ],
+      "properties": {
+        "form_id": {
+          "type": "string",
+          "const": "FormQAR-054",
+          "description": "Template identifier."
+        },
+        "form_title": {
+          "type": "string",
+          "description": "Full title: Periodic Safety Update Report (PSUR)."
+        },
+        "revision": {
+          "type": "string",
+          "enum": [
+            "A",
+            "B",
+            "C"
+          ],
+          "description": "Template revision letter."
+        },
+        "document_control": {
+          "type": "object",
+          "required": [
+            "product_or_product_family"
+          ],
+          "properties": {
+            "product_or_product_family": {
+              "type": "string",
+              "description": "Device trade name or product family name. Populates header and cover page."
+            },
+            "infocard_number": {
+              "type": [
+                "string",
+                "null"
+              ],
+              "description": "Company infocard reference number for document control."
+            }
+          }
+        }
+      }
+    },
+    "psur_cover_page": {
+      "type": "object",
+      "description": "PSUR cover page information per MDCG 2022-21 Section 3.",
+      "required": [
+        "manufacturer_information",
+        "regulatory_information",
+        "document_information"
+      ],
+      "properties": {
+        "manufacturer_information": {
+          "type": "object",
+          "required": [
+            "company_name"
+          ],
+          "properties": {
+            "company_name": {
+              "type": "string",
+              "description": "Legal entity name of the manufacturer."
+            },
+            "address_lines": {
+              "type": "array",
+              "items": {
+                "type": "string"
+              },
+              "description": "Address lines: [street, city/state/zip, country]."
+            },
+            "manufacturer_srn": {
+              "type": [
+                "string",
+                "null"
+              ],
+              "description": "EUDAMED Single Registration Number (SRN) of the manufacturer."
+            },
+            "authorized_representative": {
+              "type": "object",
+              "description": "EU Authorized Representative per MDR Article 11.",
+              "properties": {
+                "is_applicable": {
+                  "type": [
+                    "boolean",
+                    "null"
+                  ]
+                },
+                "name": {
+                  "type": [
+                    "string",
+                    "null"
+                  ]
+                },
+                "address_lines": {
+                  "type": "array",
+                  "items": {
+                    "type": "string"
+                  }
+                },
+                "authorized_representative_srn": {
+                  "type": [
+                    "string",
+                    "null"
+                  ],
+                  "description": "EUDAMED SRN of the AR."
+                }
+              }
+            }
+          }
+        },
+        "regulatory_information": {
+          "type": "object",
+          "required": [
+            "certificate_number"
+          ],
+          "properties": {
+            "certificate_number": {
+              "type": "string",
+              "description": "EC/EU Certificate number issued by the Notified Body."
+            },
+            "date_of_issue": {
+              "type": "string",
+              "description": "Certificate issue date."
+            },
+            "notified_body": {
+              "type": "object",
+              "properties": {
+                "name": {
+                  "type": [
+                    "string",
+                    "null"
+                  ],
+                  "description": "Notified Body name (e.g., BSI, T\u00dcV S\u00dcD, SGS)."
+                },
+                "number": {
+                  "type": [
+                    "string",
+                    "integer",
+                    "null"
+                  ],
+                  "description": "Four-digit Notified Body identification number."
+                }
+              }
+            },
+            "psur_available_within_3_working_days": {
+              "type": "boolean",
+              "default": true,
+              "description": "MDR Article 86(2): PSUR available to competent authorities upon request within 3 working days."
+            }
+          }
+        },
+        "document_information": {
+          "type": "object",
+          "required": [
+            "data_collection_period",
+            "psur_cadence"
+          ],
+          "properties": {
+            "data_collection_period": {
+              "type": "object",
+              "required": [
+                "start_date",
+                "end_date"
+              ],
+              "properties": {
+                "start_date": {
+                  "type": "string",
+                  "format": "date",
+                  "description": "ISO 8601 date: Start of the surveillance period."
+                },
+                "end_date": {
+                  "type": "string",
+                  "format": "date",
+                  "description": "ISO 8601 date: End of the surveillance period."
+                }
+              }
+            },
+            "psur_cadence": {
+              "type": "string",
+              "enum": [
+                "ANNUALLY",
+                "EVERY_TWO_YEARS",
+                "EVERY_FIVE_YEARS"
+              ],
+              "description": "MDR Article 86(1): Annual for Class III/implantable, biennial for Class IIa/IIb, quinquennial for Class I."
+            }
+          }
+        }
+      }
+    },
+    "sections": {
+      "type": "object",
+      "description": "All 13 PSUR sections A through M per FormQAR-054 Rev C and MDCG 2022-21.",
+      "required": [
+        "A_executive_summary",
+        "B_scope_and_device_description",
+        "C_volume_of_sales_and_population_exposure",
+        "D_information_on_serious_incidents",
+        "E_customer_feedback",
+        "F_product_complaint_types_counts_and_rates",
+        "G_information_from_trend_reporting",
+        "H_information_from_fsca",
+        "I_corrective_and_preventive_actions",
+        "J_scientific_literature_review",
+        "K_review_of_external_databases_and_registries",
+        "L_pmcf",
+        "M_findings_and_conclusions"
+      ],
+      "properties": {
+        "A_executive_summary": {
+          "type": "object",
+          "description": "Section A: Executive Summary. Overview of previous PSUR actions, NB review status, period changes, and benefit-risk conclusion. Per MDCG 2022-21 Section 4.1.",
+          "required": [
+            "previous_psur_actions_status",
+            "benefit_risk_assessment_conclusion"
+          ],
+          "properties": {
+            "previous_psur_actions_status": {
+              "type": "object",
+              "properties": {
+                "actions_and_status_from_previous_report": {
+                  "type": "string",
+                  "description": "Narrative describing actions identified in the previous PSUR and their current status."
+                },
+                "status_of_previous_actions": {
+                  "type": "object",
+                  "properties": {
+                    "status": {
+                      "type": "string",
+                      "enum": [
+                        "COMPLETED",
+                        "IN_PROGRESS",
+                        "NOT_STARTED",
+                        "NOT_APPLICABLE"
+                      ]
+                    },
+                    "details_if_needed": {
+                      "type": [
+                        "string",
+                        "null"
+                      ]
+                    }
+                  }
+                }
+              }
+            },
+            "notified_body_review_status": {
+              "type": "object",
+              "properties": {
+                "previous_psur_reviewed_by_notified_body": {
+                  "type": "string",
+                  "enum": [
+                    "YES",
+                    "NO",
+                    "N_A"
+                  ]
+                },
+                "notified_body_actions_taken": {
+                  "type": [
+                    "string",
+                    "null"
+                  ]
+                },
+                "status_of_nb_actions": {
+                  "type": [
+                    "string",
+                    "null"
+                  ]
+                }
+              }
+            },
+            "data_collection_period_changes": {
+              "type": "object",
+              "properties": {
+                "data_collection_period_changed": {
+                  "type": "string",
+                  "enum": [
+                    "YES",
+                    "NO"
+                  ]
+                },
+                "justification_for_change": {
+                  "type": [
+                    "string",
+                    "null"
+                  ]
+                },
+                "impact_on_comparability": {
+                  "type": [
+                    "string",
+                    "null"
+                  ],
+                  "description": "Assessment of how the period change affects trend analysis and period-over-period comparison."
+                }
+              }
+            },
+            "benefit_risk_assessment_conclusion": {
+              "type": "object",
+              "description": "Per MDR Article 86(1)(d) and MDCG 2022-21 Section 4.1.4.",
+              "properties": {
+                "conclusion": {
+                  "type": "string",
+                  "enum": [
+                    "NOT_ADVERSELY_IMPACTED_UNCHANGED",
+                    "ADVERSELY_IMPACTED"
+                  ]
+                },
+                "high_level_summary_if_adversely_impacted": {
+                  "type": [
+                    "string",
+                    "null"
+                  ]
+                }
+              }
+            }
+          }
+        },
+        "B_scope_and_device_description": {
+          "type": "object",
+          "description": "Section B: Scope and Device Description. Device identification, classification, timeline, description, grouping. Per MDCG 2022-21 Section 4.2.",
+          "required": [
+            "device_information",
+            "device_classification",
+            "device_description_and_information"
+          ],
+          "properties": {
+            "device_information": {
+              "type": "object",
+              "required": [
+                "product_name"
+              ],
+              "properties": {
+                "product_name": {
+                  "type": "string",
+                  "description": "Device trade name or product family name."
+                },
+                "implantable_device": {
+                  "type": "string",
+                  "enum": [
+                    "YES",
+                    "NO"
+                  ],
+                  "description": "MDR Annex VIII Rule 8 classification factor."
+                }
+              }
+            },
+            "device_classification": {
+              "type": "object",
+              "description": "Regulatory classification per MDR Annex VIII, UKCA requirements, and FDA 21 CFR 860.",
+              "properties": {
+                "eu_mdr_classification": {
+                  "type": "string",
+                  "enum": [
+                    "CLASS_I",
+                    "CLASS_IIA",
+                    "CLASS_IIB",
+                    "CLASS_III",
+                    "NOT_SELECTED"
+                  ],
+                  "description": "EU MDR risk class per Annex VIII."
+                },
+                "eu_technical_documentation_number": {
+                  "type": "string",
+                  "description": "Internal TD reference (e.g., TD103)."
+                },
+                "classification_rule_mdr_annex_viii": {
+                  "type": [
+                    "string",
+                    "null"
+                  ],
+                  "description": "Applicable classification rule (e.g., Rule 6, Rule 11)."
+                },
+                "uk_classification": {
+                  "type": "object",
+                  "properties": {
+                    "is_applicable": {
+                      "type": [
+                        "boolean",
+                        "null"
+                      ]
+                    },
+                    "uk_classification_value": {
+                      "type": "string",
+                      "enum": [
+                        "CLASS_I",
+                        "CLASS_IIA",
+                        "CLASS_IIB",
+                        "CLASS_III",
+                        "NOT_SELECTED"
+                      ]
+                    }
+                  }
+                },
+                "uk_conformity_assessment_details": {
+                  "type": [
+                    "string",
+                    "null"
+                  ]
+                },
+                "uk_classification_rule": {
+                  "type": [
+                    "string",
+                    "null"
+                  ]
+                },
+                "us_fda_classification": {
+                  "type": "string",
+                  "enum": [
+                    "CLASS_I",
+                    "CLASS_II",
+                    "CLASS_III",
+                    "NOT_SELECTED"
+                  ]
+                },
+                "us_pre_market_submission_number": {
+                  "type": [
+                    "string",
+                    "null"
+                  ],
+                  "description": "510(k) or PMA number."
+                }
+              }
+            },
+            "device_timeline_and_status": {
+              "type": "object",
+              "properties": {
+                "certification_milestones": {
+                  "type": "object",
+                  "properties": {
+                    "eu": {
+                      "type": "object",
+                      "properties": {
+                        "first_declaration_of_conformity_date": {
+                          "type": [
+                            "string",
+                            "null"
+                          ],
+                          "format": "date"
+                        },
+                        "first_ec_eu_certificate_date": {
+                          "type": [
+                            "string",
+                            "null"
+                          ],
+                          "format": "date"
+                        },
+                        "first_ce_marking_date": {
+                          "type": [
+                            "string",
+                            "null"
+                          ],
+                          "format": "date"
+                        }
+                      }
+                    },
+                    "uk": {
+                      "type": "object",
+                      "properties": {
+                        "is_applicable": {
+                          "type": [
+                            "boolean",
+                            "null"
+                          ]
+                        },
+                        "first_date_of_certification_or_declaration_of_conformity_for_the_gb_market": {
+                          "type": [
+                            "string",
+                            "null"
+                          ]
+                        },
+                        "first_ce_marking_date": {
+                          "type": [
+                            "string",
+                            "null"
+                          ]
+                        },
+                        "first_market_placement": {
+                          "type": [
+                            "string",
+                            "null"
+                          ]
+                        },
+                        "first_service_deployment": {
+                          "type": [
+                            "string",
+                            "null"
+                          ]
+                        }
+                      }
+                    }
+                  }
+                },
+                "psur_obligation_status_assessment": {
+                  "type": "object",
+                  "description": "Assessment of whether PSUR obligation continues per MDR Article 86.",
+                  "properties": {
+                    "market_status": {
+                      "type": "string"
+                    },
+                    "last_device_sold_date_or_na": {
+                      "type": "string"
+                    },
+                    "certificate_status": {
+                      "type": "string"
+                    },
+                    "projected_end_of_pms_period": {
+                      "type": "string"
+                    },
+                    "confirmation_of_ongoing_psur_obligation": {
+                      "type": "string"
+                    }
+                  }
+                }
+              }
+            },
+            "device_description_and_information": {
+              "type": "object",
+              "description": "Device description per MDR Annex II Section 1.1.",
+              "required": [
+                "device_description",
+                "intended_purpose_use"
+              ],
+              "properties": {
+                "device_description": {
+                  "type": "string"
+                },
+                "intended_purpose_use": {
+                  "type": "string"
+                },
+                "indications": {
+                  "type": "string"
+                },
+                "contraindications": {
+                  "type": "string"
+                },
+                "target_populations": {
+                  "type": "string"
+                }
+              }
+            },
+            "device_information_breakdown": {
+              "type": "object",
+              "properties": {
+                "mdr_devices": {
+                  "type": "object",
+                  "properties": {
+                    "basic_udi_di_rows": {
+                      "type": "array",
+                      "description": "One row per Basic UDI-DI within scope of this PSUR.",
+                      "items": {
+                        "type": "object",
+                        "required": [
+                          "basic_udi_di",
+                          "device_trade_name"
+                        ],
+                        "properties": {
+                          "basic_udi_di": {
+                            "type": "string",
+                            "description": "EUDAMED Basic UDI-DI."
+                          },
+                          "device_trade_name": {
+                            "type": "string"
+                          },
+                          "emdn_code": {
+                            "type": [
+                              "string",
+                              "null"
+                            ],
+                            "description": "European Medical Device Nomenclature code."
+                          },
+                          "changes_from_previous_psur": {
+                            "type": "string"
+                          }
+                        }
+                      }
+                    }
+                  }
+                },
+                "legacy_devices": {
+                  "type": "object",
+                  "properties": {
+                    "is_applicable": {
+                      "type": [
+                        "boolean",
+                        "null"
+                      ]
+                    },
+                    "device_group_rows": {
+                      "type": "array",
+                      "items": {
+                        "type": "object",
+                        "properties": {
+                          "device_group": {
+                            "type": "string"
+                          },
+                          "trade_names": {
+                            "type": "string"
+                          },
+                          "gmdn_code": {
+                            "type": "string"
+                          },
+                          "market_availability": {
+                            "type": "string"
+                          }
+                        }
+                      }
+                    }
+                  }
+                }
+              }
+            },
+            "data_collection_period_reporting_period_information": {
+              "type": "object",
+              "properties": {
+                "date_range": {
+                  "type": "object",
+                  "properties": {
+                    "start_date": {
+                      "type": "string",
+                      "format": "date"
+                    },
+                    "end_date": {
+                      "type": "string",
+                      "format": "date"
+                    }
+                  }
+                },
+                "pms_period_determination_uk_devices": {
+                  "type": "object",
+                  "properties": {
+                    "is_applicable": {
+                      "type": [
+                        "boolean",
+                        "null"
+                      ]
+                    },
+                    "description": {
+                      "type": [
+                        "string",
+                        "null"
+                      ]
+                    }
+                  }
+                }
+              }
+            },
+            "technical_information": {
+              "type": "object",
+              "properties": {
+                "risk_management_file_number": {
+                  "type": "string",
+                  "description": "RMF reference per ISO 14971:2019 (e.g., RMF0028)."
+                },
+                "associated_documents": {
+                  "type": "array",
+                  "description": "PMS Plan, CER, PMCF Plan, and other referenced documents.",
+                  "items": {
+                    "type": "object",
+                    "required": [
+                      "document_type"
+                    ],
+                    "properties": {
+                      "document_type": {
+                        "type": "string",
+                        "enum": [
+                          "PMS Plan",
+                          "Clinical Evaluation Report",
+                          "PMCF Plan",
+                          "Risk Management File",
+                          "SSCP",
+                          "Other"
+                        ]
+                      },
+                      "document_number": {
+                        "type": [
+                          "string",
+                          "null"
+                        ]
+                      },
+                      "document_title": {
+                        "type": "string"
+                      }
+                    }
+                  }
+                }
+              }
+            },
+            "model_catalog_numbers": {
+              "type": "object",
+              "properties": {
+                "complete_listing_reference": {
+                  "type": "string",
+                  "description": "Reference to where the full catalog/model number list can be found."
+                }
+              }
+            },
+            "device_grouping_information": {
+              "type": "object",
+              "description": "Justification for device grouping per MDCG 2022-21 Section 4.2.5.",
+              "properties": {
+                "is_applicable": {
+                  "type": [
+                    "boolean",
+                    "null"
+                  ]
+                },
+                "multiple_devices_included": {
+                  "type": "string",
+                  "enum": [
+                    "YES",
+                    "NO"
+                  ]
+                },
+                "justification_for_grouping": {
+                  "type": [
+                    "string",
+                    "null"
+                  ]
+                },
+                "leading_device": {
+                  "type": [
+                    "string",
+                    "null"
+                  ]
+                },
+                "leading_device_rationale": {
+                  "type": [
+                    "string",
+                    "null"
+                  ]
+                },
+                "same_clinical_evaluation_report": {
+                  "type": "string",
+                  "enum": [
+                    "YES",
+                    "NO"
+                  ]
+                },
+                "same_notified_body_for_all_devices": {
+                  "type": "string",
+                  "enum": [
+                    "YES",
+                    "NO"
+                  ]
+                },
+                "grouping_changes_from_previous_psur": {
+                  "type": "string",
+                  "enum": [
+                    "YES",
+                    "NO"
+                  ]
+                }
+              }
+            }
+          }
+        },
+        "C_volume_of_sales_and_population_exposure": {
+          "type": "object",
+          "description": "Section C: Volume of Sales and Estimated Population Exposure. Per MDCG 2022-21 Section 4.3 and MDR Annex III Section 1.1(a).",
+          "required": [
+            "sales_methodology",
+            "table_1_sales_by_region"
+          ],
+          "properties": {
+            "sales_methodology": {
+              "type": "object",
+              "properties": {
+                "criteria_used_for_sales_data": {
+                  "type": "object",
+                  "description": "Which counting methodology is used. Multiple may apply.",
+                  "properties": {
+                    "devices_placed_on_market_or_put_into_service": {
+                      "type": [
+                        "boolean",
+                        "null"
+                      ]
+                    },
+                    "units_distributed_from_doc_or_ec_eu_mark_approval_to_end_date": {
+                      "type": [
+                        "boolean",
+                        "null"
+                      ]
+                    },
+                    "units_distributed_within_each_time_period": {
+                      "type": [
+                        "boolean",
+                        "null"
+                      ]
+                    },
+                    "episodes_of_use_for_reusable_devices": {
+                      "type": [
+                        "boolean",
+                        "null"
+                      ]
+                    },
+                    "active_installed_base": {
+                      "type": [
+                        "boolean",
+                        "null"
+                      ]
+                    },
+                    "units_implanted": {
+                      "type": [
+                        "boolean",
+                        "null"
+                      ]
+                    },
+                    "other": {
+                      "type": "object",
+                      "properties": {
+                        "selected": {
+                          "type": [
+                            "boolean",
+                            "null"
+                          ]
+                        },
+                        "rationale": {
+                          "type": [
+                            "string",
+                            "null"
+                          ]
+                        }
+                      }
+                    }
+                  }
+                },
+                "market_history": {
+                  "type": "string",
+                  "description": "Narrative history of market placement."
+                }
+              }
+            },
+            "table_1_sales_by_region": {
+              "type": "object",
+              "description": "Table 1: Annual/Biennial number of devices sold by geographic region.",
+              "properties": {
+                "use_if_psur_frequency": {
+                  "type": "string",
+                  "enum": [
+                    "ANNUALLY",
+                    "EVERY_TWO_YEARS"
+                  ]
+                },
+                "annual_format": {
+                  "type": "object",
+                  "properties": {
+                    "date_ranges": {
+                      "type": "array",
+                      "items": {
+                        "type": "string"
+                      },
+                      "description": "Column headers for preceding and current periods."
+                    },
+                    "rows": {
+                      "type": "array",
+                      "items": {
+                        "type": "object",
+                        "required": [
+                          "region"
+                        ],
+                        "properties": {
+                          "region": {
+                            "type": "string",
+                            "description": "Geographic region (EEA+TR+XI, Australia, Brazil, Canada, China, Japan, UK, United States, Rest of World, Worldwide)."
+                          },
+                          "preceding_12_month_periods": {
+                            "type": "array",
+                            "items": {
+                              "type": [
+                                "integer",
+                                "null"
+                              ]
+                            },
+                            "description": "Units sold in each preceding 12-month period."
+                          },
+                          "current_data_collection_period": {
+                            "type": [
+                              "integer",
+                              "null"
+                            ],
+                            "description": "Units sold in the current data collection period."
+                          },
+                          "percent_of_global_sales": {
+                            "type": [
+                              "number",
+                              "null"
+                            ],
+                            "description": "Percentage of worldwide sales for this region."
+                          }
+                        }
+                      }
+                    }
+                  }
+                }
+              }
+            },
+            "sales_data_analysis": {
+              "type": "object",
+              "properties": {
+                "sales_trend_over_time_chart_reference": {
+                  "type": [
+                    "string",
+                    "null"
+                  ]
+                },
+                "narrative_analysis": {
+                  "type": "string",
+                  "description": "Narrative analysis of sales trends, regional distribution, and year-over-year changes."
+                }
+              }
+            },
+            "size_and_characteristics_of_population_using_device": {
+              "type": "object",
+              "description": "Population exposure estimate per MDCG 2022-21 Section 4.3.2.",
+              "properties": {
+                "usage_frequency": {
+                  "type": "object",
+                  "properties": {
+                    "single_use_per_patient": {
+                      "type": "string",
+                      "enum": [
+                        "YES",
+                        "NO"
+                      ]
+                    },
+                    "multiple_uses_per_patient": {
+                      "type": "string",
+                      "enum": [
+                        "YES",
+                        "NO"
+                      ]
+                    },
+                    "average_uses_per_patient": {
+                      "type": [
+                        "string",
+                        "number",
+                        "null"
+                      ]
+                    }
+                  }
+                },
+                "estimated_size_of_patient_population_exposed": {
+                  "type": "string"
+                },
+                "characteristics_of_patient_population_exposed": {
+                  "type": "string"
+                }
+              }
+            }
+          }
+        },
+        "D_information_on_serious_incidents": {
+          "type": "object",
+          "description": "Section D: Information on Serious Incidents. Per MDR Article 87, MDCG 2022-21 Section 4.4, IMDRF Annex A (Medical Device Problem) and Annex C (Investigation).",
+          "required": [
+            "narrative_summary"
+          ],
+          "properties": {
+            "narrative_summary": {
+              "type": "string"
+            },
+            "table_2_serious_incidents_by_imdrf_annex_a_by_region": {
+              "type": "array",
+              "items": {
+                "type": "object",
+                "properties": {
+                  "region": {
+                    "type": "string"
+                  },
+                  "imdrf_code_and_term": {
+                    "type": "string",
+                    "description": "IMDRF Annex A/C code and term."
+                  },
+                  "count": {
+                    "type": "integer"
+                  },
+                  "rate_percent": {
+                    "type": "number"
+                  },
+                  "complaint_number": {
+                    "type": [
+                      "string",
+                      "null"
+                    ]
+                  }
+                }
+              },
+              "description": "Table 2: Serious incidents coded by IMDRF Annex A (Medical Device Problem)."
+            },
+            "table_3_serious_incidents_by_imdrf_annex_c_investigation_findings_by_region": {
+              "type": "array",
+              "items": {
+                "type": "object",
+                "properties": {
+                  "region": {
+                    "type": "string"
+                  },
+                  "imdrf_code_and_term": {
+                    "type": "string",
+                    "description": "IMDRF Annex A/C code and term."
+                  },
+                  "count": {
+                    "type": "integer"
+                  },
+                  "rate_percent": {
+                    "type": "number"
+                  },
+                  "complaint_number": {
+                    "type": [
+                      "string",
+                      "null"
+                    ]
+                  }
+                }
+              },
+              "description": "Table 3: Serious incidents coded by IMDRF Annex C (Cause Investigation)."
+            },
+            "table_4_health_impact_by_investigation_conclusion": {
+              "type": "array",
+              "items": {
+                "type": "object",
+                "properties": {
+                  "health_impact": {
+                    "type": "string"
+                  },
+                  "count": {
+                    "type": "integer"
+                  },
+                  "conclusion_1_pct": {
+                    "type": [
+                      "number",
+                      "null"
+                    ]
+                  },
+                  "conclusion_2_pct": {
+                    "type": [
+                      "number",
+                      "null"
+                    ]
+                  },
+                  "conclusion_3_pct": {
+                    "type": [
+                      "number",
+                      "null"
+                    ]
+                  },
+                  "conclusion_4_pct": {
+                    "type": [
+                      "number",
+                      "null"
+                    ]
+                  }
+                }
+              },
+              "description": "Table 4: Health impact by IMDRF Annex F."
+            },
+            "new_incident_types_identified_this_cycle": {
+              "type": "string"
+            }
+          }
+        },
+        "E_customer_feedback": {
+          "type": "object",
+          "description": "Section E: Customer Feedback (non-complaint). Per MDCG 2022-21 Section 4.5.",
+          "required": [
+            "summary"
+          ],
+          "properties": {
+            "summary": {
+              "type": "string"
+            },
+            "table_6_feedback_by_type_and_source": {
+              "type": "array",
+              "items": {
+                "type": "object",
+                "properties": {
+                  "feedback_type": {
+                    "type": "string"
+                  },
+                  "source": {
+                    "type": "string"
+                  },
+                  "count": {
+                    "type": "integer"
+                  },
+                  "summary": {
+                    "type": "string"
+                  }
+                }
+              }
+            }
+          }
+        },
+        "F_product_complaint_types_counts_and_rates": {
+          "type": "object",
+          "description": "Section F: Product Complaint Types, Counts, and Rates. Per MDCG 2022-21 Section 4.6 and ISO 14971:2019 Clause 10.2.",
+          "required": [
+            "complaint_rate_calculation",
+            "table_7_complaint_rate_and_count"
+          ],
+          "properties": {
+            "complaint_rate_calculation": {
+              "type": "object",
+              "properties": {
+                "method_description_and_justification": {
+                  "type": "string",
+                  "description": "Methodology for calculating complaint rates (numerator/denominator definitions, exclusion criteria)."
+                }
+              }
+            },
+            "annual_number_of_complaints_and_complaint_rate_by_harm_and_medical_device_problem": {
+              "type": "object",
+              "properties": {
+                "commentary_context_for_exceedances": {
+                  "type": "string",
+                  "description": "Justification and context if any complaint rate exceeds the RACT threshold."
+                },
+                "risk_documentation_update_needed": {
+                  "type": "string",
+                  "enum": [
+                    "YES",
+                    "NO"
+                  ]
+                }
+              }
+            },
+            "table_7_complaint_rate_and_count": {
+              "type": "object",
+              "description": "Table 7: Complaint rate by harm and medical device problem.",
+              "properties": {
+                "use_if_psur_frequency": {
+                  "type": "string",
+                  "enum": [
+                    "ANNUALLY",
+                    "EVERY_TWO_YEARS"
+                  ]
+                },
+                "annual_format": {
+                  "type": "object",
+                  "properties": {
+                    "date_range": {
+                      "type": "string"
+                    },
+                    "rows": {
+                      "type": "array",
+                      "items": {
+                        "type": "object",
+                        "required": [
+                          "harm",
+                          "medical_device_problem"
+                        ],
+                        "properties": {
+                          "harm": {
+                            "type": "string",
+                            "description": "IMDRF Annex F harm category."
+                          },
+                          "medical_device_problem": {
+                            "type": "string",
+                            "description": "IMDRF Annex A code and term (e.g., 'Foreign Material (A1201)')."
+                          },
+                          "current_12_month_complaint_count": {
+                            "type": "integer",
+                            "minimum": 0
+                          },
+                          "current_12_month_complaint_rate": {
+                            "type": "number",
+                            "description": "Complaint rate as percentage."
+                          },
+                          "max_expected_rate_of_occurrence_from_ract": {
+                            "type": [
+                              "number",
+                              "null"
+                            ],
+                            "description": "Threshold from Risk Assessment and Control Table (RACT) per ISO 14971."
+                          }
+                        }
+                      }
+                    },
+                    "grand_total": {
+                      "type": "object",
+                      "properties": {
+                        "complaint_count": {
+                          "type": "integer"
+                        },
+                        "complaint_rate": {
+                          "type": "number"
+                        }
+                      }
+                    }
+                  }
+                }
+              }
+            }
+          }
+        },
+        "G_information_from_trend_reporting": {
+          "type": "object",
+          "description": "Section G: Trend Reporting. SPC control chart analysis per MDR Article 88, MDCG 2022-21 Section 4.7, and ISO 13485:2016 Clause 8.2.1.",
+          "properties": {
+            "overall_monthly_complaint_rate_trending": {
+              "type": "object",
+              "properties": {
+                "graph_reference": {
+                  "type": [
+                    "string",
+                    "null"
+                  ],
+                  "description": "Reference to the control chart figure."
+                },
+                "upper_control_limit_definition": {
+                  "type": "string",
+                  "description": "UCL calculation methodology (e.g., 3-sigma)."
+                },
+                "breaches_commentary_and_actions": {
+                  "type": "string",
+                  "description": "Commentary on any UCL breaches and actions taken."
+                }
+              }
+            },
+            "trend_reporting_summary": {
+              "type": "object",
+              "properties": {
+                "statement_if_not_applicable": {
+                  "type": "string",
+                  "description": "N/A statement if no trend reports were submitted."
+                },
+                "trend_reports": {
+                  "type": "array",
+                  "items": {
+                    "type": "object"
+                  }
+                }
+              }
+            }
+          }
+        },
+        "H_information_from_fsca": {
+          "type": "object",
+          "description": "Section H: Field Safety Corrective Actions. Per MDR Article 83, MDCG 2022-21 Section 4.8.",
+          "properties": {
+            "summary_or_na_statement": {
+              "type": "string"
+            },
+            "table_8_fsca_initiated_current_period_and_open_fscas": {
+              "type": "array",
+              "items": {
+                "type": "object",
+                "properties": {
+                  "type_of_action": {
+                    "type": "string"
+                  },
+                  "manufacturer_reference_number": {
+                    "type": "string"
+                  },
+                  "issuing_date": {
+                    "type": "string"
+                  },
+                  "scope": {
+                    "type": "string"
+                  },
+                  "status": {
+                    "type": "string",
+                    "enum": [
+                      "Open",
+                      "Closed",
+                      "In Progress"
+                    ]
+                  },
+                  "rationale_and_description": {
+                    "type": "string"
+                  },
+                  "impacted_regions": {
+                    "type": "string"
+                  },
+                  "date_reported_to_mhra": {
+                    "type": [
+                      "string",
+                      "null"
+                    ]
+                  }
+                }
+              }
+            }
+          }
+        },
+        "I_corrective_and_preventive_actions": {
+          "type": "object",
+          "description": "Section I: CAPA. Per ISO 13485:2016 Clause 8.5.2/8.5.3, MDCG 2022-21 Section 4.9.",
+          "properties": {
+            "summary_or_na_statement": {
+              "type": "string"
+            },
+            "table_9_capa_initiated_current_reporting_period": {
+              "type": "array",
+              "items": {
+                "type": "object",
+                "properties": {
+                  "capa_number": {
+                    "type": "string"
+                  },
+                  "initiation_date": {
+                    "type": "string"
+                  },
+                  "scope": {
+                    "type": "string"
+                  },
+                  "status": {
+                    "type": "string",
+                    "enum": [
+                      "Open",
+                      "Closed",
+                      "In Progress"
+                    ]
+                  },
+                  "description": {
+                    "type": "string"
+                  },
+                  "root_cause": {
+                    "type": "string"
+                  },
+                  "effectiveness": {
+                    "type": "string"
+                  },
+                  "target_completion_date": {
+                    "type": [
+                      "string",
+                      "null"
+                    ]
+                  }
+                }
+              }
+            }
+          }
+        },
+        "J_scientific_literature_review": {
+          "type": "object",
+          "description": "Section J: Scientific Literature Review. Per MDR Annex XIV Part A, MDCG 2022-21 Section 4.10, MEDDEV 2.7/1 Rev 4.",
+          "properties": {
+            "literature_search_methodology": {
+              "type": "string",
+              "description": "Search strategy: databases, keywords, inclusion/exclusion criteria."
+            },
+            "number_of_relevant_articles_identified": {
+              "type": [
+                "integer",
+                "null"
+              ]
+            },
+            "summary_of_new_data_performance_or_safety": {
+              "type": "string"
+            },
+            "newly_observed_uses": {
+              "type": "string"
+            },
+            "previously_unassessed_risks": {
+              "type": "string"
+            },
+            "state_of_the_art_changes": {
+              "type": "string"
+            },
+            "comparison_with_similar_devices": {
+              "type": "string"
+            },
+            "technical_documentation_search_results_reference": {
+              "type": [
+                "string",
+                "null"
+              ]
+            }
+          }
+        },
+        "K_review_of_external_databases_and_registries": {
+          "type": "object",
+          "description": "Section K: External Database and Registry Review. Per MDCG 2022-21 Section 4.11 (MAUDE, BfArM, MHRA, Swissmedic, TGA DAEN).",
+          "properties": {
+            "registries_reviewed_summary": {
+              "type": "string"
+            },
+            "table_10_adverse_events_and_recalls": {
+              "type": "array",
+              "items": {
+                "type": "object",
+                "properties": {
+                  "database_registry": {
+                    "type": "string"
+                  },
+                  "total_matches": {
+                    "type": [
+                      "integer",
+                      "string"
+                    ]
+                  },
+                  "relevant_findings": {
+                    "type": "string"
+                  },
+                  "benchmark_vs_similar_devices": {
+                    "type": "string"
+                  },
+                  "regulatory_actions_affecting_similar_devices": {
+                    "type": "string"
+                  },
+                  "rmf_update_reference": {
+                    "type": [
+                      "string",
+                      "null"
+                    ]
+                  }
+                }
+              }
+            }
+          }
+        },
+        "L_pmcf": {
+          "type": "object",
+          "description": "Section L: Post-Market Clinical Follow-Up. Per MDR Article 61, Annex XIV Part B, MDCG 2022-21 Section 4.12.",
+          "properties": {
+            "summary_or_na_statement": {
+              "type": "string"
+            },
+            "table_11_pmcf_activities": {
+              "type": "array",
+              "items": {
+                "type": "object",
+                "properties": {
+                  "specific_pmcf_activity": {
+                    "type": "string"
+                  },
+                  "key_findings": {
+                    "type": "string"
+                  },
+                  "impact_on_safety_performance": {
+                    "type": "string"
+                  },
+                  "rmf_cer_update": {
+                    "type": "string"
+                  },
+                  "pmcf_evaluation_report_reference": {
+                    "type": [
+                      "string",
+                      "null"
+                    ]
+                  }
+                }
+              }
+            }
+          }
+        },
+        "M_findings_and_conclusions": {
+          "type": "object",
+          "description": "Section M: Findings and Conclusions. Overall benefit-risk determination, action items. Per MDR Article 86(1)(d), MDCG 2022-21 Section 4.13.",
+          "required": [
+            "benefit_risk_profile_conclusion",
+            "overall_performance_conclusion"
+          ],
+          "properties": {
+            "benefit_risk_profile_conclusion": {
+              "type": "string",
+              "description": "Narrative conclusion on whether the benefit-risk profile has been adversely impacted."
+            },
+            "intended_benefits_achieved": {
+              "type": "string"
+            },
+            "limitations_of_data_and_conclusion": {
+              "type": "string"
+            },
+            "new_or_emerging_risks_or_new_benefits": {
+              "type": "string"
+            },
+            "actions_taken_or_planned": {
+              "type": "object",
+              "description": "9 action checkboxes with optional detail narrative.",
+              "properties": {
+                "benefit_risk_assessment_update": {
+                  "type": [
+                    "boolean",
+                    "null"
+                  ]
+                },
+                "risk_management_file_update": {
+                  "type": [
+                    "boolean",
+                    "null"
+                  ]
+                },
+                "product_design_update": {
+                  "type": [
+                    "boolean",
+                    "null"
+                  ]
+                },
+                "manufacturing_process_update": {
+                  "type": [
+                    "boolean",
+                    "null"
+                  ]
+                },
+                "ifu_or_labeling_update": {
+                  "type": [
+                    "boolean",
+                    "null"
+                  ]
+                },
+                "clinical_evaluation_report_update": {
+                  "type": [
+                    "boolean",
+                    "null"
+                  ]
+                },
+                "sscp_update_if_applicable": {
+                  "type": [
+                    "boolean",
+                    "null"
+                  ]
+                },
+                "capa_initiated": {
+                  "type": [
+                    "boolean",
+                    "null"
+                  ]
+                },
+                "fsca_initiated": {
+                  "type": [
+                    "boolean",
+                    "null"
+                  ]
+                },
+                "action_details_and_follow_up": {
+                  "type": [
+                    "string",
+                    "null"
+                  ]
+                }
+              }
+            },
+            "overall_performance_conclusion": {
+              "type": "string",
+              "description": "Final narrative conclusion on device performance and safety."
+            }
+          }
+        }
+      }
+    },
+    "_statistics": {
+      "type": "object",
+      "description": "Pre-computed statistics from the DataHarmonizer and StatisticalAnalyzer agents. Used by the renderer for table population and chart generation. Not part of the regulatory content.",
+      "properties": {
+        "surveillance_period": {
+          "type": "object",
+          "properties": {
+            "start_date": {
+              "type": "string",
+              "format": "date"
+            },
+            "end_date": {
+              "type": "string",
+              "format": "date"
+            }
+          }
+        },
+        "denominator_type": {
+          "type": "string",
+          "enum": [
+            "units",
+            "episodes",
+            "installed_base"
+          ],
+          "description": "Sales denominator methodology."
+        },
+        "denominator_description": {
+          "type": "string"
+        },
+        "total_units_sold": {
+          "type": "integer",
+          "minimum": 0
+        },
+        "total_complaints": {
+          "type": "integer",
+          "minimum": 0
+        },
+        "overall_complaint_rate": {
+          "type": "number",
+          "description": "Complaints / units sold."
+        },
+        "overall_complaint_percentage": {
+          "type": "number"
+        },
+        "overall_rate_display": {
+          "type": "string",
+          "description": "Human-readable rate string."
+        },
+        "serious_incident_count": {
+          "type": [
+            "integer",
+            "null"
+          ],
+          "minimum": 0
+        },
+        "serious_incident_rate": {
+          "type": [
+            "number",
+            "null"
+          ]
+        },
+        "serious_incident_rate_display": {
+          "type": [
+            "string",
+            "null"
+          ]
+        },
+        "units_by_region": {
+          "type": "object",
+          "additionalProperties": {
+            "type": "integer"
+          }
+        },
+        "units_by_month": {
+          "type": "object",
+          "additionalProperties": {
+            "type": "integer"
+          }
+        },
+        "units_by_product": {
+          "type": "object",
+          "additionalProperties": {
+            "type": "integer"
+          }
+        },
+        "complaints_by_imdrf": {
+          "type": "object",
+          "additionalProperties": {
+            "type": "integer"
+          },
+          "description": "Complaint count keyed by IMDRF Annex A code."
+        },
+        "complaints_by_harm": {
+          "type": "object",
+          "additionalProperties": {
+            "type": "integer"
+          },
+          "description": "Complaint count keyed by IMDRF Annex F harm category."
+        },
+        "complaints_by_region": {
+          "type": "object",
+          "additionalProperties": {
+            "type": "integer"
+          }
+        },
+        "complaints_by_month": {
+          "type": "object",
+          "additionalProperties": {
+            "type": "integer"
+          }
+        },
+        "harm_by_imdrf": {
+          "type": "object",
+          "additionalProperties": {
+            "type": "object",
+            "additionalProperties": {
+              "type": "integer"
+            }
+          }
+        },
+        "eea_units": {
+          "type": "integer"
+        },
+        "eea_countries": {
+          "type": "array",
+          "items": {
+            "type": "string"
+          }
+        },
+        "section_c_region_rows": {
+          "type": "array",
+          "items": {
+            "type": "object",
+            "properties": {
+              "region": {
+                "type": "string"
+              },
+              "units": {
+                "type": "integer"
+              }
+            }
+          }
+        },
+        "rates_by_imdrf": {
+          "type": "array",
+          "items": {
+            "type": "object",
+            "properties": {
+              "category": {
+                "type": "string"
+              },
+              "complaint_count": {
+                "type": "integer"
+              },
+              "denominator": {
+                "type": "integer"
+              },
+              "denominator_type": {
+                "type": "string"
+              },
+              "rate": {
+                "type": "number"
+              },
+              "percentage": {
+                "type": "number"
+              }
+            }
+          }
+        },
+        "rates_by_harm": {
+          "type": "array",
+          "items": {
+            "type": "object",
+            "properties": {
+              "category": {
+                "type": "string"
+              },
+              "complaint_count": {
+                "type": "integer"
+              },
+              "denominator": {
+                "type": "integer"
+              },
+              "denominator_type": {
+                "type": "string"
+              },
+              "rate": {
+                "type": "number"
+              },
+              "percentage": {
+                "type": "number"
+              }
+            }
+          }
+        },
+        "trend_analysis": {
+          "type": "object",
+          "description": "SPC (Statistical Process Control) analysis per ISO 13485:2016 Clause 8.2.1.",
+          "properties": {
+            "mean": {
+              "type": "number"
+            },
+            "std_dev": {
+              "type": "number"
+            },
+            "ucl_3sigma": {
+              "type": "number",
+              "description": "Upper Control Limit (mean + 3\u03c3)."
+            },
+            "lcl_3sigma": {
+              "type": [
+                "number",
+                "null"
+              ],
+              "description": "Lower Control Limit (mean - 3\u03c3), null if <0."
+            },
+            "current_rate": {
+              "type": "number"
+            },
+            "status": {
+              "type": "string",
+              "enum": [
+                "NORMAL",
+                "ALERT",
+                "OUT_OF_CONTROL"
+              ]
+            },
+            "western_electric_violations": {
+              "type": "array",
+              "items": {
+                "type": "string"
+              }
+            },
+            "data_points": {
+              "type": "integer"
+            },
+            "monthly_rates": {
+              "type": "array",
+              "items": {
+                "type": "number"
+              }
+            },
+            "monthly_labels": {
+              "type": "array",
+              "items": {
+                "type": "string"
+              }
+            }
+          }
+        }
+      }
+    }
+  }
+  }
+}

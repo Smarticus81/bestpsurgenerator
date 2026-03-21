@@ -1,0 +1,432 @@
+{
+  "$schema": "urn:coopersurgical:psur:mdcg-2022-21-kb:v1",
+  "title": "MDCG 2022-21 Regulatory Knowledge Base for PSUR Section Agents",
+  "description": "Structured extraction of MDCG 2022-21 (December 2022) — Guidance on Periodic Safety Update Report (PSUR) according to Regulation (EU) 2017/745 (MDR). This knowledge base provides each PSUR section agent with the specific regulatory context, requirements, and assessment criteria from the guidance document and its five annexes. Agents use this to understand WHY each PSUR element is required, WHAT the regulatory assessor expects, and HOW data should be presented and assessed.",
+  "source_document": {
+    "title": "MDCG 2022-21: Guidance on Periodic Safety Update Report (PSUR) according to Regulation (EU) 2017/745",
+    "date": "December 2022",
+    "authority": "Medical Device Coordination Group (MDCG), established by Article 103 of Regulation (EU) 2017/745",
+    "legal_status": "Non-binding guidance endorsed by MDCG. Not a European Commission document. Only the Court of Justice of the European Union can give binding interpretations of Union law.",
+    "scope": "Applicable to medical devices certified under MDR and to legacy devices certified under MDD 93/42/EEC or AIMDD 90/385/EEC. Does not apply to IVDs under IVDR (EU) 2017/746."
+  },
+
+  "core_principles": {
+    "psur_purpose": "The PSUR summarizes results and conclusions of the analysis of post-market surveillance data gathered as a result of the PMS Plan. It is not meant to duplicate all data and reports but to summarize all results and conclusions, providing transparency to Notified Bodies and Competent Authorities.",
+    "dual_objectives": {
+      "benefit_risk": "Present a summary of results and conclusions of PMS data analyses to identify any changes to the benefit-risk profile, considering new or emerging information in the context of cumulative information on benefits and risks.",
+      "capa_reporting": "Provide information about Corrective and Preventive Actions under Article 83(4) first sentence, including actions related to devices on the market, product safety/performance/quality impacts, and voluntary non-temporary suspension of marketing."
+    },
+    "stand_alone_requirement": "The PSUR should be generated as a stand-alone document that can be assessed independently from supporting documentation. It should provide a general overview of all post-market surveillance activities and the data collected and analysed based on the PMS plan.",
+    "absent_data_justification": "If the manufacturer decides that specific datasets are not used or deemed not required, the manufacturer should duly justify the absence of each excluded dataset.",
+    "device_definition": "For PSUR purposes, 'device' relates to a device model and not an individual device, since individual devices are placed on the market at different moments during the certificate period.",
+    "consistency": "To the extent possible, a similar presentation should be followed regardless of device class."
+  },
+
+  "terminology": {
+    "device_certification_date": "One of: date of EU technical documentation assessment certificate (Annex IX), EU type-examination certificate (Annex X), EU product verification certificate for class IIa (Annex XI section 3), Declaration of Conformity date (Annex IX Chapters I & III), or statement date (Annex XIII section 1 for custom-made devices).",
+    "legacy_devices": "Devices placed on the market after MDR DoA (26 May 2021) under Article 120(3) transition provisions, based on valid EC certificates issued under MDD or AIMDD prior to 26 May 2021.",
+    "leading_device": "The highest risk class device in a group. If multiple devices share the same class, the manufacturer assigns one. The leading device drives the PSUR schedule and its reference number remains unchanged across updates.",
+    "psur_reference_number": "Unique identifier assigned by manufacturer, attached to the leading device, remaining the same throughout the PSUR lifetime.",
+    "psur_version_number": "Incremental number for each PSUR update.",
+    "device_lifetime": "Time period specified by manufacturer during which the device is expected to remain safe and effective. PSUR obligation continues until the lifetime of the last manufactured device has been reached.",
+    "annually_for_legacy": "Occurring during the course of the calendar year following MDR date of application.",
+    "every_two_years_for_legacy": "Occurring during the course of the second calendar year following MDR date of application."
+  },
+
+  "section_knowledge": {
+
+    "A_executive_summary": {
+      "mdcg_section_ref": "Annex I — Executive Summary",
+      "regulatory_purpose": "When produced, the executive summary provides a brief overview of the PSUR content and an overall conclusion in relation to the benefit-risk determination. It is the first substantive content a Notified Body reviewer reads after the cover page.",
+      "required_elements": [
+        "Brief description and status of actions taken by the manufacturer based on the previous PSUR",
+        "Brief description and status of actions taken by the Notified Body as part of the review of the previous PSUR",
+        "If the data collection period was changed: justification for the change and a statement on whether it affects comparability of results",
+        "Main results of the current PSUR with a clear and bold statement declaring whether the benefit-risk profile has been impacted (negatively, positively, or remains unchanged)"
+      ],
+      "benefit_risk_statement_requirement": "The executive summary must include a clear and bold statement on benefit-risk impact. Example framing from MDCG: 'Based on the analysis of the collected data, it is concluded that the benefit-risk profile of the device(s) has not been (or has been) adversely impacted / remains unchanged.'",
+      "assessment_context": "The Notified Body uses this section to quickly determine: (1) whether prior actions were addressed, (2) whether the reporting period changed, and (3) the manufacturer's own benefit-risk conclusion. Ambiguity or omission in this section triggers detailed scrutiny of all subsequent sections."
+    },
+
+    "B_scope_and_device_description": {
+      "mdcg_section_ref": "Annex I — Description of the devices covered by the PSUR and their intended uses (Article 86.1), Grouping of the Devices",
+      "regulatory_purpose": "Provide an overview of the devices covered by the PSUR and any changes to scope. Added and removed devices must be clearly identified. This section establishes the regulatory identity of the device(s) for the entire report.",
+      "required_elements_mdr_devices": [
+        "Device classification (risk class) per applicable classification rules",
+        "Date from: first declaration of conformity, first EC/EU certificate issued, first CE-marked, first placed on market, first put into service, or (for software) date first made available",
+        "Status of device(s): on the market, no longer placed on the market, recalled, FSCA initiated",
+        "Intended purpose per Instructions for Use (Annex I, Chapter III, 23.4(b) MDR), indications, contra-indications, target populations",
+        "Information broken down by Basic UDI-DI(s) with explanation of device changes within each Basic UDI-DI compared to previous PSUR",
+        "Device trade name(s) associated to corresponding Basic UDI-DI(s) and European Medical Device Nomenclature (EMDN)"
+      ],
+      "required_elements_legacy_devices": [
+        "Information broken down by device group/family",
+        "Device trade name(s) including all trade names across Member States",
+        "EMDN code"
+      ],
+      "grouping_requirements": {
+        "justification": "The manufacturer must justify grouping of devices in one PSUR. Justification can be based on benefits of reporting multiple devices together or disadvantages of separate PSURs.",
+        "change_reporting": "If the group of devices changed, justify the change and provide the PSUR reference number where removed device data is now reported.",
+        "leading_device": "The manufacturer must define the leading device that determines the PSUR schedule. The PSUR reference number is attached to the leading device and should remain unchanged.",
+        "data_clarity": "When a PSUR includes several Basic UDI-DIs, data must be presented so it is easy to determine how each device performs independently."
+      },
+      "assessment_context": "Notified Bodies verify that: (1) all devices in the scope are properly identified with UDI-DIs, (2) any scope changes are justified, (3) the leading device is defined, and (4) intended purpose matches approved documentation. Incomplete device identification is a common finding."
+    },
+
+    "C_volume_of_sales_and_population_exposure": {
+      "mdcg_section_ref": "Annex I — Volume of Sales (Article 86.1), Size and other characteristics of the population using the device (Article 86.1); Annex II — Tables 1-3; Annex III — Section 1",
+      "regulatory_purpose": "Establish the denominator for all rate calculations in the PSUR. Without accurate sales volumes and population exposure, complaint rates, incident rates, and trend analyses cannot be meaningfully assessed.",
+      "volume_of_sales_requirements": [
+        "Consider ALL devices placed on the market — can be volumes of sales, units shipped, or units implanted or another suitable indicator",
+        "Whichever method is used must be CONSISTENT throughout the PSUR to allow comparison of data",
+        "Data should be presented year to year per Annex II Table 1",
+        "Provide further information on volume of sales in respect to various sizes, models, and configurations as deemed necessary",
+        "Indicate the criteria for counting: devices placed on market/put into service, units distributed per time period, number of episodes of use (reusable devices), active installed base, units from declaration of conformity/EC mark approval to end date, devices implanted, or other (with description/rationale)"
+      ],
+      "population_exposure_requirements": [
+        "Evaluate how many patients have been exposed to the device and characteristics of the exposed patient group(s)",
+        "Estimate the number of patients exposed — sales numbers alone do not necessarily reflect number of uses",
+        "Consider different scenarios: active devices with lifetime of several years and multiple daily uses (e.g. CTs) result in high patient exposure; for implants, multiple devices may be used in one patient; for some devices, sales directly correlate with patient numbers",
+        "Describe usage in different patient populations and compare to expected usage; identify over- or under-represented patient groups if clinically relevant and known",
+        "When possible, consider patient demographic aspects",
+        "When applicable, evaluate the effect of detected changes on previously obtained findings and current PSUR"
+      ],
+      "annex_ii_table_formats": {
+        "table_1_sales": "Volume of sales by region over time. Columns: Basic UDI-DI/Legacy device name, Total devices, Reporting Day N (preceding 12 months), N2 (12 months), N3 (12 months), N4 (12 months). Rows split by EEA+TR+XI and Worldwide.",
+        "table_2_population_size": "Estimated size of population using the device over time, by region.",
+        "table_3_population_characteristics": "Characteristics of the population using the device over time, by region. Characteristics defined by manufacturer based on device usage."
+      },
+      "annex_iii_data_presentation": {
+        "split_by_device": "Datasets should be split by Basic UDI-DI or model of the device if Basic UDI-DI does not exist.",
+        "split_by_region": "Data should be split by region when applicable. Regions: EEA, TR, XI, and Worldwide. Worldwide data include EEA, TR and XI.",
+        "year_to_year_reporting": "Class III and Class IIb: Reporting Day+ preceding 12 months (N); N-12 months (N2); N2-12 months (N3); N3-12 months (N4). Class IIa: Reporting Day+ preceding 24 months (N); N-24 months (N2)."
+      },
+      "assessment_context": "Notified Bodies verify: (1) the counting method is stated and consistent, (2) year-to-year data enables trend detection, (3) regional breakdowns are provided, (4) population exposure is estimated independently of sales when applicable. A common deficiency is using inconsistent denominators across PSUR sections."
+    },
+
+    "D_information_on_serious_incidents": {
+      "mdcg_section_ref": "Annex I — Information concerning Serious Incidents (Article 87, Annex III MDR); Annex II — Tables 4-6; Annex III — Sections 1-2",
+      "regulatory_purpose": "Present serious incidents and their impact on overall device safety, characterizing data from at least three perspectives: device problems, root cause, and health effects on person(s) affected.",
+      "required_elements": [
+        "Present data from three perspectives: (1) device problems, (2) root cause/investigation findings, (3) health effects on affected persons",
+        "Summary text regarding any new types of serious incidents since the last report",
+        "Report using IMDRF Adverse Event Terminology when available — Level 2 terms/codes are sufficient for grouping; report both codes and terms",
+        "Report both absolute figures and rates of serious incidents",
+        "Split data by region (EEA+TR+XI) and worldwide",
+        "Historical data does not require IMDRF coding"
+      ],
+      "annex_ii_table_formats": {
+        "table_4_by_annex_a": "Total number (N) and rate (%) of serious incidents by IMDRF AET Annex A (Medical Device Problem) by time and region over time. Denominator compatible with Table 1 or based on manufacturer's reasoning.",
+        "table_5_by_annex_c": "Total number (N) and rate (%) of serious incidents by IMDRF AET Annex C (Cause Investigation — Investigation Findings) by time and region over time.",
+        "table_6_annex_f_x_annex_d": "IMDRF AET Annex F (Health Impact) codes crossed with IMDRF Annex D (Investigation Conclusion) codes for the last 4 years. Report most common health impacts AND any cases resulting in death regardless of frequency. Split by region."
+      },
+      "annex_iii_assessment_rules": [
+        "Data from the various sources should be compared to identify possible conflicting results",
+        "Assess results considering different patient populations, sizes, models, device combinations or variants",
+        "When applicable, evaluate findings in relation to state of the art",
+        "Assess data in relation to thresholds concerning known risks and side effects and benefits intended to be gained",
+        "Identify factors that support or refute previously identified safety and performance concerns as well as evidence of new safety signals or emerging risks",
+        "If device is used in combination, identify the role of each device compared to others used together",
+        "Performance and safety should be compared to other devices with same intended use",
+        "When applicable, use IMDRF Terminologies for Categorized Adverse Event Reporting in the analysis"
+      ],
+      "assessment_context": "Notified Bodies look for: (1) three-perspective characterization (device problem, root cause, health impact), (2) IMDRF coding with both codes and terms, (3) year-to-year comparisons enabling trend detection, (4) regional data split, (5) explicit discussion of new incident types. Failure to identify emerging safety signals is a critical finding."
+    },
+
+    "E_customer_feedback": {
+      "mdcg_section_ref": "Annex I — Feedbacks and complaints from users, distributors and importers (Annex III, Annex XIV Part B, 6.2(a) and (f) MDR)",
+      "regulatory_purpose": "Capture all feedback and non-serious complaints not covered in the vigilance section, representing the broader user experience with the device beyond reportable incidents.",
+      "required_elements": [
+        "All feedback from users, distributors and importers and complaints not reported in the Vigilance section",
+        "Most common complaints grouped by IMDRF AET Annex A (Medical Device Problem) including term and code, OR internal event codes including term",
+        "Occurrence rate including reference chosen for denominator",
+        "Justification for inclusion of presented complaint groups and exclusion of those not presented",
+        "Information whether presented complaints led to initiation of CAPA"
+      ],
+      "assessment_context": "Notified Bodies use this section to identify potential safety signals that have not reached the threshold of serious incidents. Patterns in non-serious complaints often precede serious incidents. The justification for excluded complaint groups is scrutinized."
+    },
+
+    "F_product_complaint_types_counts_and_rates": {
+      "mdcg_section_ref": "Annex I — Post-Market Surveillance: Vigilance and CAPA information; Annex II — Tables 4-6; Annex III — Sections 1-2",
+      "regulatory_purpose": "Present comprehensive quantitative analysis of ALL product complaints (not just serious incidents), enabling trend detection and rate comparison against established thresholds from the Risk Assessment and Control Table.",
+      "required_elements": [
+        "Complaint data grouped by IMDRF Annex A codes with both codes and terms",
+        "Complaint rates with clear denominator basis (consistent with Section C)",
+        "Year-to-year comparison enabling trend identification",
+        "Comparison of actual rates against maximum expected rates from RACT",
+        "Regional breakdown where applicable"
+      ],
+      "annex_iii_assessment_rules": [
+        "Assess complaint rates in relation to thresholds concerning known risks and side effects",
+        "Identify factors that support or refute previously identified safety concerns",
+        "When applicable, use IMDRF Terminologies for analysis",
+        "Compare performance and safety to similar devices with same intended use"
+      ],
+      "assessment_context": "Notified Bodies verify: (1) complaint rates are calculated consistently with Section C denominators, (2) rates are compared against RACT thresholds, (3) all IMDRF categories are accounted for (not just top categories), (4) year-to-year trends are visible. Rate exceedances require explicit assessment."
+    },
+
+    "G_information_from_trend_reporting": {
+      "mdcg_section_ref": "Annex I — Information from Trend Reporting (Article 88, Annex III MDR, non-serious incidents and expected undesirable side effects)",
+      "regulatory_purpose": "Present results of statistical trend monitoring required by MDR Article 88 for statistically significant increases in the frequency or severity of incidents that are not serious or expected undesirable side-effects. This section demonstrates the manufacturer's active surveillance methodology.",
+      "regulatory_note": "The MDCG guidance states: 'The data related to the trend reports will be detailed after the adoption of the MDCG guidance on trend reporting.' Until that guidance is finalized, manufacturers should apply SPC-based trend detection methodology.",
+      "required_elements": [
+        "Description of trend monitoring methodology (SPC control charts, UCL/LCL calculation basis)",
+        "Results of trend analysis for complaint categories",
+        "Identification of any UCL breaches and their investigation",
+        "Any formal trend reports submitted to regulatory authorities during the reporting period",
+        "Comparison with previous period trend findings"
+      ],
+      "assessment_context": "Notified Bodies expect: (1) a documented trend monitoring methodology, (2) evidence that complaint data is continuously monitored against statistical limits, (3) that UCL breaches trigger investigation and potential reporting under Article 88. The absence of trend reporting methodology is a significant deficiency."
+    },
+
+    "H_information_from_fsca": {
+      "mdcg_section_ref": "Annex I — Information from Field Safety Corrective Actions (FSCA) (Article 87, Annex II MDR); Annex II — Table 7",
+      "regulatory_purpose": "Provide a summary of all FSCAs for the PSUR period and enable comparison with previous PSUR FSCAs. FSCAs are the most visible regulatory actions and receive intense NB scrutiny.",
+      "required_elements": [
+        "Types of actions",
+        "Issuing date",
+        "Scope of the FSCA",
+        "Status of the FSCA at the time of the PSUR",
+        "Manufacturer's reference number",
+        "Brief description of the reason for action and description of action",
+        "Impacted regions"
+      ],
+      "annex_ii_table_7_format": "Table 7: FSCA initiated in current reporting period and open FSCAs. Columns: Type of action, Issuing date, Scope of the FSCA, Status of the FSCA, Manufacturer Reference number, Rationale and description of action taken, Impacted regions.",
+      "assessment_context": "Notified Bodies cross-reference FSCAs against: (1) incidents reported in Section D, (2) CAPAs in Section I, (3) trend reports in Section G. Unresolved or ongoing FSCAs receive particular attention. Discrepancies between FSCA status and CAPA completion are flagged."
+    },
+
+    "I_corrective_and_preventive_actions": {
+      "mdcg_section_ref": "Annex I — Preventive and/or Corrective Actions (CAPA) (Article 83.4 and Article 86 MDR); Annex II — Table 8",
+      "regulatory_purpose": "List all CAPAs under Article 83(4) and Article 86, demonstrating the manufacturer's response to identified safety and performance issues. The scope includes actions related to devices on the market, product safety/performance/quality impacts, and voluntary non-temporary marketing suspensions.",
+      "capa_scope_per_article_83_4": [
+        "Actions related to devices already placed on the EU market",
+        "Issues with direct impact on the product that might impact safety, performance or quality",
+        "Any voluntary non-temporary suspension of marketing not related to commercial decisions",
+        "Evaluation of benefits and risks identified through post-market activities as described in Annex III, point 1(a) of MDR"
+      ],
+      "does_not_cover": "Quality management system related CAPAs unless they could have direct impact on product safety, performance or quality.",
+      "required_elements_per_capa": [
+        "Type of action (corrective, preventive, or both)",
+        "Initiation date",
+        "Scope of the CAPA",
+        "Status of the action",
+        "Manufacturer's reference number",
+        "CAPA description",
+        "Root cause (internal codes with explanation, IMDRF terms/codes or free text)",
+        "Effectiveness of the CAPA (if closed)"
+      ],
+      "annex_ii_table_8_format": "Table 8: CAPA initiated in current reporting period and open CAPA. Columns: Type of action, Initiation Date, Scope of the CAPA, Status of the CAPA, Manufacturer Reference number, CAPA description, Root cause, Effectiveness of the CAPA if closed. Note: if CAPA is still open, effectiveness is N/A; if closed, comment on resolved/not resolved or if additional CAPA opened.",
+      "assessment_context": "Notified Bodies verify: (1) all safety-related CAPAs are included, (2) root causes are classified using IMDRF terminology where applicable, (3) effectiveness is documented for closed CAPAs, (4) CAPAs link to specific complaints/incidents from other sections. Open CAPAs without progress milestones raise concerns."
+    },
+
+    "J_scientific_literature_review": {
+      "mdcg_section_ref": "Annex I — Scientific Literature Review (Annex III, Annex XIV Part B, 6.2(a) and (f) MDR)",
+      "regulatory_purpose": "Demonstrate that the manufacturer monitors published scientific and technical literature for relevant safety, performance, and efficacy data about the device and devices with the same intended purpose.",
+      "required_elements": [
+        "For detailed information about literature searches conducted and results generated, the manufacturer may refer to the technical documentation",
+        "Assessment of findings in context of device safety and performance profile",
+        "Comparison with similar devices with same intended purpose"
+      ],
+      "annex_iii_assessment_rule": "The manufacturer should compare performance and safety of the device to other devices with the same intended use. Findings from all datasets should be considered and evaluated by comparing data from various sources and identifying possible conflicting results.",
+      "assessment_context": "Notified Bodies expect: (1) a systematic search strategy, (2) defined databases searched, (3) inclusion/exclusion criteria, (4) findings assessed for relevance to the device, (5) any new safety signals identified from literature. Reference to the CER literature review is acceptable, but PSUR-period-specific findings must be addressed."
+    },
+
+    "K_review_of_external_databases_and_registries": {
+      "mdcg_section_ref": "Annex I — Public Databases and/or Registry Data, Publicly Available Information about Similar Medical Devices, Other Data Sources (Annex III, Annex XIV Part B, 6.2(a) and (f) MDR)",
+      "regulatory_purpose": "Demonstrate active surveillance of external data sources including regulatory databases (MAUDE, BfArM), registries, and publicly available information about similar devices. This provides external validation of the manufacturer's own surveillance data.",
+      "required_elements_databases_registries": [
+        "List of all registries reviewed including name/reference and type (prospective or retrospective data collection)",
+        "List of findings in comparison to devices with same intended use",
+        "Justification for any identified differences",
+        "Information about any new risks identified from this data set"
+      ],
+      "required_elements_similar_devices": [
+        "Additional publicly available information from other manufacturers of similar devices (e.g. SSCP results, PMCF study results, Cochrane Library)",
+        "Type and location of information",
+        "When possible, comparison of devices with same intended purpose, evaluating differences in safety and performance"
+      ],
+      "required_elements_other_sources": [
+        "Other data sources could include real-world data from electronic health records and digital health-monitoring devices",
+        "List of used data sources and findings with specific reference to safety and performance"
+      ],
+      "assessment_context": "Notified Bodies look for: (1) comprehensive database coverage (not just MAUDE), (2) whether identified events in external databases are reflected in the manufacturer's own data, (3) comparison with similar devices, (4) identification of new risks from external sources. Failure to review relevant databases is a significant finding."
+    },
+
+    "L_pmcf": {
+      "mdcg_section_ref": "Annex I — Specific Post-Market Clinical Follow-up (PMCF) Information (Article 86, MDR Annex XIV, Part B, 6.2(b))",
+      "regulatory_purpose": "Summarize findings from specific PMCF activities (studies and other activities) as defined in Annex XIV Part B, 6.2(b). This section is not limited to PMCF studies and should include other specific PMCF activities conducted by the manufacturer.",
+      "required_elements": [
+        "Summary of findings from specific PMCF activities performed by the manufacturer",
+        "Reference to main findings of PMCF and, when available, conclusions in the PMCF Evaluation Report",
+        "Information sufficient for a comprehensive assessment of specific PMCF activities"
+      ],
+      "general_pmcf_context": "The data reported in this section includes other PMS datasets not covered in vigilance/complaint sections, generated by general methods and procedures of PMCF (Annexes III, Annex XIV Part B, 6.2(a) and (f) MDR). Activities should be completed in alignment with PMS and PMCF plans. Safety and performance data should be used for comparison to other similar devices with the same intended purpose.",
+      "assessment_context": "Notified Bodies verify: (1) PMCF activities align with the PMCF plan, (2) findings are assessed against pre-specified endpoints, (3) any impact on the CER or risk management file is documented, (4) PMCF evaluation report conclusions are referenced. For devices without specific PMCF activities, a clear justification tied to the clinical evaluation strategy is expected."
+    },
+
+    "M_findings_and_conclusions": {
+      "mdcg_section_ref": "Annex I — Summary of Findings and Conclusions of the PSUR",
+      "regulatory_purpose": "The culminating section where the manufacturer synthesizes all data into an overall benefit-risk conclusion, addressing data validity, conclusions from analysis, and actions taken. This is the section that determines whether the PSUR passes or triggers regulatory action.",
+      "required_elements_data_validity": [
+        "Identify any limitations to the collected data (reduced sales/usage, known bias from feedback, enrollment bias in PMCF studies)",
+        "Consider whether limitations impact the ability to formulate meaningful conclusions",
+        "Assess whether an impact assessment of the overall benefit-risk profile is still possible"
+      ],
+      "required_elements_conclusions": [
+        "Outline any new or emerging risks identified or common occurrences of poor performance or claimed benefits not achieved within the current reporting period",
+        "For new/emerging risks: consider specific patient groups, device models, accessories used, geographical regions impacted, duration of risk; provide specific information on seriousness and full potential clinical impact",
+        "Describe any new benefits identified from the reporting period",
+        "Formulate evidence-based conclusions to determine whether the benefit-risk profile has changed or not",
+        "Declare whether there has been an adverse impact on the benefit-risk profile or the benefit-risk profile remains unchanged"
+      ],
+      "required_elements_actions": [
+        "Describe specific actions taken to address newly identified or emerging risks and occurrences of poor performance",
+        "Identify all actions initiated during the data collection period as described in Article 83(3)"
+      ],
+      "assessment_context": "Notified Bodies assess: (1) whether the conclusion is supported by the evidence presented in all prior sections, (2) whether data limitations are honestly acknowledged, (3) whether new risks were properly identified and assessed, (4) whether the benefit-risk declaration is substantiated. A conclusion that ignores data from previous sections or fails to address rate exceedances, new incident types, or open CAPAs will be rejected."
+    }
+  },
+
+  "annex_iii_data_assessment_rules": {
+    "title": "General Information Related to the Presentation and Assessment of the Collected Data by the Manufacturer (MDCG 2022-21 Annex III)",
+    "description": "These rules apply to ALL sections of the PSUR. They define how data should be presented and assessed.",
+    "data_presentation_rules": [
+      "Each dataset specified in the PMS Plan should be presented and analysed individually",
+      "A summary providing the used datasets including PMCF data should highlight the limitations related to collected data",
+      "Datasets should be split by Basic UDI-DI or device model if Basic UDI-DI does not exist",
+      "If the group of devices or devices within a Basic UDI-DI have changed, report separately the data with former and later combination",
+      "Data should be split by region when applicable: EEA, TR, XI, and Worldwide (Worldwide includes EEA, TR and XI)",
+      "Each PSUR should contain data from the current data collection period compared with same types of data from previous PSUR periods",
+      "The first PSUR data collection is not retrospective (does not go before MDR DoA) except when no PSUR has been issued for the corresponding MDD-compliant device",
+      "Data should be reported year to year: Class III/IIb = 12-month periods (N, N2, N3, N4); Class IIa = 24-month periods (N, N2)",
+      "Present data using IMDRF Adverse Event Terminology when the content facilitates it",
+      "Use at minimum: Annex A (Medical Device Problem), Annex C (Investigation Findings), Annex D (Investigation Conclusion), Annex F (Health Impact). Level 2 terms are satisfactory; Level 1 when Level 2 not available"
+    ],
+    "data_assessment_rules": [
+      "Findings from all datasets should be considered and evaluated by comparing data from various sources and identifying possible conflicting results",
+      "Assess results considering different patient populations, sizes and models of the device, device combinations or variants",
+      "When applicable, evaluate findings in relation to the state of the art",
+      "Assess data in relation to thresholds concerning known risks and side effects and benefits intended to be gained",
+      "Identify factors that support or refute previously identified safety and performance concerns as well as evidence relating to new safety signals or emerging risks",
+      "The manufacturer may describe any new benefits identified from the reporting period and benefits not achieved as intended",
+      "When applicable, use IMDRF Terminologies for Categorized Adverse Event Reporting in analysis",
+      "If the device is used in combination, identify the role of each device in comparison to other devices or accessories used together",
+      "Performance and safety of the device should be compared to other devices with the same intended use"
+    ]
+  },
+
+  "annex_iv_psur_requirements": {
+    "title": "PSUR Requirements Summary Table (MDCG 2022-21 Annex IV)",
+    "description": "Summary of PSUR frequency, submission, and availability requirements by device class for both MDR-certified and legacy devices.",
+    "mdr_devices": {
+      "class_iii_or_iib_implantable": {
+        "frequency": "Annually (at least)",
+        "eudamed": "Yes — uploaded to EUDAMED",
+        "first_psur": "One year after device certification date (not required at initial certification)",
+        "preparation": "Manufacturer prepares and submits via EUDAMED after end of data collection period",
+        "nb_availability": "Via EUDAMED",
+        "ca_availability": "Via EUDAMED",
+        "in_technical_doc": "Yes — part of technical documentation per Annexes II and III of MDR"
+      },
+      "class_iia_implantable": {
+        "frequency": "Every 2 years",
+        "eudamed": "Yes — uploaded to EUDAMED",
+        "first_psur": "2 years after device certification date",
+        "preparation": "Same as Class III/IIb implantable"
+      },
+      "class_iib_non_implantable": {
+        "frequency": "Annually (at least)",
+        "eudamed": "No",
+        "first_psur": "One year from device certification date",
+        "preparation": "Manufacturer makes available during NB surveillance activities",
+        "nb_availability": "During surveillance activities",
+        "ca_availability": "Upon request"
+      },
+      "class_iia_non_implantable": {
+        "frequency": "Every 2 years",
+        "eudamed": "No",
+        "first_psur": "2 years from device certification date",
+        "preparation": "Same as IIb non-implantable"
+      },
+      "custom_made": {
+        "frequency": "Same as other devices according to MDR risk classification",
+        "first_psur": "One year (class IIb and III) or two years (class IIa) from first Statement of Conformity issuance",
+        "eudamed": "No — not submitted to EUDAMED but available upon request",
+        "note": "May cover entire groups or families (e.g., hips, knees, shoulders, extremities). Grouping justification required."
+      }
+    },
+    "legacy_devices": {
+      "class_iii_or_iib_implantable": {
+        "frequency": "Annually",
+        "eudamed": "No",
+        "first_psur": "During the course of the calendar year following MDR DoA",
+        "preparation": "Made available during NB surveillance activities and upon CA request",
+        "data_collection_start": "26 May 2021, containing one year of data"
+      },
+      "class_iia": {
+        "frequency": "Every 2 years",
+        "first_psur": "During the course of the second calendar year following MDR DoA",
+        "data_collection_start": "26 May 2021, containing two years of data"
+      },
+      "class_iib_non_implantable": {
+        "frequency": "Annually",
+        "first_psur": "Same as legacy Class III/IIb implantable"
+      },
+      "end_of_requirement": "If the last PSUR of MDD or AIMDD device does not cover the lifetime of the device and the device is not certified under MDR, the issuance of the PSUR remains mandatory after the transition period until the end of device lifetime."
+    },
+    "general_rules": {
+      "data_collection_period": "Aligned on the device certification date or in agreed schedule with Notified Body",
+      "end_of_requirement": "PSUR remains mandatory until the end of device lifetime defined in technical documentation has been reached",
+      "no_eudamed_provision": "Until EUDAMED is fully functional, manufacturers should apply respective national provisions per MDCG 2021-1 Rev.1. For Class III/implantable MDR-certified devices, deliver PSURs to NB by appropriate means."
+    }
+  },
+
+  "annex_v_eudamed_web_form": {
+    "title": "PSUR Web Form for Manufacturer (MDCG 2022-21 Annex V)",
+    "description": "Template for administrative data necessary for PSUR registration in EUDAMED. Only applicable to PSURs required in EUDAMED (Class III and implantable devices).",
+    "required_fields": {
+      "manufacturer_info": "SRN, organisation name, contact details, address",
+      "authorized_rep_info": "SRN, organisation name, contact details, address (when applicable)",
+      "competent_authority": "NCA name and EUDAMED number",
+      "notified_body": "Organisation name, number, and email",
+      "device_info": "Leading device Basic UDI-DI, other Basic UDI-DI(s)/Eudamed DI(s), NB number and Certificate ID(s) per Basic UDI-DI",
+      "submission_info": "Date of submission, scheduled date, timeliness (days), PSUR reference number, data collection period (start-end), version number",
+      "document_upload": "PSUR document in PDF format"
+    },
+    "notes": [
+      "Certain fields are automatically populated by EUDAMED (NB, Manufacturer, SRN)",
+      "The PSUR reference number should remain the same for all updates",
+      "When grouping devices, the manufacturer captures all Basic UDI-DIs via the web interface",
+      "For PSURs not required in EUDAMED, the Web Form is not applicable — use PSUR cover page per Annex I instead"
+    ]
+  },
+
+  "device_grouping_rules": {
+    "source": "MDCG 2022-21 Section 4",
+    "general_rules": [
+      "A PSUR should be drawn up per device (one Basic UDI-DI or one legacy device). Every device may include different variants or sizes.",
+      "Multiple Basic UDI-DIs (or device families) may be covered in one PSUR if the manufacturer demonstrates the relevance of the grouping.",
+      "When a PSUR includes several Basic UDI-DIs, data must be presented clearly so each device's performance can be determined independently.",
+      "The manufacturer should assign a leading device which drives the PSUR schedule.",
+      "The leading device corresponds to the highest risk class device; if equal risk, the manufacturer assigns one.",
+      "The PSUR reference number is attached to the leading device and should remain unchanged."
+    ],
+    "eudamed_specific": [
+      "All grouped devices must have the same Notified Body.",
+      "It is not possible to group MDR certified and legacy devices in the same PSUR when uploaded to EUDAMED.",
+      "The leading device within the grouped devices must be an MDR certified device.",
+      "EUDAMED-submitted PSURs should group devices per the Notified Body's certificate scope."
+    ]
+  },
+
+  "data_collection_period_rules": {
+    "source": "MDCG 2022-21 Section 5.1",
+    "rules": [
+      "The data collection period is the period during which PMS data are collected.",
+      "Data collection period is prospective starting from MDR Date of Application (26 May 2021) or device certification date, whichever is later.",
+      "The first PSUR data collection is NOT retrospective (does not go before MDR DoA) EXCEPT when no PSUR has been issued for a corresponding MDD-compliant device — then historical data from before MDR DoA is recommended.",
+      "For legacy devices becoming MDR certified: if an initial PSUR was issued for the legacy device, the next PSUR should cover the period from the end of the previous PSUR data collection period to the new data collection period aligned on the MDR certification date.",
+      "The manufacturer should not submit the PSUR in EUDAMED but make PSURs available upon request to Competent Authorities and the Notified Body (until EUDAMED is fully functional)."
+    ]
+  }
+}

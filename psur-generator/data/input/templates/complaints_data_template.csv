@@ -1,0 +1,11 @@
+date,complaint_number,description,imdrf_code,harm,serious,region
+2025-01-10,COMP-2025-0001,Device broke during normal use; no patient contact at time of failure,Device breakage or deterioration,No Harm,No,EMEA
+2025-01-18,COMP-2025-0002,Difficulty inserting device; procedure completed without adverse outcome,Difficulty using the device,No Harm,No,North America
+2025-02-03,COMP-2025-0003,Packaging seal found open on arrival; device discarded and replaced,Packaging problem,No Harm,No,EMEA
+2025-02-14,COMP-2025-0004,Device tip bent during procedure; minor tissue irritation observed,Device breakage or deterioration,Minor Injury,Yes,North America
+2025-03-01,COMP-2025-0005,Labeling error on outer carton; correct product inside,Labeling problem,No Harm,No,EMEA
+2025-03-22,COMP-2025-0006,Device slipped from holder during use; procedure delayed but completed,Difficulty using the device,No Harm,No,Asia Pacific
+2025-04-05,COMP-2025-0007,Sterility indicator did not change color; batch quarantined and investigated,Packaging problem,No Harm,No,EMEA
+2025-04-19,COMP-2025-0008,Component separation during use; no patient harm reported,Device breakage or deterioration,No Harm,No,North America
+2025-05-10,COMP-2025-0009,Shipping damage to outer packaging; product integrity unaffected after inspection,Packaging problem,No Harm,No,EMEA
+2025-05-28,COMP-2025-0010,Device malfunction requiring procedure restart; patient experienced brief discomfort,Failure to function at intended time,Minor Injury,Yes,North America

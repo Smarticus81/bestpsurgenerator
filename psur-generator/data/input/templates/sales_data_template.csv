@@ -1,0 +1,16 @@
+date,year,month,quantity,region,country,product
+2025-01-15,2025,January,120,EMEA,Germany,Product-A SKU-001
+2025-01-20,2025,January,85,EMEA,France,Product-A SKU-001
+2025-01-22,2025,January,200,North America,United States,Product-A SKU-002
+2025-01-25,2025,January,45,EMEA,United Kingdom,Product-A SKU-001
+2025-01-28,2025,January,30,Asia Pacific,Japan,Product-A SKU-003
+2025-02-05,2025,February,110,EMEA,Germany,Product-A SKU-001
+2025-02-10,2025,February,95,EMEA,Italy,Product-A SKU-001
+2025-02-12,2025,February,180,North America,United States,Product-A SKU-002
+2025-02-15,2025,February,60,North America,Canada,Product-A SKU-002
+2025-02-20,2025,February,25,Asia Pacific,Australia,Product-A SKU-003
+2025-03-01,2025,March,130,EMEA,Germany,Product-A SKU-001
+2025-03-05,2025,March,70,EMEA,Spain,Product-A SKU-001
+2025-03-10,2025,March,210,North America,United States,Product-A SKU-002
+2025-03-15,2025,March,55,EMEA,Netherlands,Product-A SKU-001
+2025-03-20,2025,March,35,Asia Pacific,South Korea,Product-A SKU-003

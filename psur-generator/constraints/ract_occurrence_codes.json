@@ -1,0 +1,50 @@
+{
+  "_description": "Standard RACT Occurrence Codes (O1-O5) per IMDRF/ISO 14971 risk management. Used to classify complaint rates into occurrence probability categories.",
+  "occurrence_codes": [
+    {
+      "code": "O1",
+      "label": "Improbable",
+      "description": "So unlikely that it can be assumed occurrence may not be experienced",
+      "rate_range_min": 0.0,
+      "rate_range_max": 0.0001,
+      "rate_range_max_pct": 0.01,
+      "max_expected_rate": 0.0001
+    },
+    {
+      "code": "O2",
+      "label": "Remote",
+      "description": "Unlikely but possible to occur",
+      "rate_range_min": 0.0001,
+      "rate_range_max": 0.001,
+      "rate_range_max_pct": 0.10,
+      "max_expected_rate": 0.001
+    },
+    {
+      "code": "O3",
+      "label": "Occasional",
+      "description": "Likely to occur sometime",
+      "rate_range_min": 0.001,
+      "rate_range_max": 0.01,
+      "rate_range_max_pct": 1.0,
+      "max_expected_rate": 0.01
+    },
+    {
+      "code": "O4",
+      "label": "Probable",
+      "description": "Will occur several times",
+      "rate_range_min": 0.01,
+      "rate_range_max": 0.10,
+      "rate_range_max_pct": 10.0,
+      "max_expected_rate": 0.10
+    },
+    {
+      "code": "O5",
+      "label": "Frequent",
+      "description": "Will occur frequently",
+      "rate_range_min": 0.10,
+      "rate_range_max": 1.0,
+      "rate_range_max_pct": 100.0,
+      "max_expected_rate": 1.0
+    }
+  ]
+}
