@@ -282,44 +282,88 @@ NEVER invent a document number."""
 # =====================================================================
 
 _UK_MDR_REQUIREMENTS = """\
-## UK MDR REGULATORY REQUIREMENTS
+## UK MDR REGULATORY REQUIREMENTS (Part 4A, SI 2024/1368)
 
 The device is placed on the Great Britain market. The UK Medical Devices \
 (Post-market Surveillance Requirements) (Amendment) (Great Britain) Regulations 2024 \
-(UK MDR) apply IN ADDITION to EU MDR requirements.
+(UK MDR Part 4A, Regs 44ZC-44ZR) apply IN ADDITION to EU MDR requirements.
 
-### PSUR Content (Reg 44ZM(3))
-The PSUR must include:
+### PMS System & Plan (Regs 44ZE-44ZF)
+- Manufacturer must maintain a PMS system proportionate to risk and appropriate \
+to device type, including ongoing data analysis throughout the device lifetime
+- PMS plan must specify device lifetime, include processes for collecting/assessing \
+incidents, complaints, feedback, and trend data
+- PMS plan must define statistical methodology and threshold values for risk \
+reassessment (used in trend reporting under Reg 44ZN)
+- PMS plan and reports must be available to Secretary of State within 3 working days
+
+### Preventive and Corrective Actions (Reg 44ZG)
+- When a risk is identified or non-conformity suspected, manufacturer must take \
+necessary preventive or corrective action as soon as possible
+- Must notify the UK Responsible Person, approved body, and Secretary of State \
+(for FSCAs)
+
+### PSUR/PMSR Content (Regs 44ZL-44ZM)
+For Class I / IVD Class A-B devices, a PMSR (Reg 44ZL) is required instead:
+- Summary of PMS results and conclusions, plus preventive/corrective actions
+- Produced within 3 years; updated every 3 years
+
+For all other classes, the PSUR (Reg 44ZM) must include:
 - Number of devices placed on the UK market (from pre-computed UK row in Table 1)
-- Estimated number of devices put into service in the UK
-- Estimate of the size and other characteristics of the UK user population
-- Estimate of the size and other characteristics of the population outside the UK
-- Usage frequency estimate where practicable
+- Number of devices put into service in the UK without being placed on the market
+- Description of characteristics of the population using the device
+- Estimate of population size using the device in UK and outside UK
+- Estimate of usage frequency where practicable
+- Required risk analysis and conclusions of any post-market clinical follow-up
+- Cadence: annual for Class IIb/III/implantable; biennial for Class IIa
+- Must be submitted to approved body; for Class III/implantable, approved body \
+must review and issue report to manufacturer and UK RP
 
-### UK Serious Incident Reporting (Reg 44ZH)
+### UK Serious Incident Reporting (Regs 44ZH-44ZI)
 - Serious incidents must be reported to the Secretary of State (via MHRA)
 - General serious incidents: within 15 days of awareness
 - Death or unanticipated serious deterioration: within 10 days
 - Serious public health threat: within 2 days
-- If serious incidents from the UK are present, note MHRA reporting compliance
+- Report must include: manufacturer/UK RP details, device description with UDIs, \
+incident description, preliminary conclusions, FSCA consideration
+- Manufacturer must investigate and submit final report with methods/conclusions, \
+FSCA details, and details of similar incidents involving the same device model
+- Must not alter device/batch before informing Secretary of State
+- Periodic summary reports may replace individual reports (by agreement) for \
+similar serious incidents involving the same device model
 
-### UK Field Safety Corrective Actions (Reg 44ZJ-44ZK)
-- FSCAs must be reported to the Secretary of State with risk assessment
-- FSCAs taken outside GB must also be reported if the same device model is on the GB market
-- FSCAs require an initial report, risk assessment, and field safety notice
+### UK Field Safety Corrective Actions (Regs 44ZJ-44ZK)
+- Before taking FSCA: produce risk assessment, submit initial report and \
+proposed field safety notice (FSN) to Secretary of State
+- FSN must: identify devices with UDIs in searchable format, explain reasons \
+for FSCA with reference to risks, describe actions to be taken by users
+- After FSCA: submit final report with outcome and evidence of effectiveness
+- Urgent FSCAs: may submit report after taking action
+- FSCAs outside GB (Reg 44ZK): must report if same device model is on GB market \
+and same FSCA is not being taken in GB, with justification
 
 ### UK Trend Reporting (Reg 44ZN)
-- Significant increases in frequency or severity of incidents must be reported to MHRA
+- Must report significant increases in frequency or severity of incidents \
+that could adversely impact the required risk analysis
+- Significance determined by PMS plan statistical methodology
+- For IVD devices: also report significant increases in expected erroneous results
+- Must investigate trend and submit final report with conclusions and actions
 - Trend assessment must cover UK-specific data when available
 
-### Documentation (Reg 44ZQ)
-- Retain all PMS documentation for the PMS period, or:
-  - 15 years for implantable devices
-  - 10 years for all other devices
+### Documentation Retention (Reg 44ZQ)
+- Retain all PMS documentation for the longer of:
+  - PMS period for the device model, OR
+  - 15 years for implantable devices / 10 years for all other devices
+- Both manufacturer and UK Responsible Person must retain documentation
+
+### Documentation Requests (Reg 44ZR)
+- Must provide documentation to Secretary of State within 3 working days
+- Secretary of State may extend timeline if considered reasonable
 
 ### UK Responsible Person
 - The UK Responsible Person is responsible for ensuring UK MDR compliance \
 on behalf of the manufacturer for devices placed on the GB market.
+- UK RP name and contact details must appear in incident reports and FSCA reports.
 
 INTEGRATION GUIDANCE: Where this PSUR addresses topics covered by UK MDR \
 requirements, include UK-specific data and analysis alongside (not replacing) \

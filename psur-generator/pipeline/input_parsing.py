@@ -19,6 +19,11 @@ from parsers.cer_extractor import extract_cer_data
 from parsers.universal import parse_file, parse_any_to_text
 from parsers.previous_psur import parse_previous_psur
 from parsers.ract import parse_ract
+from parsers.sqlite_db import (
+    parse_complaints_from_db,
+    parse_sales_from_db,
+    resolve_td_id_for_device,
+)
 from imdrf_coder import auto_code_complaints, strip_imdrf_code, _is_valid_imdrf_code
 
 logger = logging.getLogger(__name__)
@@ -110,6 +115,8 @@ def parse_all_inputs(
     confirm_cb: Optional[Callable] = None,
     skip_cer: bool = False,
     unified_workbook_path: Optional[Path] = None,
+    db_path: Optional[Path] = None,
+    db_td_id: Optional[str] = None,
 ) -> Dict[str, Any]:
     """Parse all input files and return (parsed_data, expanded_context, previous_stats).
 
@@ -147,7 +154,70 @@ def parse_all_inputs(
 
     # ── Core inputs ─────────────────────────────────────────────────
 
-    if sales_path:
+    # SQLite DB takes priority over CSV/Excel files for sales + complaints.
+    _db_path = Path(db_path) if db_path else None
+    _use_db = bool(_db_path and _db_path.exists())
+    _resolved_td_id: Optional[str] = db_td_id
+
+    if _use_db:
+        if not _resolved_td_id and device_name:
+            try:
+                _resolved_td_id = resolve_td_id_for_device(_db_path, device_name)
+            except Exception as e:
+                console.print(f"  [yellow]td_id auto-resolution failed: {e}[/yellow]")
+        td_label = f" td_id={_resolved_td_id}" if _resolved_td_id else " (all td_id)"
+        console.print(f"  [cyan]SQLite source:[/cyan] {_db_path.name}{td_label}")
+
+    if _use_db:
+        try:
+            parsed_data["sales"] = parse_sales_from_db(
+                _db_path, start_date, end_date, td_id=_resolved_td_id
+            )
+            console.print(f"  Sales (DB): {parsed_data['sales']['total_units']:,} units "
+                          f"({parsed_data['sales']['rows_processed']} rows)")
+        except Exception as e:
+            console.print(f"  [red]Sales DB read failed: {e}[/red]")
+            parsed_data["sales"] = {"total_units": 0, "by_month": {}, "by_region": {}, "by_product": {}}
+
+        # ── Pull up to 3 prior 12-month windows for Section C trend columns ──
+        # The FormQAR-054 sales table has 3 "Preceding 12-Month" columns. The
+        # DB lets us fill them deterministically without asking the LLM.
+        try:
+            from datetime import datetime, timedelta
+            _fmt = "%Y-%m-%d"
+            _cur_start = datetime.strptime(start_date, _fmt)
+            _cur_end = datetime.strptime(end_date, _fmt)
+            historical_periods = []
+            for offset in (1, 2, 3):
+                # Each prior window is the same length, shifted back by offset windows
+                window = _cur_end - _cur_start
+                p_end = _cur_start - timedelta(days=1) - (window * (offset - 1))
+                p_start = p_end - window
+                p_start_s = p_start.strftime(_fmt)
+                p_end_s = p_end.strftime(_fmt)
+                try:
+                    h = parse_sales_from_db(_db_path, p_start_s, p_end_s, td_id=_resolved_td_id)
+                    historical_periods.append({
+                        "label": f"P-{offset} ({p_start_s} → {p_end_s})",
+                        "start": p_start_s,
+                        "end": p_end_s,
+                        "total_units": h.get("total_units", 0),
+                        "by_country": h.get("by_country", {}),
+                        "by_region": h.get("by_region", {}),
+                        "units_unknown_country": h.get("units_unknown_country", 0),
+                    })
+                except Exception:
+                    historical_periods.append({
+                        "label": f"P-{offset}", "start": p_start_s, "end": p_end_s,
+                        "total_units": 0, "by_country": {}, "by_region": {},
+                        "units_unknown_country": 0,
+                    })
+            parsed_data["sales"]["historical_periods"] = historical_periods
+            _ws = ", ".join(f"{p['total_units']:,}" for p in historical_periods)
+            console.print(f"  [dim]Historical 12-mo windows: {_ws}[/dim]")
+        except Exception as e:
+            console.print(f"  [yellow]Historical sales pull skipped: {e}[/yellow]")
+    elif sales_path:
         console.print(f"  Sales: {sales_path.name}")
         parsed_data["sales"] = parse_sales(sales_path, start_date, end_date, user_confirm_callback=confirm_cb)
         console.print(f"    -> {parsed_data['sales']['total_units']:,} units")
@@ -163,7 +233,22 @@ def parse_all_inputs(
         console.print("  [yellow]No sales file — using empty data[/yellow]")
         parsed_data["sales"] = {"total_units": 0, "by_month": {}, "by_region": {}, "by_product": {}}
 
-    if complaints_path:
+    if _use_db:
+        try:
+            parsed_data["complaints"] = parse_complaints_from_db(
+                _db_path, start_date, end_date, td_id=_resolved_td_id
+            )
+            console.print(f"  Complaints (DB): {parsed_data['complaints']['total_complaints']} complaints "
+                          f"({parsed_data['complaints']['serious_incident_count']} serious)")
+        except Exception as e:
+            console.print(f"  [red]Complaints DB read failed: {e}[/red]")
+            parsed_data["complaints"] = {
+                "total_complaints": 0, "by_month": {}, "by_imdrf_code": {},
+                "by_harm_category": {}, "by_region": {}, "serious_incidents": [],
+                "harm_by_imdrf": {}, "serious_by_region_imdrf": {},
+                "complaint_number_format": "", "complaint_summaries": []
+            }
+    elif complaints_path:
         console.print(f"  Complaints: {complaints_path.name}")
         parsed_data["complaints"] = parse_complaints(complaints_path, start_date, end_date, user_confirm_callback=confirm_cb)
         console.print(f"    -> {parsed_data['complaints']['total_complaints']} complaints")
@@ -249,6 +334,57 @@ def parse_all_inputs(
             text = parse_any_to_text(filepath, purpose=purpose)
             expanded_context[label.lower().replace(" ", "_")] = text
             parsed_data[label.lower().replace(" ", "_")] = text
+
+    # ── CER fallbacks for IFU / PMCF / Literature ───────────────────
+    # The CER extractor already pulls these subsections; use them when
+    # dedicated files are not supplied. This avoids forcing users to
+    # provide separate IFU/PMCF/literature documents if the CER already
+    # contains that content.
+    cer_info = parsed_data.get("cer") or {}
+
+    if "ifu" not in expanded_context:
+        ifu_info = cer_info.get("ifu_info") or {}
+        ifu_parts = []
+        if ifu_info.get("ifu_summary"):
+            ifu_parts.append(f"Summary:\n{ifu_info['ifu_summary']}")
+        if ifu_info.get("use_instructions"):
+            ifu_parts.append("Use Instructions:\n- " + "\n- ".join(ifu_info["use_instructions"]))
+        for k in ("cleaning_reprocessing", "storage_handling", "training_requirements"):
+            if ifu_info.get(k):
+                ifu_parts.append(f"{k.replace('_', ' ').title()}:\n{ifu_info[k]}")
+        if ifu_parts:
+            expanded_context["ifu"] = "\n\n".join(ifu_parts)
+            parsed_data["ifu"] = expanded_context["ifu"]
+            parsed_data["ifu_source"] = "cer"
+            console.print("  [dim]IFU: derived from CER (no dedicated IFU file)[/dim]")
+
+    if "pmcf" not in expanded_context:
+        se = cer_info.get("safety_efficacy_detail") or {}
+        pmcf_parts = []
+        if se.get("pmcf_requirements"):
+            pmcf_parts.append(f"PMCF Requirements:\n{se['pmcf_requirements']}")
+        if se.get("pmcf_planned_activities"):
+            pmcf_parts.append("Planned Activities:\n- " + "\n- ".join(se["pmcf_planned_activities"]))
+        # Fallback to the flat-dict key populated by to_flat_dict()
+        if not pmcf_parts and cer_info.get("pmcf_information"):
+            pmcf_parts.append(f"PMCF (from CER):\n{cer_info['pmcf_information']}")
+        if pmcf_parts:
+            expanded_context["pmcf"] = "\n\n".join(pmcf_parts)
+            parsed_data["pmcf"] = expanded_context["pmcf"]
+            parsed_data["pmcf_source"] = "cer"
+            console.print("  [dim]PMCF: derived from CER (no dedicated PMCF file)[/dim]")
+
+    # Literature review — never supplied as a separate file today, but
+    # downstream agents look for "literature_review" context. Populate
+    # it from the CER whenever possible.
+    if "literature_review" not in expanded_context:
+        lit = (cer_info.get("safety_efficacy_detail") or {}).get("literature_review_summary") \
+              or cer_info.get("literature_review")
+        if lit:
+            expanded_context["literature_review"] = lit
+            parsed_data["literature_review"] = lit
+            parsed_data["literature_review_source"] = "cer"
+            console.print("  [dim]Literature review: derived from CER[/dim]")
 
     # PMS Plan — structured LLM-driven extraction
     if pms_plan_path and pms_plan_path.exists():

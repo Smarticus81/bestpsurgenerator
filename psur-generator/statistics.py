@@ -164,6 +164,9 @@ class PSURStatistics:
     has_previous_period_data: bool = False
     complaint_number_format: str = ""  # e.g. "CMP-2024-0001"
 
+    # Headers for the 3 "Preceding 12-Month" columns in Section C Table 1
+    section_c_period_labels: List[str] = field(default_factory=list)
+
 
 def calculate_rate(complaints: int, denominator: int) -> float:
     """Raw complaint rate (complaints / denominator)."""
@@ -411,6 +414,30 @@ def compute_psur_statistics(
             table7_rows.append(row)
     table7_rows.sort(key=lambda x: -x["complaint_count"])
 
+    # ── Reconcile Table 7 with total_complaints ───────────────────
+    # Some complaints may lack IMDRF coding (auto-coding can fail or be
+    # skipped); they exist in total_complaints but not in by_imdrf_code.
+    # Add an explicit "Uncoded" bucket so the displayed Grand Total matches
+    # total_complaints exactly. Without this, auditors see a mismatch.
+    coded_total = sum(r["complaint_count"] for r in table7_rows)
+    uncoded = max(0, total_complaints - coded_total)
+    if uncoded > 0:
+        u_rate = round(calculate_rate(uncoded, total_units), 8)
+        u_pct = round(calculate_rate(uncoded, total_units) * 100, 4)
+        uncoded_row = {
+            "harm": "No Harm",
+            "medical_device_problem": "Uncoded / Other",
+            "complaint_count": uncoded,
+            "complaint_rate": u_rate,
+            "complaint_percentage": u_pct,
+            "ract_max_expected_rate": None,
+            "rate_vs_ract": "NO_RACT_DATA",
+            "ract_ratio": None,
+        }
+        oc = classify_occurrence_code(u_rate)
+        uncoded_row.update(oc)
+        table7_rows.append(uncoded_row)
+
     # ── Link RACT max expected rates to Table 7 rows ──
     ract_max_rates = {}
     if ract_data and isinstance(ract_data, dict):
@@ -536,17 +563,123 @@ def compute_psur_statistics(
     # EEA+TR+XI includes Turkey and Northern Ireland (XI = NI protocol)
     xi_units = units_by_country.get("Northern Ireland", 0)
     eea_tr_xi_units = eea_units + xi_units  # Turkey already in EEA_COUNTRIES list
-    rest_of_world_units = total_units - eea_tr_xi_units - uk_units
+
+    # Per-country buckets matching the FormQAR-054 template's fixed region slots.
+    # Country names in the DB may use ISO codes or variants; we accept several
+    # common spellings so totals reconcile to Worldwide.
+    _COUNTRY_ALIASES = {
+        "Australia": ["Australia", "AU", "AUS"],
+        "Brazil": ["Brazil", "BR", "BRA", "Brasil"],
+        "Canada": ["Canada", "CA", "CAN"],
+        "China": ["China", "CN", "CHN", "People's Republic of China", "PRC"],
+        "Japan": ["Japan", "JP", "JPN"],
+        "United States": [
+            "United States", "USA", "US", "U.S.", "U.S.A.",
+            "United States of America",
+        ],
+    }
+
+    def _sum_country_aliases(aliases: list) -> int:
+        return sum(int(units_by_country.get(a, 0) or 0) for a in aliases)
+
+    named_country_buckets: Dict[str, int] = {}
+    accounted_country_units = 0
+    for label, aliases in _COUNTRY_ALIASES.items():
+        u = _sum_country_aliases(aliases)
+        named_country_buckets[label] = u
+        accounted_country_units += u
+
+    # Rest of World = everything not in EEA+TR+XI, UK, named country buckets,
+    # or unattributed (unknown country). Unknown units are surfaced as their
+    # own audit-visible row instead of being silently folded into RoW.
+    units_unknown_country = int(sales_data.get("units_unknown_country", 0) or 0)
+    rest_of_world_units = max(
+        0,
+        total_units
+        - eea_tr_xi_units
+        - uk_units
+        - accounted_country_units
+        - units_unknown_country,
+    )
+
     section_c_region_rows = [
         {"region": "EEA+TR+XI", "units": eea_tr_xi_units},
+        {"region": "Australia", "units": named_country_buckets["Australia"]},
+        {"region": "Brazil", "units": named_country_buckets["Brazil"]},
+        {"region": "Canada", "units": named_country_buckets["Canada"]},
+        {"region": "China", "units": named_country_buckets["China"]},
+        {"region": "Japan", "units": named_country_buckets["Japan"]},
     ]
-    # Insert UK as its own row when UK sales exist (UK MDR requires separate reporting)
-    if uk_market_detected:
+    if uk_market_detected or uk_units > 0:
         section_c_region_rows.append({"region": "UK", "units": uk_units})
-    section_c_region_rows.extend([
-        {"region": "Rest of World", "units": rest_of_world_units},
-        {"region": "Worldwide", "units": total_units},
-    ])
+    section_c_region_rows.append(
+        {"region": "United States", "units": named_country_buckets["United States"]}
+    )
+    section_c_region_rows.append(
+        {"region": "Rest of World", "units": rest_of_world_units}
+    )
+    if units_unknown_country > 0:
+        section_c_region_rows.append(
+            {"region": "Unknown / Unattributed", "units": units_unknown_country}
+        )
+    section_c_region_rows.append(
+        {"region": "Worldwide", "units": total_units}
+    )
+
+    # ── Attach historical 12-month totals to each region row ──
+    # Renderer fills the 3 "Preceding 12-Month" columns from these.
+    historical_periods = sales_data.get("historical_periods", []) or []
+
+    def _bucketize_period(period_by_country: Dict[str, int],
+                          period_total: int,
+                          period_unknown: int) -> Dict[str, int]:
+        """Return units per template region label for one historical window."""
+        eea_xi = sum(int(period_by_country.get(c, 0) or 0) for c in EEA_COUNTRIES)
+        eea_xi += int(period_by_country.get("Northern Ireland", 0) or 0)
+        uk = sum(int(period_by_country.get(c, 0) or 0) for c in UK_GB_NAMES)
+        named = {
+            label: sum(int(period_by_country.get(a, 0) or 0) for a in aliases)
+            for label, aliases in _COUNTRY_ALIASES.items()
+        }
+        accounted = eea_xi + uk + sum(named.values()) + int(period_unknown or 0)
+        row = {
+            "EEA+TR+XI": eea_xi,
+            "Australia": named.get("Australia", 0),
+            "Brazil": named.get("Brazil", 0),
+            "Canada": named.get("Canada", 0),
+            "China": named.get("China", 0),
+            "Japan": named.get("Japan", 0),
+            "UK": uk,
+            "United States": named.get("United States", 0),
+            "Rest of World": max(0, int(period_total or 0) - accounted),
+            "Unknown / Unattributed": int(period_unknown or 0),
+            "Worldwide": int(period_total or 0),
+        }
+        return row
+
+    period_buckets = []  # list of dicts keyed by region label, ordered P-1, P-2, P-3
+    period_labels = []
+    for period in historical_periods[:3]:
+        period_buckets.append(_bucketize_period(
+            period.get("by_country", {}) or {},
+            period.get("total_units", 0) or 0,
+            period.get("units_unknown_country", 0) or 0,
+        ))
+        period_labels.append(period.get("label", ""))
+
+    # Pad to exactly 3 slots so the renderer always sees the same shape
+    while len(period_buckets) < 3:
+        period_buckets.append({})
+        period_labels.append("")
+
+    for row in section_c_region_rows:
+        region_label = row.get("region", "")
+        row["units_p1"] = period_buckets[0].get(region_label, 0) if period_buckets[0] else None
+        row["units_p2"] = period_buckets[1].get(region_label, 0) if period_buckets[1] else None
+        row["units_p3"] = period_buckets[2].get(region_label, 0) if period_buckets[2] else None
+
+    # Surface period labels for use in Table 1 column headers
+    section_c_period_labels = period_labels
 
     # ── Per-region complaint rates (for Table 2 / Section D) ──
     complaints_by_region = complaints_data.get("by_region", {})
@@ -610,6 +743,7 @@ def compute_psur_statistics(
         uk_complaints=uk_complaints_total,
         uk_market_detected=uk_market_detected,
         section_c_region_rows=section_c_region_rows,
+        section_c_period_labels=section_c_period_labels,
         serious_incident_count=serious_count,
         serious_incidents_by_imdrf=serious_by_imdrf,
         overall_complaint_rate=round(overall_rate, 8),

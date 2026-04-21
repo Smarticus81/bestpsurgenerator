@@ -428,5 +428,185 @@
       "For legacy devices becoming MDR certified: if an initial PSUR was issued for the legacy device, the next PSUR should cover the period from the end of the previous PSUR data collection period to the new data collection period aligned on the MDR certification date.",
       "The manufacturer should not submit the PSUR in EUDAMED but make PSURs available upon request to Competent Authorities and the Notified Body (until EUDAMED is fully functional)."
     ]
+  },
+
+  "uk_mdr_2024_part_4a": {
+    "title": "UK MDR 2024 Part 4A — Post-market Surveillance Requirements",
+    "source": "The Medical Devices (Post-market Surveillance Requirements) (Amendment) (Great Britain) Regulations 2024 (SI 2024/1368)",
+    "scope": "Applies to relevant devices placed on the market or put into service in Great Britain on or after the regulations come into force. Does not apply to devices intended for clinical investigation/performance evaluation or devices authorised under Reg 12(5), 26(3), or 39(2). Custom-made devices have reduced requirements.",
+
+    "key_definitions": {
+      "corrective_action": "Action to eliminate cause of non-conformity or reduce risk posed by a device already manufactured — includes recall, withdrawal, taking out of service.",
+      "field_safety_corrective_action": "Corrective action by manufacturer to prevent or reduce risk of a serious incident for a device already placed on market or put into service.",
+      "incident": "Malfunction/deterioration in characteristics/performance, negative health impact, inadequacy in design or information, or erroneous diagnostic result.",
+      "serious_incident": "Incident that directly or indirectly led, might have led or might lead to: death, serious deterioration of health, or serious public health threat.",
+      "serious_deterioration": "Life-threatening illness/injury, permanent impairment, hospitalisation/prolongation, medical treatment to prevent life-threatening illness/permanent impairment, chronic disease, foetal distress/death/congenital impairment.",
+      "serious_public_health_threat": "Event that could result in risk of death/serious illness/serious deterioration, affects a significant population, and requires prompt remedial action.",
+      "lifetime_of_device": "Shelf life (if any) plus the period the manufacturer expects the device to perform as intended.",
+      "pms_period": "From first device of model put into service/placed on market to end of lifetime of last device of that model.",
+      "post_market_surveillance": "Activities by manufacturers to proactively collect and review experience from devices placed on market or put into service, to identify need for corrective or preventive actions.",
+      "preventive_action": "Action by manufacturer before completion of manufacturing to eliminate cause of potential non-conformity or reduce potential risk.",
+      "similar_device": "Device with same or similar intended purpose, based on same or similar technology."
+    },
+
+    "pms_system_requirements_44ZE": {
+      "obligation": "Manufacturer must maintain a PMS system for each device placed on market or put into service.",
+      "system_properties": [
+        "Proportionate to risk posed by the device",
+        "Appropriate to the type of device",
+        "Includes analysis of data relevant to quality, performance and safety throughout device lifetime, with recorded conclusions"
+      ],
+      "system_purposes": [
+        "Identify preventive and corrective actions, including FSCAs",
+        "Identify trends in incidents, including those requiring trend reporting under Reg 44ZN",
+        "Identify options to improve usability, performance and safety",
+        "Identify impact on post-market surveillance of other devices"
+      ],
+      "data_usage": "Data from PMS system must update: instructions for use and labelling, design and manufacturing information, risk analysis, clinical/performance evaluation data, and other technical documentation."
+    },
+
+    "pms_plan_requirements_44ZF": {
+      "properties": "Must be clear, organised, searchable, and maintained for the PMS period of the device model.",
+      "required_contents": [
+        "Specification of device lifetime",
+        "Processes for collection/assessment of: serious incidents, other incidents, side-effects, FSCAs, trend data, user/supplier feedback, user experience information including patient engagement, other relevant PMS information including similar devices",
+        "Suitable indicators and threshold values for risk analysis reassessment",
+        "Effective and appropriate processes to investigate complaints and analyse feedback",
+        "Processes to manage incidents and trends including statistical methodology for determining significant increases",
+        "For IVDs: statistical methodology for determining significant increases in expected erroneous results",
+        "Process for communicating with Secretary of State, approved body, UK RP, users and suppliers",
+        "Processes for compliance with Part 4A obligations",
+        "Plan for post-market clinical follow-up (Parts 2 or 3 devices)",
+        "The PMSR or PSUR and any approved body reports"
+      ],
+      "data_requirements": "Information collected must enable accurate characterisation of device performance and comparison with similar devices on the market.",
+      "availability": "PMS plan must be provided to Secretary of State within 3 working days of request."
+    },
+
+    "serious_incident_reporting_44ZH_44ZI": {
+      "initial_report_timelines": {
+        "default": "No later than 15 days after manufacturer becomes aware",
+        "public_health_threat": "No later than 2 days after manufacturer becomes aware of the threat",
+        "death_or_unanticipated_serious_deterioration": "No later than 10 days after manufacturer becomes aware"
+      },
+      "initial_report_contents": [
+        "Manufacturer name and contact details",
+        "UK Responsible Person name and contact details",
+        "Details of initial reporter",
+        "Device description including current location and UDIs",
+        "Description of the serious incident",
+        "Preliminary conclusions on cause",
+        "Consideration of whether FSCA required",
+        "Details of any preventive or corrective action taken"
+      ],
+      "periodic_summary_option": "If same device model involved in similar serious incidents and manufacturer has identified cause or implemented FSCA, may agree with Secretary of State to submit periodic summary reports.",
+      "investigation_requirements": [
+        "Investigate the serious incident and devices concerned ASAP",
+        "Review risk analysis taking into account the incident and proposed actions",
+        "Submit final report with: investigation methods/conclusions, FSCA consideration, FSCA details, details of similar incidents",
+        "Must cooperate with Secretary of State",
+        "Provide updates within 3 working days of request",
+        "Must not alter device or batch sample before informing Secretary of State"
+      ]
+    },
+
+    "fsca_requirements_44ZJ_44ZK": {
+      "pre_fsca_requirements": [
+        "Produce risk assessment of proposed FSCA",
+        "Submit initial report and proposed field safety notice to Secretary of State"
+      ],
+      "initial_report_contents": [
+        "Manufacturer name and contact details",
+        "UK RP name and contact details",
+        "Device descriptions including UDIs",
+        "Description of FSCA and proposed implementation",
+        "Reason for FSCA with risk assessment justification",
+        "Number of devices on GB market and estimated affected users"
+      ],
+      "urgent_fsca": "May submit initial report and FSN after taking FSCA if manufacturer believes action needs to be taken urgently.",
+      "field_safety_notice_requirements": [
+        "Identify devices involved with UDIs in searchable format",
+        "Explain reasons for FSCA with reference to risks",
+        "Describe all actions to be taken by users"
+      ],
+      "completion": "Must submit final report with outcome and evidence of effectiveness.",
+      "fsca_outside_gb_44ZK": "Must report FSCAs taken outside GB for same device model placed on GB market if not taking same FSCA in GB. Must include justification for why same FSCA not required in GB."
+    },
+
+    "pmsr_requirements_44ZL": {
+      "applies_to": [
+        "Class I devices (MDD, MDR, or UK classification)",
+        "IVD Class A or B devices (IVDR)",
+        "IVDs not listed in Annex II of Directive 98/79"
+      ],
+      "contents": [
+        "Summary of results and conclusions from PMS plan analyses",
+        "Description of any preventive or corrective action taken and reasons"
+      ],
+      "timing": "Produced within 3 years of device being placed on market or put into service; updated at least every 3 years until end of PMS period."
+    },
+
+    "psur_requirements_44ZM": {
+      "applies_to": "All devices not covered by PMSR (Reg 44ZL) — i.e. Class IIa, IIb, III, implantable, and higher-risk IVDs.",
+      "single_psur_option": "May prepare single PSUR for device category/group if: covered by same clinical/performance evaluation report, OR similar devices where similarity justifies it.",
+      "required_contents": [
+        "Summary of PMS plan results and conclusions",
+        "Description of preventive/corrective actions taken and reasons",
+        "Required risk analysis",
+        "Conclusions of any post-market clinical follow-up",
+        "Number of devices placed on UK market",
+        "Number of devices put into service in UK without being placed on market",
+        "Description of characteristics of population using the device",
+        "Estimate of population size using device in UK",
+        "Estimate of population size using device outside UK",
+        "Estimate of device usage frequency where practicable"
+      ],
+      "timing_default": "First PSUR within 1 year; updated at least annually until end of PMS period.",
+      "timing_class_iia": "First PSUR within 2 years; updated at least every 2 years until end of PMS period.",
+      "approved_body_submission": "Must submit PSUR and updates to approved body. For Class III/implantable/high-risk IVDs, approved body must review and issue report to manufacturer and UK RP.",
+      "assessment_context": "PSUR must explicitly include UK-specific data on devices placed on market, population characteristics, and population size estimates for both UK and outside UK."
+    },
+
+    "trend_reporting_44ZN": {
+      "obligation": "Must report significant increases in frequency or severity of incidents that could have significant adverse impact on risk analysis.",
+      "determination": "Significant increase determined in comparison to foreseeable frequency/severity and in accordance with PMS plan statistical methodology.",
+      "ivd_additional": "For IVD devices: must also report significant increases in expected erroneous results compared to stated performance.",
+      "period": "Reporting duty applies throughout PMS period for device model.",
+      "initial_report_contents": [
+        "Manufacturer name and contact details",
+        "UK RP name and contact details",
+        "Device description including UDIs",
+        "Number of devices on GB market and estimated affected users",
+        "Information on identified trend"
+      ],
+      "investigation": "Must investigate identified trend ASAP and submit final report with conclusions on causes and description of preventive/corrective actions."
+    },
+
+    "documentation_retention_44ZQ": {
+      "retention_period": "Longer of: PMS period for device model, OR 15 years for implantable devices / 10 years for other devices.",
+      "obligation": "Both manufacturer and UK Responsible Person must retain documentation."
+    },
+
+    "documentation_requests_44ZR": {
+      "timeline": "3 working days from request by Secretary of State.",
+      "extension": "Secretary of State may extend if considered reasonable."
+    },
+
+    "psur_relevance": {
+      "description": "How UK MDR 2024 Part 4A requirements map to PSUR sections",
+      "section_mapping": {
+        "cover_page": "UK RP name and contact details must appear. UKCA marking status.",
+        "A_executive_summary": "Must reference UK market status and any UK-specific actions.",
+        "B_scope_and_device_description": "UK RP identification, UKCA marking status, UK conformity route.",
+        "C_volume_of_sales": "UK-specific sales data must be identifiable per Reg 44ZM(3)(e). Population size estimates for UK specifically per Reg 44ZM(3)(g).",
+        "D_serious_incidents": "UK serious incidents must be identifiable. Reporting timelines (2/10/15 days) should be stated. UK RP involvement noted.",
+        "F_complaint_rates": "UK complaint data separable for UK-specific rate calculations.",
+        "G_trend_reporting": "UK trend reporting obligations per Reg 44ZN, including statistical methodology. IVD erroneous results if applicable.",
+        "H_fsca": "UK FSCAs and FSCAs outside GB for same device model. Risk assessments and FSN requirements per Reg 44ZJ-44ZK.",
+        "I_capa": "Preventive/corrective actions per Reg 44ZG with UK RP and approved body notification.",
+        "L_pmcf": "PMCF conclusions required in PSUR per Reg 44ZM(3)(d).",
+        "M_findings_and_conclusions": "UK PSUR cadence compliance (annual/biennial per class). Documentation retention period statement. Overall UK regulatory compliance confirmation."
+      }
+    }
   }
 }

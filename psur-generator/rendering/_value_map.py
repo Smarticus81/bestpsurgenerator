@@ -397,6 +397,20 @@ class ValueMapMixin:
         t1 = sec_c.get("table_1_sales_by_region", {})
         t1_fmt = t1.get("annual_format", t1) if isinstance(t1, dict) else {}
         date_ranges = t1_fmt.get("date_ranges", []) if isinstance(t1_fmt, dict) else []
+
+        # Prefer deterministic period labels from _statistics when available
+        # (these come from the actual DB-derived 12-month windows). Fall back
+        # to whatever the LLM emitted in date_ranges.
+        stats = psur.get("_statistics", {}) or {}
+        det_labels = stats.get("section_c_period_labels") or []
+        if det_labels:
+            # det_labels is ordered [P-1, P-2, P-3] (most recent first).
+            # Template placeholders are P1=most recent, P2=mid, P3=oldest.
+            date_ranges = list(det_labels) + [
+                f"{stats.get('surveillance_period', {}).get('start_date', '')} → "
+                f"{stats.get('surveillance_period', {}).get('end_date', '')}"
+            ]
+
         v["T1_DATE_RANGE_P1"] = stringify(date_ranges[0]) if len(date_ranges) > 0 else ""
         v["T1_DATE_RANGE_P2"] = stringify(date_ranges[1]) if len(date_ranges) > 1 else ""
         v["T1_DATE_RANGE_P3"] = stringify(date_ranges[2]) if len(date_ranges) > 2 else ""

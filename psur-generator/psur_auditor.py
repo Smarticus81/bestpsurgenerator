@@ -502,38 +502,234 @@ def build_requirements_checklist(*, include_uk: bool = True) -> List[Requirement
          ["conclusion", "supported by", "evidence", "based on", "demonstrates"],
          "MDCG 2022-21 Annex I — Summary")
 
-    # ── UK MDR requirements (conditional) ─────────────────────────────
+    # ── UK MDR 2024 Part 4A requirements (SI 2024/1368) (conditional) ──
     if include_uk:
-        _add("UK.01", "UK market data present",
-             "If device is sold in the UK, UK-specific sales or distribution data must be identifiable.",
-             "C", Framework.UK_MDR, Criticality.MAJOR,
-             ["uk", "united kingdom", "great britain", "gb"],
-             "UK MDR Regs 2024 — Reg 44ZM")
-        _add("UK.02", "UK complaint data separated",
-             "Complaints from UK market must be identifiable and reported.",
+        # --- 44ZE: PMS System ---
+        _add("UK.01", "PMS system maintained",
+             "Manufacturer must establish and maintain a post-market surveillance system "
+             "that is proportionate to the risk class and appropriate to the type of device.",
+             "S", Framework.UK_MDR, Criticality.CRITICAL,
+             ["pms system", "post-market surveillance system", "proportionate", "risk class"],
+             "UK MDR 2024 — Reg 44ZE")
+        _add("UK.02", "PMS data analysis throughout lifetime",
+             "The PMS system must include systematic collection and analysis of relevant "
+             "data throughout the entire lifetime of the device.",
+             "S", Framework.UK_MDR, Criticality.CRITICAL,
+             ["pms", "data analysis", "lifetime", "systematic", "collection"],
+             "UK MDR 2024 — Reg 44ZE")
+
+        # --- 44ZF: PMS Plan ---
+        _add("UK.03", "PMS plan documented",
+             "A PMS plan must be documented in a clear, organised and searchable format. "
+             "It must specify the device lifetime and include processes for collecting and "
+             "analysing incidents, complaints, feedback and trends.",
+             "S", Framework.UK_MDR, Criticality.CRITICAL,
+             ["pms plan", "clear", "organised", "searchable", "device lifetime"],
+             "UK MDR 2024 — Reg 44ZF")
+        _add("UK.04", "PMS plan threshold values",
+             "The PMS plan must define threshold values and indicators for risk reassessment "
+             "including re-evaluation of benefit-risk determination.",
+             "S", Framework.UK_MDR, Criticality.MAJOR,
+             ["threshold", "indicator", "risk reassessment", "benefit-risk", "pms plan"],
+             "UK MDR 2024 — Reg 44ZF")
+        _add("UK.05", "PMS plan communication processes",
+             "The PMS plan must include effective communication processes between the "
+             "manufacturer, UK Responsible Person, approved body and Secretary of State.",
+             "S", Framework.UK_MDR, Criticality.MAJOR,
+             ["communication", "pms plan", "uk rp", "approved body", "secretary of state"],
+             "UK MDR 2024 — Reg 44ZF")
+        _add("UK.06", "PMS plan available within 3 working days",
+             "The PMS plan must be provided to the Secretary of State within 3 working days "
+             "of a request.",
+             "S", Framework.UK_MDR, Criticality.CRITICAL,
+             ["3 working days", "secretary of state", "pms plan", "request"],
+             "UK MDR 2024 — Reg 44ZF")
+
+        # --- 44ZG: Preventive and Corrective Actions ---
+        _add("UK.07", "CAPA when risk identified",
+             "The manufacturer must take necessary preventive and corrective action as soon "
+             "as possible when a risk is identified or non-conformity is suspected, including "
+             "field safety corrective actions where appropriate.",
+             "I", Framework.UK_MDR, Criticality.CRITICAL,
+             ["capa", "preventive", "corrective", "risk identified", "non-conformity"],
+             "UK MDR 2024 — Reg 44ZG")
+        _add("UK.08", "CAPA notification to UK RP and approved body",
+             "The manufacturer must notify the UK Responsible Person, approved body and "
+             "Secretary of State when undertaking field safety corrective actions.",
+             "I", Framework.UK_MDR, Criticality.CRITICAL,
+             ["notify", "uk rp", "approved body", "secretary of state", "fsca"],
+             "UK MDR 2024 — Reg 44ZG")
+
+        # --- 44ZH: Initial Reporting of Serious Incidents ---
+        _add("UK.09", "Serious incident reporting to Secretary of State",
+             "Serious incidents must be reported to the Secretary of State. Default timeline "
+             "is 15 days; 2 days for serious public health threats; 10 days for death or "
+             "unanticipated serious deterioration in state of health.",
+             "D", Framework.UK_MDR, Criticality.CRITICAL,
+             ["serious incident", "secretary of state", "15 days", "2 days", "10 days",
+              "public health threat", "death", "serious deterioration"],
+             "UK MDR 2024 — Reg 44ZH")
+        _add("UK.10", "Serious incident report content — manufacturer details",
+             "Initial serious incident report must include manufacturer details and UK "
+             "Responsible Person details.",
              "D", Framework.UK_MDR, Criticality.MAJOR,
-             ["uk", "united kingdom", "gb", "uk complaint", "uk market"],
-             "UK MDR Regs 2024 — Reg 44ZH")
-        _add("UK.03", "UK Responsible Person identified",
-             "If device is marketed in the UK, the UK Responsible Person must be stated.",
-             "B", Framework.UK_MDR, Criticality.MAJOR,
-             ["uk responsible person", "ukrp", "uk rp", "uk representative"],
-             "UK MDR Regs 2024 — Reg 44ZJ")
-        _add("UK.04", "UKCA marking status",
-             "UKCA marking or UK conformity status referenced.",
-             "B", Framework.UK_MDR, Criticality.MAJOR,
-             ["ukca", "uk conformity", "uk marking"],
-             "UK MDR Regs 2024 — Reg 44ZK")
-        _add("UK.05", "UK PSUR cadence compliance",
-             "UK post-market surveillance reporting frequency per UK MDR.",
+             ["manufacturer details", "uk rp", "uk responsible person", "incident report"],
+             "UK MDR 2024 — Reg 44ZH")
+        _add("UK.11", "Serious incident report content — device and incident",
+             "Initial serious incident report must include device description, incident "
+             "description, preliminary conclusions and whether FSCA is being considered.",
+             "D", Framework.UK_MDR, Criticality.MAJOR,
+             ["device description", "incident description", "preliminary conclusions",
+              "fsca", "initial report"],
+             "UK MDR 2024 — Reg 44ZH")
+
+        # --- 44ZI: Investigation and Final Reporting ---
+        _add("UK.12", "Incident investigation and risk analysis review",
+             "The manufacturer must investigate each serious incident, review risk analysis "
+             "in light of findings and submit a final report detailing investigation methods "
+             "and conclusions.",
+             "D", Framework.UK_MDR, Criticality.CRITICAL,
+             ["investigate", "risk analysis", "final report", "methods", "conclusions"],
+             "UK MDR 2024 — Reg 44ZI")
+        _add("UK.13", "Final report — similar incidents and FSCA",
+             "The final incident report must include consideration of FSCA, details of any "
+             "similar incidents and cooperation with the Secretary of State investigation.",
+             "D", Framework.UK_MDR, Criticality.MAJOR,
+             ["final report", "similar incidents", "fsca", "cooperate", "secretary of state"],
+             "UK MDR 2024 — Reg 44ZI")
+
+        # --- 44ZJ: FSCA and Field Safety Notices ---
+        _add("UK.14", "FSCA risk assessment and initial report",
+             "Before undertaking a field safety corrective action the manufacturer must "
+             "produce a risk assessment and submit an initial report together with the "
+             "proposed field safety notice to the Secretary of State.",
+             "H", Framework.UK_MDR, Criticality.CRITICAL,
+             ["fsca", "risk assessment", "initial report", "field safety notice",
+              "secretary of state"],
+             "UK MDR 2024 — Reg 44ZJ")
+        _add("UK.15", "Field safety notice content",
+             "The field safety notice must identify affected devices with UDI, explain the "
+             "reasons for the FSCA and describe actions to be taken by users.",
+             "H", Framework.UK_MDR, Criticality.CRITICAL,
+             ["field safety notice", "udi", "reasons", "user actions", "identify devices"],
+             "UK MDR 2024 — Reg 44ZJ")
+        _add("UK.16", "FSCA final report with effectiveness evidence",
+             "A final report on the FSCA must be submitted to the Secretary of State "
+             "including the outcome and evidence of effectiveness of the corrective action.",
+             "H", Framework.UK_MDR, Criticality.MAJOR,
+             ["fsca", "final report", "outcome", "effectiveness", "evidence"],
+             "UK MDR 2024 — Reg 44ZJ")
+
+        # --- 44ZK: FSCA Outside GB ---
+        _add("UK.17", "FSCA outside GB reported",
+             "Any field safety corrective action taken outside Great Britain for the same "
+             "device model must be reported to the Secretary of State, including a "
+             "justification if the same FSCA is not being taken in GB.",
+             "H", Framework.UK_MDR, Criticality.CRITICAL,
+             ["fsca", "outside gb", "outside great britain", "justification",
+              "same device model"],
+             "UK MDR 2024 — Reg 44ZK")
+
+        # --- 44ZL: Post-Market Surveillance Report (PMSR) ---
+        _add("UK.18", "PMSR for Class I / IVD Class A-B",
+             "For Class I and IVD Class A-B devices a post-market surveillance report must "
+             "be produced within 3 years of placing the device on the UK market and updated "
+             "at least every 3 years. It must include a summary of PMS results and "
+             "conclusions and a description of preventive and corrective actions taken.",
+             "M", Framework.UK_MDR, Criticality.CRITICAL,
+             ["pmsr", "class i", "ivd class a", "ivd class b", "3 years",
+              "pms results", "corrective actions"],
+             "UK MDR 2024 — Reg 44ZL")
+
+        # --- 44ZM: PSUR ---
+        _add("UK.19", "UK PSUR required for higher-risk classes",
+             "A periodic safety update report is required for Class IIa, IIb, III and IVD "
+             "Class C-D devices. The first PSUR must be produced within 1 year of placing "
+             "the device on the UK market (2 years for Class IIa) and updated annually "
+             "(biennially for Class IIa).",
+             "M", Framework.UK_MDR, Criticality.CRITICAL,
+             ["psur", "class iia", "class iib", "class iii", "ivd class c", "ivd class d",
+              "1 year", "2 years", "annually", "biennially"],
+             "UK MDR 2024 — Reg 44ZM")
+        _add("UK.20", "UK PSUR content — market and population data",
+             "The UK PSUR must include the number of devices placed on the UK market, "
+             "population characteristics, estimates of population size in the UK and outside "
+             "the UK and usage frequency.",
+             "C", Framework.UK_MDR, Criticality.CRITICAL,
+             ["uk market", "population", "usage frequency", "number of devices",
+              "uk", "great britain"],
+             "UK MDR 2024 — Reg 44ZM")
+        _add("UK.21", "UK PSUR content — PMS results and risk analysis",
+             "The UK PSUR must include a summary of PMS results and conclusions, preventive "
+             "and corrective actions taken, risk analysis outcomes and PMCF conclusions.",
+             "M", Framework.UK_MDR, Criticality.CRITICAL,
+             ["pms results", "risk analysis", "pmcf", "corrective actions", "conclusions"],
+             "UK MDR 2024 — Reg 44ZM")
+        _add("UK.22", "UK PSUR submitted to approved body",
+             "The PSUR must be submitted to the approved body responsible for the device.",
              "M", Framework.UK_MDR, Criticality.MAJOR,
-             ["uk", "cadence", "frequency", "uk mdr", "uk reporting"],
-             "UK MDR Regs 2024 — Reg 44ZN")
-        _add("UK.06", "UK trend reporting obligations",
-             "Trend reporting obligations specific to the UK market addressed.",
+             ["approved body", "submit", "psur", "uk"],
+             "UK MDR 2024 — Reg 44ZM")
+
+        # --- 44ZN: Trend Reporting ---
+        _add("UK.23", "Trend reporting — statistically significant increase",
+             "Any statistically significant increase in frequency or severity of incidents "
+             "that could adversely impact the risk analysis must be reported to the Secretary "
+             "of State. Statistical methodology must align with the PMS plan.",
+             "G", Framework.UK_MDR, Criticality.CRITICAL,
+             ["trend", "statistically significant", "frequency", "severity",
+              "secretary of state", "risk analysis", "mhra"],
+             "UK MDR 2024 — Reg 44ZN")
+        _add("UK.24", "Trend reporting — IVD erroneous results",
+             "For IVD devices any statistically significant increase in expected erroneous "
+             "results must also be reported and investigated with a final report submitted.",
              "G", Framework.UK_MDR, Criticality.MAJOR,
-             ["uk trend", "uk article 88", "uk safety signal", "mhra"],
-             "UK MDR Regs 2024 — Reg 44ZQ")
+             ["ivd", "erroneous results", "trend", "investigation", "final report"],
+             "UK MDR 2024 — Reg 44ZN")
+
+        # --- 44ZQ: Retention ---
+        _add("UK.25", "PMS documentation retention period",
+             "All PMS documentation must be retained for the PMS period or 15 years for "
+             "implantable devices and 10 years for all other devices, whichever is longer.",
+             "S", Framework.UK_MDR, Criticality.CRITICAL,
+             ["retention", "15 years", "10 years", "implantable", "pms documentation"],
+             "UK MDR 2024 — Reg 44ZQ")
+
+        # --- 44ZR: Requests ---
+        _add("UK.26", "Documentation available within 3 working days",
+             "All PMS documentation must be provided to the Secretary of State within 3 "
+             "working days of a request.",
+             "S", Framework.UK_MDR, Criticality.CRITICAL,
+             ["3 working days", "request", "secretary of state", "documentation"],
+             "UK MDR 2024 — Reg 44ZR")
+
+        # --- Cross-cutting: UK RP and UKCA (derived from Part 4A obligations) ---
+        _add("UK.27", "UK Responsible Person identified",
+             "If the device is marketed in the UK the UK Responsible Person must be clearly "
+             "stated in the PSUR scope section.",
+             "B", Framework.UK_MDR, Criticality.CRITICAL,
+             ["uk responsible person", "ukrp", "uk rp", "uk representative"],
+             "UK MDR 2024 — Reg 44ZG/44ZH")
+        _add("UK.28", "UKCA marking status",
+             "UKCA marking or UK conformity assessment status must be referenced for devices "
+             "placed on the GB market.",
+             "B", Framework.UK_MDR, Criticality.MAJOR,
+             ["ukca", "uk conformity", "uk marking", "gb market"],
+             "UK MDR 2024 — Part 4A general")
+
+        # --- Complaint / feedback (derived from 44ZF PMS plan scope) ---
+        _add("UK.29", "UK complaint data identifiable",
+             "Complaints originating from the UK market must be separately identifiable "
+             "within the PSUR complaint analysis.",
+             "F", Framework.UK_MDR, Criticality.MAJOR,
+             ["uk", "complaint", "gb", "united kingdom", "uk market"],
+             "UK MDR 2024 — Reg 44ZF/44ZM")
+        _add("UK.30", "UK customer feedback captured",
+             "Customer feedback from UK users must be captured as part of the PMS system "
+             "and reflected in the PSUR.",
+             "E", Framework.UK_MDR, Criticality.MAJOR,
+             ["uk", "feedback", "customer", "user", "gb", "united kingdom"],
+             "UK MDR 2024 — Reg 44ZF")
 
     return reqs
 

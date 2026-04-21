@@ -21,7 +21,7 @@ import time as _time
 import logging
 from rich.console import Console
 
-from config import INPUT_DIR, OUTPUT_DIR
+from config import INPUT_DIR, OUTPUT_DIR, PSUR_DB_PATH
 from statistics import compute_psur_statistics
 from agents.orchestrator import generate_psur
 from validation import PSURValidator
@@ -125,6 +125,10 @@ def generate(
     extra_files: Optional[List[Path]] = typer.Option(None, "--extra", help="Override: Extra files", hidden=True),
     output_dir: Path = typer.Option(None, "--output", "-o", help="Output directory"),
     resume: bool = typer.Option(False, "--resume", help="Resume from last checkpoint"),
+    # SQLite source for complaints + sales (overrides CSV/Excel files)
+    db: Optional[Path] = typer.Option(None, "--db", help="SQLite DB with complaints + sales tables (default: config.PSUR_DB_PATH)"),
+    no_db: bool = typer.Option(False, "--no-db", help="Disable SQLite source even if PSUR_DB_PATH is set"),
+    td_id: Optional[str] = typer.Option(None, "--td-id", help="Filter SQLite rows by td_id (auto-resolved from device name if omitted)"),
     # Ollama local model support
     ollama_model: Optional[str] = typer.Option(None, "--ollama-model", help="Use a local Ollama model for ALL LLM calls (e.g. qwen3:32b, deepseek-r1:70b)"),
     ollama_url: Optional[str] = typer.Option(None, "--ollama-url", help="Ollama API base URL (default: http://localhost:11434)"),
@@ -256,6 +260,16 @@ def generate(
         and context_file_rich.get("device_description")
     )
 
+    # Resolve SQLite source: explicit --db > config.PSUR_DB_PATH > none.
+    _db_resolved: Optional[Path] = None
+    if not no_db:
+        _candidate = db or (Path(PSUR_DB_PATH) if PSUR_DB_PATH else None)
+        if _candidate and Path(_candidate).exists():
+            _db_resolved = Path(_candidate)
+            console.print(f"[cyan]SQLite source enabled:[/cyan] {_db_resolved}")
+        elif _candidate:
+            console.print(f"  [yellow]SQLite path set but not found: {_candidate} — falling back to file inputs[/yellow]")
+
     parse_result = parse_all_inputs(
         sales_path=input_paths["sales"],
         complaints_path=input_paths["complaints"],
@@ -276,6 +290,8 @@ def generate(
         confirm_cb=None,  # auto-map always on
         skip_cer=_skip_cer,
         unified_workbook_path=input_paths.get("analysis_workbook"),
+        db_path=_db_resolved,
+        db_td_id=td_id,
     )
     parsed_data = parse_result["parsed_data"]
     expanded_context = parse_result["expanded_context"]

@@ -21,12 +21,45 @@ class TableMixin:
     def _fill_all_tables(self, psur: Dict[str, Any], values: Dict[str, str]):
         """Fill data into all tables by detecting content, not index."""
         sections = psur.get("sections", {})
+        stats = psur.get("_statistics", {}) or {}
 
         sec_c = sections.get("C_volume_of_sales_and_population_exposure", {})
         t1_data = sec_c.get("table_1_sales_by_region", {})
         t1_fmt = t1_data.get("annual_format", t1_data) if isinstance(t1_data, dict) else {}
         sales_rows = t1_fmt.get("rows", []) if isinstance(t1_fmt, dict) else []
         date_ranges = t1_fmt.get("date_ranges", []) if isinstance(t1_fmt, dict) else []
+
+        # ── Deterministic override: rebuild sales rows from _statistics ──
+        # The LLM may emit a partial set of regions; the template has 11
+        # fixed slots that must all reconcile to Worldwide. Use the pre-
+        # computed section_c_region_rows when available so totals always
+        # add up and no slot is silently em-dashed.
+        det_rows = stats.get("section_c_region_rows") or []
+        if det_rows:
+            total_units = stats.get("total_units_sold", 0) or 0
+            sales_rows = [
+                {
+                    "region": r.get("region", ""),
+                    # Pull the 3 historical 12-month units directly from
+                    # statistics so the template's "Preceding 12-Month"
+                    # columns are filled deterministically when DB history
+                    # is available.
+                    "preceding_12_month_periods": [
+                        r.get("units_p1"),
+                        r.get("units_p2"),
+                        r.get("units_p3"),
+                    ],
+                    "current_data_collection_period": r.get("units", 0),
+                    "percent_of_global_sales": (
+                        round((r.get("units", 0) / total_units) * 100, 1)
+                        if total_units > 0 else 0.0
+                    ),
+                }
+                for r in det_rows
+            ]
+            # Surface period header labels for downstream use (renderer can
+            # optionally stamp them into the Table 1 column headers).
+            date_ranges = stats.get("section_c_period_labels") or date_ranges
 
         sec_d = sections.get("D_information_on_serious_incidents", {})
         sec_e = sections.get("E_customer_feedback", {})
@@ -35,6 +68,36 @@ class TableMixin:
         t7_fmt = t7_data.get("annual_format", t7_data) if isinstance(t7_data, dict) else {}
         complaint_rows = t7_fmt.get("rows", []) if isinstance(t7_fmt, dict) else []
         grand_total = t7_fmt.get("grand_total", {}) if isinstance(t7_fmt, dict) else {}
+
+        # ── Deterministic override: rebuild Table 7 rows + grand total ──
+        # The LLM-built rows can drop uncoded complaints, breaking the
+        # Grand Total = total_complaints reconciliation expected by auditors.
+        # Use the pre-computed table7_rows when available.
+        det_t7 = stats.get("table7_rows") or []
+        if det_t7:
+            complaint_rows = [
+                {
+                    "harm": r.get("harm", "No Harm"),
+                    "medical_device_problem": r.get("medical_device_problem", ""),
+                    "current_12_month_complaint_count": r.get("complaint_count", 0),
+                    "current_12_month_complaint_rate": r.get("complaint_percentage", 0.0),
+                    "max_expected_rate_of_occurrence_from_ract": (
+                        r.get("ract_max_expected_rate")
+                        if r.get("ract_max_expected_rate") is not None
+                        else None
+                    ),
+                }
+                for r in det_t7
+            ]
+            t7_total_count = sum(r.get("complaint_count", 0) for r in det_t7)
+            wu = stats.get("total_units_sold", 0) or 0
+            grand_total = {
+                "complaint_count": t7_total_count,
+                "complaint_rate": (
+                    round((t7_total_count / wu) * 100, 4) if wu > 0 else 0.0
+                ),
+            }
+
 
         sec_h = sections.get("H_information_from_fsca", {})
         sec_i = sections.get("I_corrective_and_preventive_actions", {})
@@ -211,17 +274,28 @@ class TableMixin:
                 preceding = []
             current = row.get("current_data_collection_period", "")
             pct = row.get("percent_of_global_sales", "")
+
+            def _fmt_units(v):
+                """Match the 'current' column's number formatting for trend cells."""
+                if v is None or v == "":
+                    return "—"
+                if isinstance(v, (int, float)):
+                    return f"{int(v):,}" if float(v) >= 0 else stringify(v)
+                return stringify(v)
+
             region_data[region] = {
-                "p1": stringify(preceding[0]) if len(preceding) > 0 and preceding[0] is not None else "—",
-                "p2": stringify(preceding[1]) if len(preceding) > 1 and preceding[1] is not None else "—",
-                "p3": stringify(preceding[2]) if len(preceding) > 2 and preceding[2] is not None else "—",
+                "p1": _fmt_units(preceding[0]) if len(preceding) > 0 else "—",
+                "p2": _fmt_units(preceding[1]) if len(preceding) > 1 else "—",
+                "p3": _fmt_units(preceding[2]) if len(preceding) > 2 else "—",
                 "current": f"{current:,}" if isinstance(current, (int, float)) else ("—" if not current else stringify(current)),
                 "pct": f"{pct}%" if pct else "—",
             }
 
         template_regions = [
             "EEA+TR+XI", "Australia", "Brazil", "Canada", "China",
-            "Japan", "UK", "United States", None, "Rest of World", "Worldwide",
+            "Japan", "UK", "United States",
+            "Unknown / Unattributed",
+            "Rest of World", "Worldwide",
         ]
 
         for ri, region_name in enumerate(template_regions):
@@ -246,6 +320,11 @@ class TableMixin:
                         break
 
             if data and len(tcs) >= 6:
+                # Stamp the region label so repurposed slots (e.g. the blank
+                # divider row now used for "Unknown / Unattributed") get a
+                # visible name. Existing rows already have correct labels in
+                # the template; overwriting with the same string is a no-op.
+                self._set_cell_text(tcs[0], region_name)
                 self._set_cell_text(tcs[1], data["p1"])
                 self._set_cell_text(tcs[2], data["p2"])
                 self._set_cell_text(tcs[3], data["p3"])
