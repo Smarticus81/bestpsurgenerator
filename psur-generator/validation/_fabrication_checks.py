@@ -102,6 +102,100 @@ class FabricationChecksMixin:
 
         return errors
 
+    # ──────────────────────────────────────────────────────────────
+    # Narrative identifier leakage detector
+    # ──────────────────────────────────────────────────────────────
+    # The LLM sometimes lifts specific identifiers (CAPA-782, specific
+    # MDR numbers, complaint IDs, date-stamped events) from the PREVIOUS
+    # PSUR context into the current-period narrative, producing claims
+    # about events that did not occur in this period. We build an
+    # "allowed identifiers" set from CURRENT-period parsed input data and
+    # flag any narrative reference to an identifier pattern NOT in that
+    # set.
+    def _check_narrative_identifier_leakage(
+        self,
+        psur: Dict[str, Any],
+        parsed_data: Dict[str, Any],
+    ) -> List[str]:
+        errors: List[str] = []
+        if not parsed_data:
+            return errors
+
+        allowed: set = set()
+
+        # Seed allowed set from current-period CAPA records
+        capa = parsed_data.get("capa") or {}
+        if isinstance(capa, dict):
+            for rec in capa.get("capa_records", []) or []:
+                for key in ("capa_number", "capa_id", "number", "id"):
+                    v = rec.get(key) if isinstance(rec, dict) else None
+                    if v:
+                        allowed.add(str(v).strip().upper())
+
+        # Seed from current-period complaint / MDR numbers
+        complaints = parsed_data.get("complaints") or {}
+        if isinstance(complaints, dict):
+            for s in complaints.get("complaint_summaries", []) or []:
+                for key in ("complaint_number", "mdr_number", "capa_number"):
+                    v = s.get(key) if isinstance(s, dict) else None
+                    if v:
+                        allowed.add(str(v).strip().upper())
+
+        # Seed from FSCA table
+        for fsca in (parsed_data.get("fsca") or []):
+            if isinstance(fsca, dict):
+                for key in ("fsca_id", "reference_number", "id"):
+                    v = fsca.get(key)
+                    if v:
+                        allowed.add(str(v).strip().upper())
+
+        if not allowed:
+            # No source-of-truth identifiers to compare against — skip.
+            return errors
+
+        # Patterns that look like identifiers the LLM might copy forward
+        id_patterns = [
+            re.compile(r"\bCAPA[-\s]?\d{2,6}\b", re.IGNORECASE),
+            re.compile(r"\bMDR[-\s]?\d{3,10}\b", re.IGNORECASE),
+            re.compile(r"\bFSCA[-\s]?[A-Z0-9\-]{3,20}\b", re.IGNORECASE),
+            re.compile(r"\bCMP[-\s]?\d{3,10}\b", re.IGNORECASE),
+        ]
+
+        def _walk(node: Any, path: str = ""):
+            if isinstance(node, dict):
+                for k, v in node.items():
+                    _walk(v, f"{path}.{k}" if path else k)
+            elif isinstance(node, list):
+                for i, v in enumerate(node):
+                    _walk(v, f"{path}[{i}]")
+            elif isinstance(node, str) and len(node) > 10:
+                for pat in id_patterns:
+                    for m in pat.findall(node):
+                        norm = str(m).replace(" ", "").replace("-", "").upper()
+                        matched = any(
+                            norm == str(a).replace(" ", "").replace("-", "").upper()
+                            or str(m).strip().upper() == str(a).strip().upper()
+                            for a in allowed
+                        )
+                        if not matched:
+                            errors.append(
+                                f"NARRATIVE_LEAKAGE at {path}: identifier '{m}' "
+                                f"referenced in current-period narrative but not "
+                                f"present in any current-period input record. "
+                                f"Likely carried forward from previous PSUR — "
+                                f"remove or replace with a generic reference."
+                            )
+
+        _walk(psur.get("sections", {}))
+        # De-duplicate while preserving order
+        seen = set()
+        unique = []
+        for e in errors:
+            if e not in seen:
+                seen.add(e)
+                unique.append(e)
+        return unique
+
     @staticmethod
     def _is_plausible_udi_di(udi: str) -> bool:
         """Check if a UDI-DI looks plausible (basic format check)."""
@@ -443,19 +537,30 @@ class FabricationChecksMixin:
 
         # Check if UK RP was provided in device context
         uk_rp = device_context.get("uk_responsible_person", {})
-        has_uk_rp = bool(uk_rp and uk_rp.get("name"))
+        has_uk_rp = bool(uk_rp and isinstance(uk_rp, dict) and uk_rp.get("name"))
 
         if has_uk_rp:
             return errors  # Data was provided
 
-        # Known fabricated UK RP companies the LLM likes to hallucinate
-        known_fabrications = [
-            "emergo", "ul limited", "bsi group", "sgs",
-            "northbank house", "sir thomas longley",
-            "rochester", "kent me2",
-        ]
-        for marker in known_fabrications:
+        # Known fabricated UK RP companies the LLM likes to hallucinate.
+        # Scope entity markers to UK RP / UK Approved Body contexts so a valid
+        # EU MDR Notified Body reference (e.g. BSI Group The Netherlands B.V.,
+        # NB 2797) is not misclassified as a UK RP fabrication.
+        broad_markers = ["northbank house", "sir thomas longley", "rochester", "kent me2"]
+        scoped_markers = ["emergo", "ul limited", "bsi group", "sgs"]
+        for marker in broad_markers:
             if marker in b_text:
+                errors.append(
+                    f"FABRICATION: Section B contains UK Responsible Person detail "
+                    f"'{marker}' but no UK RP data was provided in device_context. "
+                    f"Do NOT invent UK RP details."
+                )
+        for marker in scoped_markers:
+            if re.search(
+                rf"(uk responsible person|uk rp|approved body|ukca)[^.{{}}]{{0,120}}{re.escape(marker)}|"
+                rf"{re.escape(marker)}[^.{{}}]{{0,120}}(uk responsible person|uk rp|approved body|ukca)",
+                b_text,
+            ):
                 errors.append(
                     f"FABRICATION: Section B contains UK Responsible Person detail "
                     f"'{marker}' but no UK RP data was provided in device_context. "

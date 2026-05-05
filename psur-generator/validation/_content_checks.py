@@ -283,6 +283,16 @@ class ContentChecksMixin:
 
         row_sum = 0
         for row in rows:
+            # SKILL_PSUR_GENERATION Table 7 uses hierarchical rows: Harm header
+            # rows followed by MDP rows. Header rows may carry the harm group
+            # count for display, but should not be included when summing the
+            # leaf MDP rows to compare against the grand total.
+            harm = str(row.get("harm", "")).strip().lower()
+            mdp = str(row.get("medical_device_problem", "")).strip()
+            if harm == "grand total":
+                continue
+            if harm and not mdp:
+                continue
             count = row.get("current_12_month_complaint_count")
             if count is not None:
                 row_sum += count
@@ -393,6 +403,23 @@ class ContentChecksMixin:
                 for i, item in enumerate(obj):
                     _find_tables(item, f"{path}[{i}]")
 
+        # Schema-allowed nullable columns: a None value here is intentional
+        # (e.g. RACT thresholds genuinely unavailable for a given hazard,
+        # or table_4 conclusion percentages when no incidents reported).
+        _NULLABLE_COLUMNS = {
+            "max_expected_rate_of_occurrence_from_ract",
+            "target_completion_date",
+            "completion_date",
+            "ract_threshold",
+            "previous_period_rate",
+            "preceding_period_rate",
+            "conclusion_1_pct",
+            "conclusion_2_pct",
+            "conclusion_3_pct",
+            "conclusion_4_pct",
+            "conclusion_5_pct",
+        }
+
         def _check_table(rows: list, table_path: str):
             empty_cells = []
             for ri, row in enumerate(rows):
@@ -402,6 +429,8 @@ class ContentChecksMixin:
                     continue
                 for key, val in row.items():
                     if key.startswith("_"):
+                        continue
+                    if key in _NULLABLE_COLUMNS:
                         continue
                     if val is None or (isinstance(val, str) and val.strip() == ""):
                         empty_cells.append(f"row {ri}, column '{key}'")

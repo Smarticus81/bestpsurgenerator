@@ -162,7 +162,24 @@ def parse_complaints(
                 incident["complaint_number"] = str(row.get(number_col, ""))
             serious_incidents.append(incident)
 
-    # Complaint summaries
+    # Locate raw INSORB-style fields directly so the SKILL F2 deterministic
+    # classifier can use them without going through the AI mapper. Column
+    # names are normalised to lowercase_underscore in the dataframe above.
+    def _col(*aliases) -> str:
+        for alias in aliases:
+            if alias in df.columns:
+                return alias
+        return ""
+
+    symptom_col   = _col("symptom_code", "symptomcode")
+    fault_col     = _col("fault_code", "faultcode")
+    failure_col   = _col("failure_code", "failurecode")
+    nonconf_col   = _col("nonconformity")
+    invest_col    = _col("investigation_findings", "investigation")
+    mdr_col       = _col("mdr_issued")
+    country_col   = _col("country", "customer_country")
+    confirmed_col = _col("complaint_confirmed", "confirmed")
+
     complaint_summaries = []
     for _, row in df.iterrows():
         summary = {}
@@ -182,6 +199,23 @@ def parse_complaints(
             summary["serious"] = str(row.get(serious_col, "")).upper() in [
                 "YES", "TRUE", "1", "Y", "SERIOUS", "REPORTABLE"
             ]
+        # SKILL F2 inputs - raw fields preserved verbatim.
+        if symptom_col:
+            summary["symptom_code"] = str(row.get(symptom_col, ""))
+        if fault_col:
+            summary["fault_code"] = str(row.get(fault_col, ""))
+        if failure_col:
+            summary["failure_code"] = str(row.get(failure_col, ""))
+        if nonconf_col:
+            summary["nonconformity"] = str(row.get(nonconf_col, ""))[:1000]
+        if invest_col:
+            summary["investigation_findings"] = str(row.get(invest_col, ""))[:1000]
+        if mdr_col:
+            summary["mdr_issued"] = str(row.get(mdr_col, ""))
+        if country_col:
+            summary["country"] = str(row.get(country_col, ""))
+        if confirmed_col:
+            summary["confirmed"] = str(row.get(confirmed_col, ""))
         complaint_summaries.append(summary)
 
     # Cross-tabulation: harm × IMDRF code

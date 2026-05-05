@@ -53,6 +53,161 @@ IMDRF_ANNEX_A, IMDRF_ANNEX_F = _load_imdrf_from_csv(HARM_MDP_PATH)
 
 
 # ---------------------------------------------------------------------------
+# F2 (SKILL_PSUR_GENERATION): Deterministic Symptom Code -> IMDRF mapping.
+# Eliminates the "Unknown / Not yet determined" failure mode by classifying
+# every complaint to a leaf-node Harm + MDP without requiring an LLM call
+# for the well-known patterns. Falls through to LLM only for true edge cases.
+# ---------------------------------------------------------------------------
+
+# Canonical leaf-node Harm and MDP terms used by the skill (term-only, no
+# alphanumeric codes per the Block 3 formatting rules).
+HARM_NO_HEALTH_CONSEQUENCE = "No Health Consequence or Impact"
+HARM_LACERATION = "Skin/Subcutaneous Injury (Laceration)"
+HARM_TISSUE_REACTION = "Tissue Reaction (Staple Migration/Extrusion)"
+
+MDP_FAILURE_TO_FIRE = "Device Did Not Operate as Intended (Failure to Fire)"
+MDP_FAILURE_DELIVER_STAPLE = "Failure to Deliver Staple Properly / Misfire"
+MDP_COMPONENT_BROKEN = "Component Broken or Damaged"
+MDP_FOREIGN_MATERIAL = "Foreign Material in/on Device"
+MDP_MATERIAL_INTEGRITY = "Material Integrity / Adverse Tissue Response"
+MDP_PERFORMANCE = "Performance Discrepancy"
+MDP_MECHANISM_STIFFNESS = "Mechanism Stiffness / Joint Resistance"
+MDP_PACKAGING_DAMAGE = "Packaging/Shipping Damage"
+MDP_INCORRECT_QUANTITY = "Incorrect Quantity in Package"
+MDP_DEFECTIVE_COMPONENT = "Defective Component"
+MDP_WRONG_COMPONENT = "Wrong Component / Labeling Mismatch"
+MDP_OTHER_PERFORMANCE = "Other Device Performance Problem"
+
+# CSI Symptom Code -> (Harm term, MDP term). Keys are normalised to lowercase
+# alphanumeric so the lookup tolerates whitespace, hyphens, underscores, and
+# typical spelling variants.
+SYMPTOM_CODE_MAP: Dict[str, tuple[str, str]] = {
+    "laceration":              (HARM_LACERATION,             MDP_FAILURE_DELIVER_STAPLE),
+    "doesnotperformproperly":  (HARM_NO_HEALTH_CONSEQUENCE,  MDP_FAILURE_TO_FIRE),
+    "brokenordamagedcomponent":(HARM_NO_HEALTH_CONSEQUENCE,  MDP_COMPONENT_BROKEN),
+    "foreignmaterial":         (HARM_NO_HEALTH_CONSEQUENCE,  MDP_FOREIGN_MATERIAL),
+    "performance":             (HARM_NO_HEALTH_CONSEQUENCE,  MDP_PERFORMANCE),
+    "rigidjoints":             (HARM_NO_HEALTH_CONSEQUENCE,  MDP_MECHANISM_STIFFNESS),
+    "shippingdamage":          (HARM_NO_HEALTH_CONSEQUENCE,  MDP_PACKAGING_DAMAGE),
+    "incorrectquantity":       (HARM_NO_HEALTH_CONSEQUENCE,  MDP_INCORRECT_QUANTITY),
+    "defective":               (HARM_NO_HEALTH_CONSEQUENCE,  MDP_DEFECTIVE_COMPONENT),
+    "wrongcomponent":          (HARM_NO_HEALTH_CONSEQUENCE,  MDP_WRONG_COMPONENT),
+    "productsticking":         (HARM_NO_HEALTH_CONSEQUENCE,  MDP_MECHANISM_STIFFNESS),
+}
+
+# Narrative keyword fallback for `other` symptom codes (Step 3 of F2).
+NARRATIVE_KEYWORD_RULES: List[tuple[List[str], str, str]] = [
+    (["lacerat", "cut ", " nick", "bleed", "skin tear"],   HARM_LACERATION,            MDP_FAILURE_DELIVER_STAPLE),
+    (["extrud", "migrat", "reject", "surface", "protrud"], HARM_TISSUE_REACTION,       MDP_MATERIAL_INTEGRITY),
+    (["fire", "deploy", "staple", "jam", "stuck", "misfire", "won't close",
+      "wont close", "did not close", "failure to close"],
+                                                            HARM_NO_HEALTH_CONSEQUENCE, MDP_FAILURE_TO_FIRE),
+    (["broken", "cracked", "snapped", "fracture"],          HARM_NO_HEALTH_CONSEQUENCE, MDP_COMPONENT_BROKEN),
+    (["foreign", "particle", "debris", "contamin"],         HARM_NO_HEALTH_CONSEQUENCE, MDP_FOREIGN_MATERIAL),
+    (["packag", "shipping", "dent", "crushed"],             HARM_NO_HEALTH_CONSEQUENCE, MDP_PACKAGING_DAMAGE),
+    (["wrong", "mislabel", "labeling"],                     HARM_NO_HEALTH_CONSEQUENCE, MDP_WRONG_COMPONENT),
+    (["expir", "expired"],                                  HARM_NO_HEALTH_CONSEQUENCE, MDP_OTHER_PERFORMANCE),
+    (["stiff", "tight", "resistance"],                      HARM_NO_HEALTH_CONSEQUENCE, MDP_MECHANISM_STIFFNESS),
+]
+
+# Tokens the SKILL spec forbids appearing as Harm or MDP categories.
+FORBIDDEN_HARM_TERMS = {
+    "unknown", "unknown / not yet determined", "not yet determined",
+    "f0601", "f0601 - unknown / not yet determined",
+}
+FORBIDDEN_MDP_TERMS = {
+    "device issues, consequence or impact to patient or user unknown",
+    "device issues, consequence or impact unknown",
+    "a0302", "a0302 - device issues, consequence or impact unknown",
+}
+
+
+def _norm_token(value: Any) -> str:
+    """Normalise a symptom/code string to lowercase alphanumeric."""
+    if value is None:
+        return ""
+    return re.sub(r"[^a-z0-9]+", "", str(value).strip().lower())
+
+
+def classify_complaint_skill(complaint: Dict[str, Any]) -> Optional[tuple[str, str, str]]:
+    """Apply the SKILL_PSUR_GENERATION F2 deterministic classifier.
+
+    Returns (harm_term, mdp_term, source) when a confident classification
+    can be made without an LLM call, otherwise None. `source` is one of
+    "symptom_code" or "narrative".
+    """
+    sym = _norm_token(complaint.get("symptom_code"))
+    if sym and sym in SYMPTOM_CODE_MAP:
+        harm, mdp = SYMPTOM_CODE_MAP[sym]
+        return harm, mdp, "symptom_code"
+
+    fault = _norm_token(complaint.get("fault_code"))
+    if fault and fault in SYMPTOM_CODE_MAP:
+        harm, mdp = SYMPTOM_CODE_MAP[fault]
+        return harm, mdp, "symptom_code"
+
+    # Step 3: narrative keyword matching. Search description + nonconformity
+    # + investigation_findings, in priority order so injuries win over
+    # generic device-issue keywords.
+    narrative = " ".join(str(complaint.get(k, "")).lower() for k in (
+        "nonconformity", "description", "narrative",
+        "investigation_findings", "failure_mode",
+    ))
+    if narrative.strip():
+        for keywords, harm, mdp in NARRATIVE_KEYWORD_RULES:
+            if any(kw in narrative for kw in keywords):
+                return harm, mdp, "narrative"
+
+    return None
+
+
+def force_safe_default(harm: str, mdp: str) -> tuple[str, str]:
+    """Replace forbidden 'Unknown'-style terms with the SKILL safe defaults."""
+    if not harm or harm.strip().lower() in FORBIDDEN_HARM_TERMS:
+        harm = HARM_NO_HEALTH_CONSEQUENCE
+    if not mdp or mdp.strip().lower() in FORBIDDEN_MDP_TERMS:
+        mdp = MDP_OTHER_PERFORMANCE
+    return harm, mdp
+
+
+def apply_skill_classification(
+    complaints: List[Dict[str, Any]],
+) -> Dict[str, int]:
+    """Apply the deterministic F2 mapping to a complaint list IN PLACE.
+
+    Returns counters for telemetry: {"symptom_code": n, "narrative": n,
+    "fallback_default": n, "left_for_llm": n}.
+    """
+    counters = {"symptom_code": 0, "narrative": 0,
+                "fallback_default": 0, "left_for_llm": 0}
+    for complaint in complaints:
+        result = classify_complaint_skill(complaint)
+        if result is not None:
+            harm, mdp, source = result
+            harm, mdp = force_safe_default(harm, mdp)
+            complaint["harm"] = harm
+            complaint["harm_code"] = harm
+            complaint["imdrf_code"] = mdp
+            complaint["imdrf_code_auto"] = True
+            complaint["harm_code_auto"] = True
+            complaint["_skill_classification_source"] = source
+            counters[source] += 1
+        else:
+            # Coerce any forbidden terms even when no rule applied.
+            harm = complaint.get("harm") or complaint.get("harm_code") or ""
+            mdp = complaint.get("imdrf_code") or ""
+            new_harm, new_mdp = force_safe_default(harm, mdp)
+            if new_harm != harm or new_mdp != mdp:
+                complaint["harm"] = new_harm
+                complaint["harm_code"] = new_harm
+                complaint["imdrf_code"] = new_mdp
+                counters["fallback_default"] += 1
+            else:
+                counters["left_for_llm"] += 1
+    return counters
+
+
+# ---------------------------------------------------------------------------
 # Utility: strip alphanumeric IMDRF codes from display strings
 # ---------------------------------------------------------------------------
 

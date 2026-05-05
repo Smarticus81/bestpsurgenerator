@@ -37,9 +37,20 @@ class ConsistencyChecksMixin:
         return errors
 
     def _find_month_claims(self, data: Any, actual_months: int, errors: List[str]):
-        """Find 'XX-month' duration claims in narratives and check consistency."""
+        """Find 'XX-month' duration claims that ASSERT the surveillance period.
+
+        Only flags phrases where the duration explicitly modifies the
+        reporting / surveillance / data collection / review / PSUR / evaluation
+        period.  Narrative durations like "23-month sustained performance" are
+        not constrained to match the surveillance window.
+        """
         if isinstance(data, str) and len(data) > 20:
-            for m in re.finditer(r"(\d+)[\s-]*month", data, re.IGNORECASE):
+            pattern = re.compile(
+                r"(\d+)\s*-?\s*month(?:s)?\s+"
+                r"(?:reporting|surveillance|data\s+collection|review|PSUR|evaluation|assessment)\s+period",
+                re.IGNORECASE,
+            )
+            for m in pattern.finditer(data):
                 claimed = int(m.group(1))
                 if abs(claimed - actual_months) > 1 and 6 < claimed < 120:
                     errors.append(
@@ -623,13 +634,24 @@ class ConsistencyChecksMixin:
         annual = table7.get("annual_format", {})
         rows = annual.get("rows", [])
 
-        # Count F rows with "injury" or "serious injury" harm
+        # Count F rows with patient-injury harm. SKILL_PSUR_GENERATION uses
+        # specific leaf-node harm terms (e.g. "Skin/Subcutaneous Injury
+        # (Laceration)", "Tissue Reaction (Staple Migration/Extrusion)") in
+        # addition to the legacy "Serious Injury" / "serious injury" labels.
+        injury_keywords = (
+            "serious injury",
+            "skin/subcutaneous injury",
+            "tissue reaction",
+            "laceration",
+            "death",
+            "serious deterioration",
+        )
         f_serious_count = 0
         for row in rows:
             harm = str(row.get("harm", "")).lower()
             if harm == "grand total":
                 continue
-            if "serious" in harm and "injury" in harm:
+            if any(kw in harm for kw in injury_keywords):
                 f_serious_count += int(row.get("current_12_month_complaint_count", 0) or 0)
 
         if si_count == 0 and f_serious_count > 0:

@@ -26,6 +26,20 @@ from agents.postprocessing import (
     fix_manufacturer_consistency,
     strip_nb_references_class_i,
     strip_wrong_cadence_tables,
+    strip_unknown_section_a_keys,
+    shorten_classification_rule,
+    zero_fabricated_preceding_periods,
+    fix_fabricated_external_db,
+    fix_fabricated_literature,
+    reconcile_table7_row_sum,
+    fill_default_empty_tables,
+    fix_first_person_singular,
+    fix_cross_section_serious_consistency,
+    scrub_leaked_identifiers,
+    _build_allowed_identifier_set,
+    coerce_schema_numeric_strings,
+    strip_template_debris,
+    format_rates_as_percentages,
 )
 from agents.prefill import inject_prefilled_values
 from agents.stats_filter import filter_statistics_for_section
@@ -158,6 +172,15 @@ def generate_psur(
     # ── Resolve PSUR cadence for table variant cleanup ────────────────
     psur_cadence = device_context.get("psur_cadence", "ANNUALLY")
 
+    # ── Data-availability flags for fabrication scrubbing ─────────────
+    has_previous_period_data = bool(stats_dict.get("has_previous_period_data"))
+    has_external_db = bool(parsed_data.get("external_db"))
+    has_literature = bool(parsed_data.get("literature"))
+    # Build the allowed-identifier set once per run so each section's
+    # post-pass can scrub stale CAPA/MDR/FSCA references carried forward
+    # from previous PSUR context without rebuilding it per section.
+    _allowed_ids = _build_allowed_identifier_set(parsed_data)
+
     # ── Build persistent global context ONCE for all 13 sections ──
     period = stats_dict.get("surveillance_period", {})
     global_context = build_global_context(
@@ -175,10 +198,32 @@ def generate_psur(
     ar_info = device_context.get("authorized_representative_info", {})
     nb_info = device_context.get("notified_body", {})
 
+    # SKILL F10: harness-reconciled NB number/name override (BSI 2797 not 0086).
+    skill_nb_number = device_context.get("notified_body_number")
+    skill_nb_name = device_context.get("notified_body_name")
+    if skill_nb_number:
+        nb_info = dict(nb_info)
+        nb_info["number"] = skill_nb_number
+        if skill_nb_name:
+            nb_info["name"] = skill_nb_name
+
     # Normalise certificate date to ISO 8601 if human-readable
     cert_date = device_context.get("certificate_date", "")
     if cert_date and not _is_iso_date(cert_date):
         cert_date = _parse_date_to_iso(cert_date)
+    # SKILL F6: harness-reconciled certificate date wins.
+    skill_cert_date = device_context.get("eu_mdr_certificate_date")
+    if skill_cert_date:
+        cert_date = (
+            skill_cert_date if _is_iso_date(skill_cert_date)
+            else _parse_date_to_iso(skill_cert_date)
+        )
+
+    # SKILL F6: harness-reconciled certificate number wins over device_context.
+    skill_cert_number = (
+        device_context.get("eu_mdr_certificate_number")
+        or device_context.get("certificate_number", "")
+    )
 
     psur = {
         "form": {
@@ -203,7 +248,7 @@ def generate_psur(
                 }
             },
             "regulatory_information": {
-                "certificate_number": device_context.get("certificate_number", ""),
+                "certificate_number": skill_cert_number,
                 "date_of_issue": cert_date,
                 "notified_body": {
                     "name": nb_info.get("name") or TEMPLATE_DEFAULTS["nb_name"],
@@ -278,6 +323,8 @@ def generate_psur(
                 section_content = normalize_period_mentions(section_content, period_months)
                 section_content = strip_regulation_citations(section_content)
                 section_content = strip_marketing_language(section_content)
+                section_content = strip_template_debris(section_content)
+                section_content = format_rates_as_percentages(section_content)
                 section_content = fix_sterile_contradictions(section_content, is_sterile)
                 section_content = fix_single_use_contradictions(section_content, not is_reusable)
                 section_content = fix_manufacturer_consistency(section_content, manufacturer_name)
@@ -286,8 +333,21 @@ def generate_psur(
                 section_content = fix_table7_grand_total(section_content)
                 section_content = normalize_enum_values(section_key, section_content)
                 section_content = fix_empty_and_placeholder_tables(section_key, section_content)
+                section_content = fill_default_empty_tables(section_key, section_content)
                 section_content = fix_fabricated_udi_di(section_key, section_content, device_context)
                 section_content = strip_wrong_cadence_tables(section_key, section_content, psur_cadence)
+                section_content = strip_unknown_section_a_keys(section_key, section_content)
+                section_content = shorten_classification_rule(section_key, section_content)
+                section_content = zero_fabricated_preceding_periods(
+                    section_key, section_content, has_previous_period_data)
+                section_content = fix_fabricated_external_db(
+                    section_key, section_content, has_external_db)
+                section_content = fix_fabricated_literature(
+                    section_key, section_content, has_literature)
+                section_content = reconcile_table7_row_sum(section_content)
+                section_content = fix_first_person_singular(section_content)
+                section_content = scrub_leaked_identifiers(section_content, _allowed_ids)
+                section_content = coerce_schema_numeric_strings(section_content)
 
                 psur["sections"][section_key] = section_content
                 progress.update(task, completed=1, description=f"Section {section_key.split('_')[0]} done")
@@ -383,6 +443,8 @@ def generate_psur(
                 remediated = normalize_period_mentions(remediated, period_months)
                 remediated = strip_regulation_citations(remediated)
                 remediated = strip_marketing_language(remediated)
+                remediated = strip_template_debris(remediated)
+                remediated = format_rates_as_percentages(remediated)
                 remediated = fix_sterile_contradictions(remediated, is_sterile)
                 remediated = fix_single_use_contradictions(remediated, not is_reusable)
                 remediated = fix_manufacturer_consistency(remediated, manufacturer_name)
@@ -391,8 +453,21 @@ def generate_psur(
                 remediated = fix_table7_grand_total(remediated)
                 remediated = normalize_enum_values(section_key, remediated)
                 remediated = fix_empty_and_placeholder_tables(section_key, remediated)
+                remediated = fill_default_empty_tables(section_key, remediated)
                 remediated = fix_fabricated_udi_di(section_key, remediated, device_context)
                 remediated = strip_wrong_cadence_tables(section_key, remediated, psur_cadence)
+                remediated = strip_unknown_section_a_keys(section_key, remediated)
+                remediated = shorten_classification_rule(section_key, remediated)
+                remediated = zero_fabricated_preceding_periods(
+                    section_key, remediated, has_previous_period_data)
+                remediated = fix_fabricated_external_db(
+                    section_key, remediated, has_external_db)
+                remediated = fix_fabricated_literature(
+                    section_key, remediated, has_literature)
+                remediated = reconcile_table7_row_sum(remediated)
+                remediated = fix_first_person_singular(remediated)
+                remediated = scrub_leaked_identifiers(remediated, _allowed_ids)
+                remediated = coerce_schema_numeric_strings(remediated)
 
                 psur["sections"][section_key] = remediated
                 console.print(f"    Section {letter}: remediated")
@@ -413,6 +488,9 @@ def generate_psur(
                 f"  [yellow]Max audit iterations reached "
                 f"(score: {audit_report.compliance_score}%).[/yellow]"
             )
+
+    # ── Final cross-section consistency pass ─────────────────────────
+    psur = fix_cross_section_serious_consistency(psur)
 
     return psur
 

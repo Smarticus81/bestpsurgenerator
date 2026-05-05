@@ -9,9 +9,24 @@ Thin entry point — orchestrates the pipeline by delegating to sub-modules:
   renderer    — DOCX template rendering
 """
 import json
+import os
 import re
+import sys
+import sqlite3
 import faulthandler
 faulthandler.enable()
+
+# Force UTF-8 for stdout/stderr so Unicode characters (arrows, em-dashes, etc.)
+# emitted by rich don't crash on Windows cp1252 consoles.
+for _stream in ("stdout", "stderr"):
+    _s = getattr(sys, _stream, None)
+    if _s is not None and hasattr(_s, "reconfigure"):
+        try:
+            _s.reconfigure(encoding="utf-8", errors="replace")
+        except Exception:
+            pass
+os.environ.setdefault("PYTHONIOENCODING", "utf-8")
+
 import typer
 from pathlib import Path
 from dataclasses import asdict
@@ -261,14 +276,72 @@ def generate(
     )
 
     # Resolve SQLite source: explicit --db > config.PSUR_DB_PATH > none.
+    # The DB is validated with PRAGMA integrity_check; a malformed file
+    # transparently falls back to CSV/Excel inputs in data/input/.
     _db_resolved: Optional[Path] = None
     if not no_db:
         _candidate = db or (Path(PSUR_DB_PATH) if PSUR_DB_PATH else None)
         if _candidate and Path(_candidate).exists():
-            _db_resolved = Path(_candidate)
-            console.print(f"[cyan]SQLite source enabled:[/cyan] {_db_resolved}")
+            try:
+                _con = sqlite3.connect(f"file:{Path(_candidate)}?mode=ro", uri=True)
+                _con.execute("PRAGMA quick_check").fetchone()
+                _row = _con.execute("PRAGMA integrity_check(1)").fetchone()
+                _con.close()
+                if not _row or str(_row[0]).strip().lower() != "ok":
+                    raise sqlite3.DatabaseError(f"integrity_check returned {_row}")
+                _db_resolved = Path(_candidate)
+                console.print(f"[cyan]SQLite source enabled:[/cyan] {_db_resolved}")
+            except (sqlite3.DatabaseError, sqlite3.OperationalError) as _db_err:
+                console.print(
+                    f"  [yellow]SQLite source unusable ({_db_err}) — "
+                    f"falling back to file inputs in {in_dir}[/yellow]"
+                )
+                _db_resolved = None
         elif _candidate:
             console.print(f"  [yellow]SQLite path set but not found: {_candidate} — falling back to file inputs[/yellow]")
+
+    # Build in-scope part-number list from input documents so DB queries
+    # are scoped to THIS PSUR instead of returning every row under td_id.
+    # Sources (in priority): device_context.model_or_catalog_numbers,
+    # previous_psur.appendix_a1_models.* (if previous PSUR is JSON).
+    _scope_pns: List[str] = []
+    _seen_pns: set = set()
+
+    def _add_pns(values):
+        if not values:
+            return
+        if isinstance(values, str):
+            values = [values]
+        for v in values:
+            s = str(v).strip()
+            if s and s.upper() not in _seen_pns:
+                _seen_pns.add(s.upper())
+                _scope_pns.append(s)
+
+    if context_file_rich:
+        _add_pns(context_file_rich.get("model_or_catalog_numbers"))
+        _add_pns(context_file_rich.get("model_numbers"))
+        _add_pns(context_file_rich.get("catalog_numbers"))
+
+    _prev_path = input_paths.get("previous_psur")
+    if _prev_path and _prev_path.exists() and _prev_path.suffix.lower() == ".json":
+        try:
+            with open(_prev_path) as _pf:
+                _prev_doc = json.load(_pf)
+            _appendix = _prev_doc.get("appendix_a1_models") or {}
+            if isinstance(_appendix, dict):
+                for _v in _appendix.values():
+                    _add_pns(_v)
+            elif isinstance(_appendix, list):
+                _add_pns(_appendix)
+        except Exception as e:
+            console.print(f"  [yellow]Could not read previous_psur scope appendix: {e}[/yellow]")
+
+    if _scope_pns:
+        console.print(
+            f"  [green]In-scope part numbers resolved from inputs: "
+            f"{len(_scope_pns)}[/green]"
+        )
 
     parse_result = parse_all_inputs(
         sales_path=input_paths["sales"],
@@ -292,10 +365,12 @@ def generate(
         unified_workbook_path=input_paths.get("analysis_workbook"),
         db_path=_db_resolved,
         db_td_id=td_id,
+        scope_product_numbers=_scope_pns or None,
     )
     parsed_data = parse_result["parsed_data"]
     expanded_context = parse_result["expanded_context"]
     previous_stats = parse_result["previous_stats"]
+    product_classification = parse_result.get("product_classification", {}) or {}
 
     # ── 4a. Override cadence from PMS plan if explicitly stated ─────
     # The PMS Plan is the authoritative source for PSUR cadence; it
@@ -449,6 +524,7 @@ def generate(
         previous_stats=previous_stats,
         is_reusable=meta["is_reusable"],
         ract_data=parsed_data.get("ract") if isinstance(parsed_data.get("ract"), dict) else None,
+        product_classification=product_classification,
     )
 
     console.print(f"  Total {stats.denominator_type}: {stats.total_units_sold:,}")
@@ -479,7 +555,10 @@ def generate(
 
     # Auto-generate any charts NOT supplied by the user
     if len(chart_paths) < 2:
-        auto_charts = generate_all_charts(stats_dict, chart_dir, _device_name)
+        _ract_for_charts = parsed_data.get("ract") if isinstance(parsed_data.get("ract"), dict) else None
+        auto_charts = generate_all_charts(
+            stats_dict, chart_dir, _device_name, ract_data=_ract_for_charts
+        )
         for name, path in auto_charts.items():
             if name not in chart_paths:
                 chart_paths[name] = path
@@ -576,13 +655,50 @@ def generate(
 def validate(
     psur_json: Path = typer.Argument(..., help="Path to PSUR JSON file"),
     docx: Path = typer.Option(None, "--docx", help="Optional DOCX path to validate rendered structure/tables"),
+    input_dir: Path = typer.Option(Path("data/input"), "--input", "-i", help="Input directory used to source parsed_data context (suppresses false-positive fabrication flags when external_db / literature / etc. are present)."),
 ):
     """Validate an existing PSUR JSON file."""
     console.print(f"\nValidating: {psur_json}\n")
     with open(psur_json) as f:
         psur = json.load(f)
+
+    # Best-effort load of parsed_data so context-aware checks (external_db,
+    # literature, RACT) don't report false positives. Falls back to {} if
+    # the input directory is missing.
+    parsed_data: Dict[str, Any] = {}
+    device_context: Dict[str, Any] = {}
+    try:
+        if input_dir and input_dir.exists():
+            discovered = auto_discover_inputs(input_dir)
+
+            def _first(cat: str) -> Optional[Path]:
+                files = discovered.get(cat, [])
+                return files[0] if files else None
+
+            for key in ("external_db", "literature", "ract", "capa",
+                        "complaints", "fsca", "previous_psur"):
+                p = _first(key)
+                if p and p.exists():
+                    try:
+                        if p.suffix.lower() == ".json":
+                            parsed_data[key] = json.loads(p.read_text(encoding="utf-8"))
+                        else:
+                            # Non-JSON sources still mark "data was provided"
+                            parsed_data[key] = {"_source_path": str(p)}
+                    except Exception:
+                        parsed_data[key] = {"_source_path": str(p)}
+
+            dc_path = _first("device_context")
+            if dc_path and dc_path.exists() and dc_path.suffix.lower() == ".json":
+                try:
+                    device_context = json.loads(dc_path.read_text(encoding="utf-8"))
+                except Exception:
+                    pass
+    except Exception as ex:
+        console.print(f"[yellow]Could not load parsed_data context for validation: {ex}[/yellow]")
+
     validator = PSURValidator()
-    is_valid_json, errors = validator.validate(psur)
+    is_valid_json, errors = validator.validate(psur, parsed_data=parsed_data, device_context=device_context)
 
     # Optional DOCX validation (post-render fidelity checks)
     docx_path = docx
@@ -622,6 +738,69 @@ def render(
     renderer = PSURTemplateRenderer()
     renderer.render(psur, output)
     console.print(f"[green]DOCX saved (template-based): {output}[/green]")
+
+
+@app.command()
+def harness(
+    device_name: str = typer.Argument("", help="Device name (auto-detected from device_context.json if omitted)"),
+    start_date: str = typer.Option(..., "--start", "-s", help="Reporting period start (YYYY-MM-DD)"),
+    end_date: str = typer.Option(..., "--end", "-e", help="Reporting period end (YYYY-MM-DD)"),
+    input_dir: Path = typer.Option(None, "--input", "-i", help="Input directory (default: data/input/)"),
+    output_dir: Path = typer.Option(None, "--output", "-o", help="Output directory (default: data/output/)"),
+    db: Optional[Path] = typer.Option(None, "--db", help="SQLite DB with complaints + sales tables"),
+    no_db: bool = typer.Option(False, "--no-db", help="Disable SQLite source even if PSUR_DB_PATH is set"),
+    td_id: Optional[str] = typer.Option(None, "--td-id", help="Filter SQLite rows by td_id"),
+    is_first_psur: bool = typer.Option(False, "--first-psur", help="Skip the previous_psur mandatory check"),
+    resume: bool = typer.Option(False, "--resume", help="Resume from last checkpoint"),
+    ollama_model: Optional[str] = typer.Option(None, "--ollama-model", help="Use a local Ollama model for ALL LLM calls"),
+    ollama_url: Optional[str] = typer.Option(None, "--ollama-url", help="Ollama API base URL"),
+):
+    """Run the Smarticus PSUR Harness v3 (urn:coopersurgical:smarticus:psur-harness:v3).
+
+    Eight-stage pipeline with 11 agents:
+      1. regulatory_classifier
+      2. data_ingestion
+      3. imdrf_classifier
+      4. statistical_engine + risk_assessor   (parallel)
+      5. chart_generator + narrative_writer + table_generator   (parallel)
+      6. benefit_risk_synthesizer
+      7. docx_renderer
+      8. validation
+
+        python main.py harness --start 2025-05-01 --end 2026-04-30
+    """
+    if ollama_model:
+        from llm_client import set_ollama_override
+        set_ollama_override(ollama_model, url=ollama_url)
+        console.print(
+            f"[bold green]Ollama mode:[/bold green] {ollama_model} @ "
+            f"{ollama_url or 'http://localhost:11434'}\n"
+        )
+
+    from pipeline.harness import run_harness
+    in_dir = Path(input_dir or INPUT_DIR)
+    out_dir = Path(output_dir or OUTPUT_DIR)
+    try:
+        result = run_harness(
+            start_date=start_date,
+            end_date=end_date,
+            input_dir=in_dir,
+            output_dir=out_dir,
+            device_name=device_name,
+            db_path=db,
+            db_td_id=td_id,
+            no_db=no_db,
+            is_first_psur=is_first_psur,
+            resume=resume,
+        )
+    except RuntimeError as ex:
+        console.print(f"\n[red]Harness aborted: {ex}[/red]")
+        raise typer.Exit(1)
+
+    err_count = sum(1 for it in result.issues if it.severity == "ERROR")
+    if err_count:
+        console.print(f"\n[red]Harness completed with {err_count} ERROR-level issues[/red]")
+        raise typer.Exit(2)
 
 
 @app.command()

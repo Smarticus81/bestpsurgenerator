@@ -23,8 +23,14 @@ from parsers.sqlite_db import (
     parse_complaints_from_db,
     parse_sales_from_db,
     resolve_td_id_for_device,
+    load_product_classification_from_db,
 )
-from imdrf_coder import auto_code_complaints, strip_imdrf_code, _is_valid_imdrf_code
+from imdrf_coder import (
+    auto_code_complaints,
+    strip_imdrf_code,
+    _is_valid_imdrf_code,
+    apply_skill_classification,
+)
 
 logger = logging.getLogger(__name__)
 console = Console()
@@ -117,6 +123,8 @@ def parse_all_inputs(
     unified_workbook_path: Optional[Path] = None,
     db_path: Optional[Path] = None,
     db_td_id: Optional[str] = None,
+    scope_product_numbers: Optional[List[str]] = None,
+    classification_hint: Optional[Dict[str, str]] = None,
 ) -> Dict[str, Any]:
     """Parse all input files and return (parsed_data, expanded_context, previous_stats).
 
@@ -129,6 +137,31 @@ def parse_all_inputs(
     parsed_data: Dict[str, Any] = {}
     expanded_context: Dict[str, str] = {}
     previous_stats: Optional[Dict[str, Any]] = None
+    product_classification: Dict[str, Dict[str, str]] = {}
+
+    # ── Pre-load classification from previous PSUR JSON if available ──
+    # appendix_a1_models keys map directly to reusable / single-use buckets.
+    classification_map: Dict[str, str] = dict(classification_hint or {})
+    if prev_psur_path and prev_psur_path.exists() and prev_psur_path.suffix.lower() == ".json":
+        try:
+            with open(prev_psur_path) as _pf:
+                _prev = json.load(_pf)
+            _appx = _prev.get("appendix_a1_models") or {}
+            if isinstance(_appx, dict):
+                for _model in _appx.get("non_sterile_retractors", []) or []:
+                    classification_map[str(_model).strip().upper()] = "reusable"
+                for _bucket in ("sterile_retractors", "sterile_retractor_kits"):
+                    for _model in _appx.get(_bucket, []) or []:
+                        classification_map[str(_model).strip().upper()] = "single_use"
+            if classification_map:
+                _r = sum(1 for v in classification_map.values() if v == "reusable")
+                _s = sum(1 for v in classification_map.values() if v == "single_use")
+                console.print(
+                    f"  [cyan]Product classification from previous PSUR:[/cyan] "
+                    f"{_r} reusable / {_s} single-use models"
+                )
+        except Exception as e:
+            console.print(f"  [yellow]Classification preload skipped: {e}[/yellow]")
 
     # ── Detect raw data sheets in unified workbook (if provided) ────
     _wb_sheets: Dict[str, str] = {}  # category -> actual sheet name
@@ -168,13 +201,66 @@ def parse_all_inputs(
         td_label = f" td_id={_resolved_td_id}" if _resolved_td_id else " (all td_id)"
         console.print(f"  [cyan]SQLite source:[/cyan] {_db_path.name}{td_label}")
 
+        # Normalize scope: deduplicate, strip blanks, preserve order.
+        _scope_pns: Optional[List[str]] = None
+        if scope_product_numbers:
+            seen = set()
+            _scope_pns = []
+            for pn in scope_product_numbers:
+                key = str(pn).strip()
+                if key and key.upper() not in seen:
+                    seen.add(key.upper())
+                    _scope_pns.append(key)
+            if _scope_pns:
+                _preview = ", ".join(_scope_pns[:8]) + (" …" if len(_scope_pns) > 8 else "")
+                console.print(
+                    f"  [cyan]Scope filter:[/cyan] {len(_scope_pns)} part numbers "
+                    f"from input documents ({_preview})"
+                )
+            else:
+                _scope_pns = None
+        if not _scope_pns:
+            console.print(
+                "  [yellow]No part-number scope provided — DB queries will return ALL "
+                "rows for the device family (td_id only)[/yellow]"
+            )
+
     if _use_db:
+        # Resolve per-item classification once; passed to both sales and complaints.
+        try:
+            product_classification = load_product_classification_from_db(
+                _db_path,
+                td_id=_resolved_td_id,
+                product_numbers=_scope_pns,
+                classification_map=classification_map or None,
+            ) or {}
+            if product_classification:
+                _r = sum(1 for v in product_classification.values() if v.get("class") == "reusable")
+                _s = sum(1 for v in product_classification.values() if v.get("class") == "single_use")
+                _u = sum(1 for v in product_classification.values() if v.get("class") == "unknown")
+                console.print(
+                    f"  [cyan]DB classification resolved:[/cyan] "
+                    f"{_r} reusable / {_s} single-use / {_u} unknown"
+                )
+        except Exception as e:
+            console.print(f"  [yellow]Classification resolution failed: {e}[/yellow]")
+            product_classification = {}
+
         try:
             parsed_data["sales"] = parse_sales_from_db(
-                _db_path, start_date, end_date, td_id=_resolved_td_id
+                _db_path, start_date, end_date,
+                td_id=_resolved_td_id,
+                product_numbers=_scope_pns,
+                product_classification=product_classification,
             )
+            _neg = parsed_data["sales"].get("negative_unit_rows_excluded", 0)
             console.print(f"  Sales (DB): {parsed_data['sales']['total_units']:,} units "
                           f"({parsed_data['sales']['rows_processed']} rows)")
+            if _neg:
+                console.print(
+                    f"    [yellow]Excluded {_neg} negative-unit rows totalling "
+                    f"{parsed_data['sales'].get('negative_units_total', 0)} units[/yellow]"
+                )
         except Exception as e:
             console.print(f"  [red]Sales DB read failed: {e}[/red]")
             parsed_data["sales"] = {"total_units": 0, "by_month": {}, "by_region": {}, "by_product": {}}
@@ -196,7 +282,11 @@ def parse_all_inputs(
                 p_start_s = p_start.strftime(_fmt)
                 p_end_s = p_end.strftime(_fmt)
                 try:
-                    h = parse_sales_from_db(_db_path, p_start_s, p_end_s, td_id=_resolved_td_id)
+                    h = parse_sales_from_db(
+                        _db_path, p_start_s, p_end_s,
+                        td_id=_resolved_td_id,
+                        product_numbers=_scope_pns,
+                    )
                     historical_periods.append({
                         "label": f"P-{offset} ({p_start_s} → {p_end_s})",
                         "start": p_start_s,
@@ -236,7 +326,10 @@ def parse_all_inputs(
     if _use_db:
         try:
             parsed_data["complaints"] = parse_complaints_from_db(
-                _db_path, start_date, end_date, td_id=_resolved_td_id
+                _db_path, start_date, end_date,
+                td_id=_resolved_td_id,
+                product_numbers=_scope_pns,
+                product_classification=product_classification,
             )
             console.print(f"  Complaints (DB): {parsed_data['complaints']['total_complaints']} complaints "
                           f"({parsed_data['complaints']['serious_incident_count']} serious)")
@@ -269,28 +362,55 @@ def parse_all_inputs(
             "complaint_number_format": "", "complaint_summaries": []
         }
 
-    # Auto-code IMDRF if complaints were parsed from any source
+    # IMDRF classification — SKILL_PSUR_GENERATION F2 pipeline.
+    # Step 1/2: deterministic Symptom Code mapping (no LLM call).
+    # Step 3:   narrative keyword fallback (no LLM call).
+    # Step 4/5: LLM auto-coder for the residual that survived steps 1-3.
+    # The forbidden 'Unknown / Not yet determined' tokens are scrubbed at
+    # every step.
     if parsed_data["complaints"].get("total_complaints", 0) > 0:
-        # Use _is_valid_imdrf_code() to recognize both alphanumeric codes
-        # AND known IMDRF terms so user-provided term-only codes are NOT
-        # flagged as "uncoded".
         summaries = parsed_data["complaints"].get("complaint_summaries", [])
-        uncoded = sum(
-            1 for s in summaries
-            if not s.get("imdrf_code")
-            or str(s["imdrf_code"]).strip() in ("", "Unknown", "N/A", "nan")
-            or not _is_valid_imdrf_code(str(s["imdrf_code"]))
-        )
-        if uncoded > 0:
-            console.print(f"    -> [yellow]{uncoded} complaints need IMDRF coding...[/yellow]")
-            auto_code_complaints(summaries, {"device_name": device_name})
-            _rebuild_imdrf_counts(parsed_data["complaints"], summaries)
-            console.print(f"    -> [green]IMDRF auto-coding complete[/green]")
-        else:
-            # Even when no auto-coding is needed, rebuild counts to ensure
-            # term-only codes are normalised and cross-tabs are populated.
-            _rebuild_imdrf_counts(parsed_data["complaints"], summaries)
-            console.print(f"    -> [green]All complaints already have valid IMDRF codes[/green]")
+        skill_counters = apply_skill_classification(summaries)
+        deterministic = skill_counters["symptom_code"] + skill_counters["narrative"]
+        if deterministic:
+            console.print(
+                f"    -> [green]F2 deterministic IMDRF: {deterministic}/"
+                f"{len(summaries)} complaints classified "
+                f"({skill_counters['symptom_code']} by symptom code, "
+                f"{skill_counters['narrative']} by narrative)[/green]"
+            )
+
+        # Exclude SKILL-classified complaints from LLM fallback - their
+        # terms are intentionally INSORB-specific and not in harm_mdp_codes.csv.
+        residual = [
+            s for s in summaries
+            if not s.get("_skill_classification_source")
+            and (
+                not s.get("imdrf_code")
+                or str(s["imdrf_code"]).strip() in ("", "Unknown", "N/A", "nan")
+                or not _is_valid_imdrf_code(str(s["imdrf_code"]))
+            )
+        ]
+        if residual:
+            console.print(
+                f"    -> [yellow]{len(residual)} complaints still need IMDRF coding "
+                f"(LLM fallback)...[/yellow]"
+            )
+            auto_code_complaints(residual, {"device_name": device_name})
+
+        # Final scrub: F2 forbids 'Unknown' parent-node terms even after LLM.
+        from imdrf_coder import force_safe_default
+        for s in summaries:
+            new_harm, new_mdp = force_safe_default(
+                s.get("harm") or s.get("harm_code") or "",
+                s.get("imdrf_code") or "",
+            )
+            s["harm"] = new_harm
+            s["harm_code"] = new_harm
+            s["imdrf_code"] = new_mdp
+
+        _rebuild_imdrf_counts(parsed_data["complaints"], summaries)
+        console.print("    -> [green]IMDRF classification complete[/green]")
 
     if capa_path:
         console.print(f"  CAPA: {capa_path.name}")
@@ -430,10 +550,71 @@ def parse_all_inputs(
         if ext == ".json":
             with open(prev_psur_path) as f:
                 prev = json.load(f)
-            previous_stats = prev.get("_statistics", None)
             prev_text = json.dumps(prev, default=str)
             expanded_context["previous_psur"] = prev_text
             parsed_data["previous_psur"] = prev_text
+            # Build a STRUCTURED previous_stats from section_d so YoY math
+            # can happen without an LLM call. Keys mirror PSURStatistics so
+            # statistics.compute_psur_statistics can subtract/divide directly.
+            try:
+                # previous_psur.json uses 'section_d_complaints_overview' with
+                # child keys 'complaints', 'sales', 'overall_complaint_rate_percent'
+                _sec_d = (
+                    prev.get("section_d_complaints_overview")
+                    or prev.get("section_d")
+                    or {}
+                )
+                _reuse = _sec_d.get("reusable_devices") or {}
+                _su = _sec_d.get("single_use_devices") or {}
+
+                def _n(d, *keys, default=0):
+                    for k in keys:
+                        if k in d and d[k] not in (None, ""):
+                            try:
+                                return float(d[k])
+                            except (TypeError, ValueError):
+                                continue
+                    return default
+
+                _reuse_units = int(_n(_reuse, "sales", "total_sales", "units"))
+                _reuse_c = int(_n(_reuse, "complaints", "total_complaints"))
+                _reuse_rate_pct = _n(
+                    _reuse, "overall_complaint_rate_percent",
+                    "complaint_rate_pct", "complaint_rate_percent",
+                )
+                _su_units = int(_n(_su, "sales", "total_sales", "units"))
+                _su_c = int(_n(_su, "complaints", "total_complaints"))
+                _su_rate_pct = _n(
+                    _su, "overall_complaint_rate_percent",
+                    "complaint_rate_pct", "complaint_rate_percent",
+                )
+                _prev_units = _reuse_units + _su_units
+                _prev_complaints = (
+                    int(_sec_d.get("total_complaints") or 0)
+                    or (_reuse_c + _su_c)
+                )
+                previous_stats = {
+                    "total_units_sold": _prev_units,
+                    "total_complaints": _prev_complaints,
+                    "overall_complaint_rate": (
+                        _prev_complaints / _prev_units if _prev_units > 0 else 0.0
+                    ),
+                    "reusable_units": _reuse_units,
+                    "reusable_complaints": _reuse_c,
+                    "reusable_rate": _reuse_rate_pct / 100.0,
+                    "single_use_units": _su_units,
+                    "single_use_complaints": _su_c,
+                    "single_use_rate": _su_rate_pct / 100.0,
+                    "period": prev.get("period", {}),
+                    "source": "previous_psur.json::section_d_complaints_overview",
+                }
+                console.print(
+                    f"    [green]Previous PSUR stats: {_prev_complaints} complaints / "
+                    f"{_prev_units:,} units (reusable {_reuse_c}/{_reuse_units:,}, "
+                    f"single-use {_su_c}/{_su_units:,})[/green]"
+                )
+            except Exception as _e:
+                console.print(f"    [yellow]Could not extract previous_stats from JSON: {_e}[/yellow]")
         else:
             try:
                 prev_parsed = parse_previous_psur(prev_psur_path)
@@ -473,4 +654,5 @@ def parse_all_inputs(
         "parsed_data": parsed_data,
         "expanded_context": expanded_context,
         "previous_stats": previous_stats,
+        "product_classification": product_classification,
     }
