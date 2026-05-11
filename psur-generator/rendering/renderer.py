@@ -5,6 +5,7 @@ Clones FormQAR-054_template.docx and fills it from PSUR JSON data.
 """
 import json
 import logging
+import re
 from pathlib import Path
 from typing import Any, Dict, Optional
 
@@ -17,6 +18,21 @@ from rendering._tables import TableMixin
 from rendering._formatting import FormattingMixin
 
 logger = logging.getLogger(__name__)
+
+# Regex to match template instruction debris: [bracketed text]
+# Excludes checkbox characters (☐☑☒) which use similar formatting
+_TEMPLATE_DEBRIS_RE = re.compile(r'\[(?![☐☑☒])[^\[\]]{3,}\]')
+
+# Specific template instruction phrases to strip
+_TEMPLATE_PHRASES = [
+    "(Remove if not applicable)",
+    "(remove if not applicable)",
+    "[Add or delete rows as needed]",
+    "[add or delete rows as needed]",
+    "[Note: Multiply number of sales units",
+    "[Any other countries which have more than 5% of global sales. Add rows as needed.]",
+    "[Any other countries which have more than 5%",
+]
 
 
 class PSURTemplateRenderer(ValueMapMixin, ParagraphMixin, TableMixin, FormattingMixin):
@@ -42,6 +58,9 @@ class PSURTemplateRenderer(ValueMapMixin, ParagraphMixin, TableMixin, Formatting
 
         values = self._build_value_map(psur)
 
+        # 0) Determine cadence and delete unused table variants
+        self._delete_unused_table_variants(psur)
+
         # 1) Fill placeholders in body paragraphs
         for para in self.doc.paragraphs:
             self._fill_paragraph(para, values)
@@ -61,8 +80,144 @@ class PSURTemplateRenderer(ValueMapMixin, ParagraphMixin, TableMixin, Formatting
         # 5) Apply universal formatting (fonts, sizes, bold/underline rules)
         self._apply_universal_formatting()
 
+        # 6) Strip all template debris (bracketed instructions, footnotes, etc.)
+        self._strip_template_debris()
+
         output_path.parent.mkdir(parents=True, exist_ok=True)
         self.doc.save(str(output_path))
+
+    # ==================================================================
+    # Template debris stripping
+    # ==================================================================
+    def _strip_template_debris(self):
+        """Remove all template instruction debris from the final document.
+
+        This runs AFTER all content is filled, ensuring no [bracketed instructions],
+        (Remove if not applicable) annotations, or footnote debris survive.
+        """
+        debris_count = 0
+
+        # Strip from body paragraphs
+        for para in self.doc.paragraphs:
+            debris_count += self._strip_debris_from_paragraph(para)
+
+        # Strip from table cells
+        for table in self.doc.tables:
+            for row in table.rows:
+                for cell in row.cells:
+                    for para in cell.paragraphs:
+                        debris_count += self._strip_debris_from_paragraph(para)
+
+        # Strip from headers/footers
+        for section in self.doc.sections:
+            for hf in (section.header, section.footer,
+                       section.first_page_header, section.first_page_footer):
+                if hf is None:
+                    continue
+                for para in hf.paragraphs:
+                    self._strip_debris_from_paragraph(para)
+
+        if debris_count > 0:
+            logger.info(f"Stripped {debris_count} template debris instances from document")
+
+    def _strip_debris_from_paragraph(self, para) -> int:
+        """Strip template debris from a single paragraph. Returns count of removals."""
+        full_text = para.text
+        if not full_text:
+            return 0
+
+        cleaned = full_text
+        count = 0
+
+        # Strip specific known phrases first
+        for phrase in _TEMPLATE_PHRASES:
+            if phrase in cleaned:
+                cleaned = cleaned.replace(phrase, "")
+                count += 1
+
+        # Strip remaining [bracketed instructions] (but not checkbox chars)
+        matches = _TEMPLATE_DEBRIS_RE.findall(cleaned)
+        for match in matches:
+            # Don't strip things that look like real content (e.g. [PMCF-001])
+            match_lower = match.lower()
+            if any(kw in match_lower for kw in (
+                "use this table", "add or delete", "remove if",
+                "note:", "any other countries", "multiply number",
+                "select one", "delete the", "insert",
+                "add rows", "complete this", "fill in",
+            )):
+                cleaned = cleaned.replace(match, "")
+                count += 1
+
+        if count > 0 and cleaned != full_text:
+            # Apply the cleaned text back to the paragraph runs
+            cleaned = cleaned.strip()
+            runs = para.runs
+            if runs:
+                runs[0].text = cleaned
+                for r in runs[1:]:
+                    r.text = ""
+
+        # Remove paragraphs that are now entirely empty after stripping
+        # (only if they were ONLY template debris)
+        if count > 0 and not cleaned.strip():
+            # Remove the paragraph element from the document body
+            para._element.getparent().remove(para._element)
+
+        return count
+
+    # ==================================================================
+    # Delete unused table variants
+    # ==================================================================
+    def _delete_unused_table_variants(self, psur: Dict[str, Any]):
+        """Delete the unused annual/biennial table variant from the template.
+
+        FormQAR-054 contains BOTH annual and biennial variants for Table 1
+        and Table 7. We determine cadence and remove the wrong one.
+        """
+        # Determine cadence from PSUR data
+        sections = psur.get("sections", {})
+        sec_b = sections.get("B_scope_and_device_description", {})
+        classification = sec_b.get("device_classification", {})
+        eu_class = (classification.get("eu_mdr_classification", "") or "").upper()
+
+        # Class IIb, III, implantable = annual; Class IIa = biennial
+        # Default to annual if classification is unclear
+        is_annual = eu_class not in ("CLASS_IIA",)
+
+        # Also check the doc_info cadence field
+        cover = psur.get("psur_cover_page", {})
+        doc_info = cover.get("document_information", {})
+        cadence = (doc_info.get("psur_cadence", "") or "").lower()
+        if "biennial" in cadence or "24" in cadence:
+            is_annual = False
+        elif "annual" in cadence or "12" in cadence:
+            is_annual = True
+
+        # Keywords that identify variant tables
+        annual_keywords = ["annually", "annual number", "12-month", "12 month"]
+        biennial_keywords = ["every two years", "biennial", "24-month", "24 month"]
+        remove_keywords = biennial_keywords if is_annual else annual_keywords
+
+        # Remove matching paragraphs (variant headers/instructions)
+        paras_to_remove = []
+        for para in self.doc.paragraphs:
+            text = para.text.lower()
+            if any(kw in text for kw in remove_keywords):
+                # Check it's a table instruction, not real content
+                if any(marker in text for marker in [
+                    "use this table", "select this", "[",
+                    "delete the other", "table if",
+                ]):
+                    paras_to_remove.append(para)
+
+        for para in paras_to_remove:
+            para._element.getparent().remove(para._element)
+
+        logger.info(
+            f"Cadence: {'annual' if is_annual else 'biennial'}. "
+            f"Removed {len(paras_to_remove)} unused variant instruction paragraphs."
+        )
 
 
 # ═════════════════════════════════════════════════════════════════════

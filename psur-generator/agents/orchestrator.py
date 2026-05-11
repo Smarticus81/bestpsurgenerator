@@ -27,6 +27,7 @@ from agents.postprocessing import (
     strip_nb_references_class_i,
     strip_wrong_cadence_tables,
     strip_unknown_section_a_keys,
+    fix_section_a_capa_status,
     shorten_classification_rule,
     zero_fabricated_preceding_periods,
     fix_fabricated_external_db,
@@ -337,6 +338,7 @@ def generate_psur(
                 section_content = fix_fabricated_udi_di(section_key, section_content, device_context)
                 section_content = strip_wrong_cadence_tables(section_key, section_content, psur_cadence)
                 section_content = strip_unknown_section_a_keys(section_key, section_content)
+                section_content = fix_section_a_capa_status(section_key, section_content)
                 section_content = shorten_classification_rule(section_key, section_content)
                 section_content = zero_fabricated_preceding_periods(
                     section_key, section_content, has_previous_period_data)
@@ -457,6 +459,7 @@ def generate_psur(
                 remediated = fix_fabricated_udi_di(section_key, remediated, device_context)
                 remediated = strip_wrong_cadence_tables(section_key, remediated, psur_cadence)
                 remediated = strip_unknown_section_a_keys(section_key, remediated)
+                remediated = fix_section_a_capa_status(section_key, remediated)
                 remediated = shorten_classification_rule(section_key, remediated)
                 remediated = zero_fabricated_preceding_periods(
                     section_key, remediated, has_previous_period_data)

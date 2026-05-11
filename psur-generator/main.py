@@ -14,6 +14,7 @@ import re
 import sys
 import sqlite3
 import faulthandler
+from datetime import datetime
 faulthandler.enable()
 
 # Force UTF-8 for stdout/stderr so Unicode characters (arrows, em-dashes, etc.)
@@ -117,6 +118,28 @@ app = typer.Typer(
 console = Console()
 
 
+def _validate_date_range_or_exit(start_date: str, end_date: str) -> None:
+    """Abort early when a CLI date range is invalid."""
+    try:
+        start_dt = datetime.strptime(start_date, "%Y-%m-%d")
+        end_dt = datetime.strptime(end_date, "%Y-%m-%d")
+    except ValueError as ex:
+        console.print(
+            f"[red]Invalid date format: {ex}. Use YYYY-MM-DD, e.g. "
+            "2025-01-01.[/red]"
+        )
+        raise typer.Exit(1)
+
+    if start_dt > end_dt:
+        console.print(
+            f"[red]Invalid reporting period: start date {start_date} is after "
+            f"end date {end_date}.[/red]\n"
+            f"[yellow]Use: --start {end_date} --end {start_date} if those "
+            "dates were reversed.[/yellow]"
+        )
+        raise typer.Exit(1)
+
+
 @app.command()
 def generate(
     device_name: str = typer.Argument("", help="Device name (auto-detected from CER if omitted)"),
@@ -161,6 +184,8 @@ def generate(
     You can optionally pass a device name as the first argument to override auto-detection.
     Column mappings are auto-mapped by default.
     """
+
+    _validate_date_range_or_exit(start_date, end_date)
 
     # ── 0. Activate Ollama override if requested ────────────────────
     if ollama_model:
@@ -769,6 +794,8 @@ def harness(
 
         python main.py harness --start 2025-05-01 --end 2026-04-30
     """
+    _validate_date_range_or_exit(start_date, end_date)
+
     if ollama_model:
         from llm_client import set_ollama_override
         set_ollama_override(ollama_model, url=ollama_url)

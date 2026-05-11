@@ -15,6 +15,11 @@ import json
 
 from imdrf_coder import strip_imdrf_code
 from config import RACT_CODES_PATH
+from statistics_tables import (
+    calculate_region_percentages,
+    determine_12month_periods_from_dates,
+    build_table8_rows,
+)
 
 
 # ---------------------------------------------------------------------------
@@ -154,6 +159,15 @@ class PSURStatistics:
     # Pre-computed Table 7 rows (harm × imdrf × count × rate)
     table7_rows: List[Dict[str, Any]] = field(default_factory=list)
 
+    # Pre-computed Table 8 rows (harm × device-problem × {EEA+TR+XI, UK, Worldwide})
+    # Built per psur-complaint-tables skill spec; carries occurrence code (O1-O5)
+    # from MEDDEV 2.7/1 Rev.4 keyed off the worldwide rate.
+    table8_rows: List[Dict[str, Any]] = field(default_factory=list)
+
+    # EU/UK vs FDA MDR distinction
+    eu_uk_serious_incident_count: int = 0  # Art. 2(65) qualifying events only
+    fda_mdr_count: int = 0  # FDA MDRs (may not be EU serious incidents)
+
     # Per-region complaint rates for Table 2
     rates_by_region: List[Dict[str, Any]] = field(default_factory=list)
 
@@ -166,6 +180,49 @@ class PSURStatistics:
 
     # Headers for the 3 "Preceding 12-Month" columns in Section C Table 1
     section_c_period_labels: List[str] = field(default_factory=list)
+
+    # ── Single-use vs reusable bifurcation (mixed portfolios) ──
+    # Populated when product_classification is supplied. For pure-class
+    # devices these mirror the overall totals in the relevant bucket.
+    reusable_units: int = 0
+    single_use_units: int = 0
+    unknown_class_units: int = 0
+    reusable_complaints: int = 0
+    single_use_complaints: int = 0
+    unknown_class_complaints: int = 0
+    reusable_rate: float = 0.0
+    single_use_rate: float = 0.0
+    reusable_rate_pct: float = 0.0
+    single_use_rate_pct: float = 0.0
+    reusable_rate_display: str = ""
+    single_use_rate_display: str = ""
+    portfolio_is_mixed: bool = False  # True when both classes have units > 0
+
+    # ── UK breakout (always reported separately from EEA) ──
+    uk_rate: float = 0.0
+    uk_rate_pct: float = 0.0
+    uk_rate_display: str = ""
+    uk_serious_incidents: int = 0
+
+    # ── Quarterly cumulative trend (preferred over monthly p-chart) ──
+    # Monthly trend (trend_analysis above) is retained for backward compat
+    # but the quarterly view is what MDCG 2022-21 §III.5 expects for
+    # multi-year service-life devices.
+    quarterly_trend: Optional[Dict[str, Any]] = None
+
+    # ── psur-trend-charts skill inputs ──
+    # harm_by_month: {YYYY-MM: {harm_label: count}} — for stacked harm chart.
+    # per_period_aggregates: list of {label, complaints, units, rate, occurrence_*}
+    # for per-period bar variants.
+    harm_by_month: Dict[str, Dict[str, int]] = field(default_factory=dict)
+    per_period_aggregates: List[Dict[str, Any]] = field(default_factory=list)
+
+    # ── Data-quality audit signals ──
+    negative_unit_rows_excluded: int = 0
+    negative_units_total: int = 0
+
+    # ── Previous PSUR breakdown (for YoY narrative) ──
+    previous_period_summary: Optional[Dict[str, Any]] = None
 
 
 def calculate_rate(complaints: int, denominator: int) -> float:
@@ -337,7 +394,8 @@ def compute_psur_statistics(
     surveillance_period: Dict[str, str],
     previous_stats: Optional[Dict] = None,
     is_reusable: bool = False,
-    ract_data: Optional[Dict[str, Any]] = None
+    ract_data: Optional[Dict[str, Any]] = None,
+    product_classification: Optional[Dict[str, Dict[str, str]]] = None,
 ) -> PSURStatistics:
     """Compute all statistics for PSUR generation.
 
@@ -365,6 +423,36 @@ def compute_psur_statistics(
     serious_count = len(serious)
     serious_rate = calculate_rate(serious_count, total_units)
     serious_display = format_rate_display(serious_count, total_units, denom_type)
+
+    # ── Distinguish EU/UK serious incidents from FDA MDRs ──
+    # EU MDR Art. 2(65) criteria: death, serious deterioration in health
+    # (hospitalization, life-threatening, permanent impairment, intervention needed),
+    # or serious public health threat.
+    # FDA MDRs include "serious injury" that may not meet EU criteria (e.g. laceration
+    # resolving with local wound care).
+    eu_uk_si_count = 0
+    fda_mdr_count = 0
+    for inc in serious:
+        # Check for EU/UK qualification markers
+        is_eu_si = inc.get("eu_serious_incident", False)
+        is_eu_si = is_eu_si or inc.get("meets_art_2_65", False)
+        # If harm severity indicates death, hospitalization, etc.
+        harm = str(inc.get("harm", "") or inc.get("imdrf_harm", "") or "").lower()
+        if is_eu_si or any(k in harm for k in ("death", "hospitali", "life-threaten",
+                                                "permanent", "public health")):
+            eu_uk_si_count += 1
+        else:
+            fda_mdr_count += 1
+    # If no explicit distinction available, assume ALL are FDA MDRs (conservative)
+    # unless the complaint parser explicitly tagged them
+    if eu_uk_si_count == 0 and serious_count > 0:
+        # Check if any have explicit FDA MDR markers
+        has_fda_markers = any(
+            inc.get("mdr_issued") or inc.get("fda_mdr") for inc in serious
+        )
+        if has_fda_markers:
+            fda_mdr_count = serious_count
+            eu_uk_si_count = 0
 
     serious_by_imdrf = {}
     for inc in serious:
@@ -522,11 +610,28 @@ def compute_psur_statistics(
 
     # UK / Great Britain — post-Brexit, UK is no longer in EEA.
     # Great Britain = England + Scotland + Wales (UKCA regime).
-    # Northern Ireland follows EU rules via the Windsor Framework (XI protocol).
+    # Northern Ireland (XI) follows EU rules via the Windsor Framework but
+    # for PSUR reporting we count it under UK so the "UK MDR Part 4A"
+    # surface area is complete. (NB: kept out of EEA totals.)
     UK_GB_NAMES = [
         "United Kingdom", "UK", "Great Britain", "GB",
         "England", "Scotland", "Wales",
+        "Northern Ireland", "XI",
     ]
+
+    # Region label normalizer — collapses common spelling variants so the
+    # UK breakout, EEA aggregation and rates_by_region inner-join all see
+    # the same canonical key.
+    def _canon_region(s: Optional[str]) -> str:
+        if not s:
+            return "Unknown"
+        v = str(s).strip()
+        for canon in UK_GB_NAMES:
+            if v.lower() == canon.lower():
+                return "United Kingdom"
+        if v.lower() in ("usa", "u.s.", "u.s.a.", "united states of america"):
+            return "United States"
+        return v.title()
 
     # Use country-level data if available (preferred), else fall back to region-level
     units_by_country = sales_data.get("by_country", {})
@@ -553,9 +658,13 @@ def compute_psur_statistics(
 
     # Also count UK complaints from complaint region data
     complaints_by_region_raw = complaints_data.get("by_region", {})
+    uk_serious_count = 0
     for region_name, count in complaints_by_region_raw.items():
         if region_name in UK_GB_NAMES:
             uk_complaints_total += count
+    for inc in serious:
+        if inc.get("region") in UK_GB_NAMES:
+            uk_serious_count += 1
 
     uk_market_detected = uk_units > 0
 
@@ -679,26 +788,106 @@ def compute_psur_statistics(
         row["units_p3"] = period_buckets[2].get(region_label, 0) if period_buckets[2] else None
 
     # Surface period labels for use in Table 1 column headers
-    section_c_period_labels = period_labels
+    # Default to historical-period labels; override with skill labels when available.
+    section_c_period_labels = list(period_labels)
+    start_period = surveillance_period.get("start", "")
+    end_period = surveillance_period.get("end", "")
+    determined_periods: List[Any] = []
+    try:
+        determined_periods = determine_12month_periods_from_dates(start_period, end_period)
+        if determined_periods:
+            # Use skill-generated period labels if available
+            section_c_period_labels = [p[2] for p in determined_periods[-3:]]  # Last 3 periods
+    except Exception:
+        pass  # Fall back to existing labels if skill fails
+
+    # Add percentage column to section_c_region_rows (for current period)
+    worldwide_total = total_units
+    if worldwide_total > 0:
+        for row in section_c_region_rows:
+            row_units = row.get("units", 0)
+            row["pct_current"] = round((row_units / worldwide_total) * 100, 1)
 
     # ── Per-region complaint rates (for Table 2 / Section D) ──
+    # Inner-join sales × complaints on a canonical region key so that
+    # "United Kingdom" / "UK" / "GB" don't appear as separate rows and
+    # so rates_by_region is non-empty whenever both sides have data.
     complaints_by_region = complaints_data.get("by_region", {})
+    canon_units: Dict[str, int] = {}
+    canon_complaints: Dict[str, int] = {}
+    for r, u in units_by_region.items():
+        k = _canon_region(r)
+        canon_units[k] = canon_units.get(k, 0) + int(u or 0)
+    for r, c in complaints_by_region.items():
+        k = _canon_region(r)
+        canon_complaints[k] = canon_complaints.get(k, 0) + int(c or 0)
     region_rate_list = []
-    # Merge keys from both sales and complaints to cover all regions
-    all_regions = set(units_by_region.keys()) | set(complaints_by_region.keys())
+    all_regions = set(canon_units.keys()) | set(canon_complaints.keys())
     for region in sorted(all_regions):
-        region_units = units_by_region.get(region, 0)
-        region_complaints = complaints_by_region.get(region, 0)
+        region_units = canon_units.get(region, 0)
+        region_complaints = canon_complaints.get(region, 0)
         rate = calculate_rate(region_complaints, region_units)
-        region_rate_list.append({
+        row = {
             "region": region,
             "units_distributed": region_units,
             "complaints": region_complaints,
             "complaint_rate": round(rate, 8),
             "complaint_percentage": round(rate * 100, 2),
             "rate_display": format_rate_display(region_complaints, region_units, denom_type),
-        })
+        }
+        # MEDDEV 2.7/1 Rev.4 occurrence classification per skill spec.
+        row.update(classify_occurrence_code(rate))
+        region_rate_list.append(row)
     region_rate_list.sort(key=lambda x: -x["complaints"])
+
+    # ── Table 8: harm × device-problem × region (EEA+TR+XI / UK / Worldwide) ──
+    # Deterministic build from raw complaint summaries; mirrors psur-complaint-tables skill.
+    table8_rows = build_table8_rows(
+        complaints_data.get("complaint_summaries", []) or [],
+        total_units,
+        classify_occurrence_code,
+        strip_imdrf_code,
+    )
+
+    # ── harm_by_month (psur-trend-charts skill input) ──
+    # {YYYY-MM: {harm_label: count}} — needed for stacked harm-trend chart.
+    # Built deterministically from complaint_summaries so the chart layer
+    # never has to recompute or fabricate.
+    harm_by_month: Dict[str, Dict[str, int]] = {m: {} for m in all_months}
+    for s in complaints_data.get("complaint_summaries", []) or []:
+        d = (s.get("date") or "")[:7]
+        if not d:
+            continue
+        harm_raw = s.get("harm") or "No Harm"
+        harm_label = strip_imdrf_code(harm_raw) if harm_raw else "No Harm"
+        if not harm_label:
+            harm_label = "No Harm"
+        harm_by_month.setdefault(d, {})
+        harm_by_month[d][harm_label] = harm_by_month[d].get(harm_label, 0) + 1
+
+    # ── Per-period count + rate aggregates (psur-trend-charts skill) ──
+    # Aggregates the last three 12-month windows so the chart layer can
+    # render per-period bar charts without recomputing.
+    per_period_aggregates: List[Dict[str, Any]] = []
+    for p_start, p_end, p_label in (determined_periods or [])[-3:]:
+        p_complaints = 0
+        p_units = 0
+        for m in all_months:
+            if p_start[:7] <= m <= p_end[:7]:
+                p_complaints += int(complaints_by_month_filled.get(m, 0) or 0)
+                p_units += int(units_by_month_filled.get(m, 0) or 0)
+        p_rate = calculate_rate(p_complaints, p_units)
+        agg = {
+            "label": p_label,
+            "start": p_start,
+            "end": p_end,
+            "complaints": p_complaints,
+            "units": p_units,
+            "rate": round(p_rate, 8),
+            "rate_pct": round(p_rate * 100, 4),
+        }
+        agg.update(classify_occurrence_code(p_rate))
+        per_period_aggregates.append(agg)
 
     # ── Countries with >5% of global sales (need own row in Table 1) ──
     countries_5pct = []
@@ -720,6 +909,96 @@ def compute_psur_statistics(
             yoy_rate = round(((overall_rate - prev_rate) / prev_rate) * 100, 1)
         if prev_units > 0:
             yoy_volume = round(((total_units - prev_units) / prev_units) * 100, 1)
+
+    # ── Reusable vs single-use bifurcation ──
+    # Sales side: prefer the by_product_class buckets emitted by
+    # parsers/sqlite_db.py (already populated when the SQLite path is
+    # used). Otherwise fall back to per-product classification.
+    sales_class = sales_data.get("by_product_class") or {}
+    by_product_units = sales_data.get("by_product", {}) or {}
+    cls_units = {"reusable": 0, "single_use": 0, "unknown": 0}
+    if sales_class:
+        for k, v in sales_class.items():
+            cls_units[k] = cls_units.get(k, 0) + int(v or 0)
+    elif product_classification:
+        for prod, units in by_product_units.items():
+            cls = product_classification.get(prod, {}).get("class", "unknown")
+            cls_units[cls] = cls_units.get(cls, 0) + int(units or 0)
+
+    # Complaints side
+    complaints_class = complaints_data.get("by_product_class") or {}
+    cls_complaints = {"reusable": 0, "single_use": 0, "unknown": 0}
+    if complaints_class:
+        for k, v in complaints_class.items():
+            cls_complaints[k] = cls_complaints.get(k, 0) + int(v or 0)
+    elif product_classification:
+        for s in complaints_data.get("complaint_summaries", []) or []:
+            prod = s.get("product_number") or ""
+            cls = product_classification.get(prod, {}).get("class", "unknown")
+            cls_complaints[cls] = cls_complaints.get(cls, 0) + 1
+
+    reusable_units_v = cls_units.get("reusable", 0)
+    single_use_units_v = cls_units.get("single_use", 0)
+    unknown_units_v = cls_units.get("unknown", 0)
+    reusable_complaints_v = cls_complaints.get("reusable", 0)
+    single_use_complaints_v = cls_complaints.get("single_use", 0)
+    unknown_complaints_v = cls_complaints.get("unknown", 0)
+    reusable_rate_v = calculate_rate(reusable_complaints_v, reusable_units_v)
+    single_use_rate_v = calculate_rate(single_use_complaints_v, single_use_units_v)
+    portfolio_mixed = (reusable_units_v > 0 and single_use_units_v > 0)
+
+    # ── UK rate ──
+    uk_rate_v = calculate_rate(uk_complaints_total, uk_units)
+
+    # ── Quarterly cumulative trend (preferred for multi-year service-life devices) ──
+    # Aggregate complaints and sales into year-quarters, then compute the
+    # cumulative-denominator rate at each quarter (£ cumulative complaints /
+    # cumulative units). This is what MDCG 2022-21 §III.5 expects: a stable
+    # period-anchored rate, not a single-month cohort rate that swings on
+    # tiny denominators.
+    def _q_key(month_key: str) -> str:
+        try:
+            y, m = month_key.split("-")
+            q = (int(m) - 1) // 3 + 1
+            return f"{y}-Q{q}"
+        except Exception:
+            return ""
+    q_complaints: Dict[str, int] = {}
+    q_units: Dict[str, int] = {}
+    for m, c in complaints_by_month_filled.items():
+        qk = _q_key(m)
+        if qk:
+            q_complaints[qk] = q_complaints.get(qk, 0) + int(c or 0)
+    for m, u in units_by_month_filled.items():
+        qk = _q_key(m)
+        if qk:
+            q_units[qk] = q_units.get(qk, 0) + int(u or 0)
+    q_labels = sorted(set(q_complaints.keys()) | set(q_units.keys()))
+    q_rates = []
+    q_cumulative_rates = []
+    cum_c = 0
+    cum_u = 0
+    for ql in q_labels:
+        qc = q_complaints.get(ql, 0)
+        qu = q_units.get(ql, 0)
+        cum_c += qc
+        cum_u += qu
+        q_rates.append(round(calculate_rate(qc, qu), 8))
+        q_cumulative_rates.append(round(calculate_rate(cum_c, cum_u), 8))
+    quarterly_trend_v = {
+        "quarter_labels": q_labels,
+        "complaints_per_quarter": [q_complaints.get(q, 0) for q in q_labels],
+        "units_per_quarter": [q_units.get(q, 0) for q in q_labels],
+        "quarterly_rates": q_rates,
+        "quarterly_rates_pct": [round(r * 100, 4) for r in q_rates],
+        "cumulative_rates": q_cumulative_rates,
+        "cumulative_rates_pct": [round(r * 100, 4) for r in q_cumulative_rates],
+        "final_cumulative_rate": q_cumulative_rates[-1] if q_cumulative_rates else 0.0,
+        "final_cumulative_rate_pct": (
+            round(q_cumulative_rates[-1] * 100, 4) if q_cumulative_rates else 0.0
+        ),
+        "method": "cumulative_denominator_quarterly_per_MDCG_2022_21_III_5",
+    }
 
     return PSURStatistics(
         surveillance_period=surveillance_period,
@@ -745,6 +1024,8 @@ def compute_psur_statistics(
         section_c_region_rows=section_c_region_rows,
         section_c_period_labels=section_c_period_labels,
         serious_incident_count=serious_count,
+        eu_uk_serious_incident_count=eu_uk_si_count,
+        fda_mdr_count=fda_mdr_count,
         serious_incidents_by_imdrf=serious_by_imdrf,
         overall_complaint_rate=round(overall_rate, 8),
         overall_complaint_percentage=overall_pct,
@@ -757,8 +1038,42 @@ def compute_psur_statistics(
         yoy_rate_change=yoy_rate,
         yoy_volume_change=yoy_volume,
         table7_rows=table7_rows,
+        table8_rows=table8_rows,
         rates_by_region=region_rate_list,
         countries_above_5pct=countries_5pct,
         has_previous_period_data=has_previous,
-        complaint_number_format=complaint_number_format
+        complaint_number_format=complaint_number_format,
+        # Bifurcation
+        reusable_units=reusable_units_v,
+        single_use_units=single_use_units_v,
+        unknown_class_units=unknown_units_v,
+        reusable_complaints=reusable_complaints_v,
+        single_use_complaints=single_use_complaints_v,
+        unknown_class_complaints=unknown_complaints_v,
+        reusable_rate=round(reusable_rate_v, 8),
+        single_use_rate=round(single_use_rate_v, 8),
+        reusable_rate_pct=round(reusable_rate_v * 100, 4),
+        single_use_rate_pct=round(single_use_rate_v * 100, 4),
+        reusable_rate_display=format_rate_display(
+            reusable_complaints_v, reusable_units_v, "procedures"
+        ),
+        single_use_rate_display=format_rate_display(
+            single_use_complaints_v, single_use_units_v, "units"
+        ),
+        portfolio_is_mixed=portfolio_mixed,
+        # UK breakout
+        uk_rate=round(uk_rate_v, 8),
+        uk_rate_pct=round(uk_rate_v * 100, 4),
+        uk_rate_display=format_rate_display(uk_complaints_total, uk_units, denom_type),
+        uk_serious_incidents=uk_serious_count,
+        # Quarterly trend
+        quarterly_trend=quarterly_trend_v,
+        # Data-quality audit
+        negative_unit_rows_excluded=int(sales_data.get("negative_unit_rows_excluded", 0) or 0),
+        negative_units_total=int(sales_data.get("negative_units_total", 0) or 0),
+        # Previous period (when input_parsing supplied a structured summary)
+        previous_period_summary=previous_stats if isinstance(previous_stats, dict) else None,
+        # psur-trend-charts skill inputs
+        harm_by_month=harm_by_month,
+        per_period_aggregates=per_period_aggregates,
     )

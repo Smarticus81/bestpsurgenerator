@@ -25,6 +25,23 @@ def filter_statistics_for_section(
         "denominator_type": stats_dict.get("denominator_type"),
         "denominator_description": stats_dict.get("denominator_description"),
         "has_previous_period_data": stats_dict.get("has_previous_period_data"),
+        # Reusable vs single-use split — always visible so every section
+        # treats a mixed portfolio consistently.
+        "portfolio_is_mixed": stats_dict.get("portfolio_is_mixed", False),
+        "reusable_units": stats_dict.get("reusable_units", 0),
+        "single_use_units": stats_dict.get("single_use_units", 0),
+        "reusable_complaints": stats_dict.get("reusable_complaints", 0),
+        "single_use_complaints": stats_dict.get("single_use_complaints", 0),
+        "reusable_rate_pct": stats_dict.get("reusable_rate_pct", 0.0),
+        "single_use_rate_pct": stats_dict.get("single_use_rate_pct", 0.0),
+        "reusable_rate_display": stats_dict.get("reusable_rate_display", ""),
+        "single_use_rate_display": stats_dict.get("single_use_rate_display", ""),
+        # UK always broken out separately from EEA per Brexit + Windsor.
+        "uk_market_detected": stats_dict.get("uk_market_detected", False),
+        "uk_units": stats_dict.get("uk_units", 0),
+        "uk_complaints": stats_dict.get("uk_complaints", 0),
+        "uk_rate_display": stats_dict.get("uk_rate_display", ""),
+        "uk_serious_incidents": stats_dict.get("uk_serious_incidents", 0),
     }
 
     if letter == "A":
@@ -102,6 +119,11 @@ def filter_statistics_for_section(
         base["units_by_month"] = stats_dict.get("units_by_month")
         base["overall_complaint_rate"] = stats_dict.get("overall_complaint_rate")
         base["overall_complaint_percentage"] = stats_dict.get("overall_complaint_percentage")
+        # Quarterly cumulative trend (MDCG 2022-21 §III.5) — preferred
+        # for multi-year service-life devices where monthly rates swing
+        # on small denominators.
+        base["quarterly_trend"] = stats_dict.get("quarterly_trend")
+        base["previous_period_summary"] = stats_dict.get("previous_period_summary")
         return base
 
     elif letter == "H":

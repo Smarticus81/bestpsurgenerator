@@ -1,0 +1,468 @@
+{
+  "$schema": "urn:coopersurgical:smarticus:file-structure:v1",
+  "generated": "2026-05-05",
+  "root": "psur-generator/",
+  "tree": {
+    "main.py": {
+      "type": "python",
+      "role": "CLI entry point (Typer). Commands: generate, validate, render, harness, audit.",
+      "functions": [
+        "_build_rich_context_from_config",
+        "_validate_date_range_or_exit",
+        "generate",
+        "validate",
+        "render",
+        "harness",
+        "audit"
+      ],
+      "imports_project": ["config", "statistics", "agents.orchestrator", "validation", "rendering", "charts", "pipeline.*", "imdrf_coder", "psur_auditor"]
+    },
+    "config.py": {
+      "type": "python",
+      "role": "Configuration constants: paths, model names, PSUR_DB_PATH, INPUT_DIR, OUTPUT_DIR."
+    },
+    "llm_client.py": {
+      "type": "python",
+      "role": "Unified LLM client. Anthropic (primary) -> OpenAI (fallback) -> Ollama (local override).",
+      "classes": ["LLMClient", "_NormalisedResponse", "_MessagesNamespace", "_Usage", "_ContentBlock"],
+      "functions": ["set_ollama_override", "get_llm_client", "create_message", "get_active_provider"]
+    },
+    "statistics.py": {
+      "type": "python",
+      "role": "Deterministic pre-computation of ALL metrics: rates, UCL, Western Electric rules, cross-tabs.",
+      "classes": ["PSURStatistics", "TrendAnalysis", "ComplaintRateResult"],
+      "functions": ["compute_psur_statistics", "calculate_rate", "calculate_ucl", "classify_occurrence_code", "format_rate_display"]
+    },
+    "charts.py": {
+      "type": "python",
+      "role": "Matplotlib chart generation: sales trend, UCL p-chart, region bar, harm donut, MDP bar, RACT heatmap.",
+      "functions": ["generate_all_charts"]
+    },
+    "imdrf_coder.py": {
+      "type": "python",
+      "role": "IMDRF auto-coding. Deterministic INSORB symptom-code mapping (SKILL F2) + LLM fallback.",
+      "functions": ["apply_skill_classification", "classify_complaint_skill", "force_safe_default", "auto_code_complaints", "strip_imdrf_code"],
+      "data_structures": {
+        "SYMPTOM_CODE_MAP": "dict[str, tuple[str,str]] — 11 INSORB symptom codes to Harm+MDP",
+        "NARRATIVE_KEYWORD_RULES": "list[tuple[keywords, harm, mdp]] — 9 keyword-fallback rules",
+        "FORBIDDEN_HARM_TERMS": "set — terms that must never appear as Harm categories",
+        "FORBIDDEN_MDP_TERMS": "set — terms that must never appear as MDP categories"
+      }
+    },
+    "psur_auditor.py": {
+      "type": "python",
+      "role": "LLM-powered PSUR Auditor. Audits .docx/.json against MDCG 2022-21 + UK MDR 2024.",
+      "classes": ["AuditReport", "AuditFinding", "Requirement", "PSURParser", "SectionAuditResult"],
+      "functions": ["run_audit", "run_json_audit", "build_requirements_checklist", "print_audit_report"]
+    },
+    "requirements.txt": {
+      "type": "config",
+      "role": "Python dependencies: typer, rich, anthropic, openai, openpyxl, python-docx, matplotlib, pandas, Pillow, PyPDF2."
+    },
+    ".env": {
+      "type": "config",
+      "role": "Environment: ANTHROPIC_API_KEY, OPENAI_API_KEY (optional), PSUR_DB_PATH, PORT."
+    },
+
+    "agents/": {
+      "__init__.py": {"type": "python", "role": "Package init."},
+      "base.py": {
+        "type": "python",
+        "role": "SectionAgent base class. Loads template schema + section guidance, calls LLM per section.",
+        "classes": ["SectionAgent"],
+        "functions": ["reset_token_usage", "get_token_usage"]
+      },
+      "orchestrator.py": {
+        "type": "python",
+        "role": "Runs all 13 section agents (A-M) with audit-remediation loop, checkpoint/resume, postprocessing.",
+        "functions": ["generate_psur", "_get_section_data", "_save_checkpoint", "_get_cover_defaults_from_guidance"]
+      },
+      "postprocessing.py": {
+        "type": "python",
+        "role": "30+ deterministic post-processing transforms applied after every section generation.",
+        "functions": [
+          "enforce_benefit_risk_link",
+          "repair_section_tables",
+          "fix_table7_grand_total",
+          "normalize_enum_values",
+          "fix_fabricated_udi_di",
+          "fix_empty_and_placeholder_tables",
+          "strip_regulation_citations",
+          "strip_marketing_language",
+          "strip_template_debris",
+          "find_residual_template_brackets",
+          "format_rates_as_percentages",
+          "coerce_schema_numeric_strings",
+          "normalize_period_mentions",
+          "fix_sterile_contradictions",
+          "fix_single_use_contradictions",
+          "fix_manufacturer_consistency",
+          "strip_nb_references_class_i",
+          "strip_wrong_cadence_tables",
+          "zero_fabricated_preceding_periods",
+          "fix_fabricated_external_db",
+          "fix_fabricated_literature",
+          "reconcile_table7_row_sum",
+          "fill_default_empty_tables",
+          "scrub_leaked_identifiers",
+          "fix_first_person_singular",
+          "fix_cross_section_serious_consistency"
+        ]
+      },
+      "prefill.py": {
+        "type": "python",
+        "role": "Inject pre-computed immutable values (stats, device identifiers) into section data before LLM call.",
+        "functions": ["inject_prefilled_values"]
+      },
+      "stats_filter.py": {
+        "type": "python",
+        "role": "Per-section statistics filtering. Each section receives only the stats it needs.",
+        "functions": ["filter_statistics_for_section"]
+      },
+      "prompts/": {
+        "__init__.py": {"type": "python", "role": "Package init."},
+        "global_context.py": {
+          "type": "python",
+          "role": "Build the persistent global context assembled ONCE for all 13 sections.",
+          "functions": ["build_global_context", "extract_statistics_summary"]
+        },
+        "shared_context.py": {
+          "type": "python",
+          "role": "Shared Working Context: prior section findings injected into downstream agents.",
+          "functions": ["build_shared_context"]
+        },
+        "section_instructions.py": {
+          "type": "python",
+          "role": "Agent-scoped constraints, fabrication guards, and conditional instructions per section.",
+          "functions": ["build_section_constraints", "build_fabrication_block", "build_conditional_instructions", "get_section_addendum"]
+        }
+      }
+    },
+
+    "parsers/": {
+      "__init__.py": {"type": "python", "role": "Package init."},
+      "sales.py": {
+        "type": "python",
+        "role": "Sales data parser (CSV/Excel) with AI column mapping.",
+        "functions": ["parse_sales"]
+      },
+      "complaints.py": {
+        "type": "python",
+        "role": "CSI complaints parser. Preserves Symptom Code, Fault Code, Nonconformity for SKILL F2.",
+        "functions": ["parse_complaints"]
+      },
+      "capa.py": {
+        "type": "python",
+        "role": "CAPA records parser (CSV/Excel).",
+        "functions": ["parse_capa"]
+      },
+      "ract.py": {
+        "type": "python",
+        "role": "Risk Assessment and Control Table parser. Extracts hazards, max expected rates, occurrence codes.",
+        "functions": ["parse_ract"]
+      },
+      "column_mapper.py": {
+        "type": "python",
+        "role": "AI-powered column mapping. Deterministic alias lookup + LLM fallback for unknown schemas.",
+        "classes": ["ColumnMapping", "ColumnMappingResult"],
+        "functions": ["infer_column_mapping", "get_extra_column_context"]
+      },
+      "universal.py": {
+        "type": "python",
+        "role": "Universal multi-format parser: CSV, XLSX, DOCX, PDF, JSON, images, plain text.",
+        "functions": ["parse_file", "parse_any_to_text", "detect_format"]
+      },
+      "cer_extractor.py": {
+        "type": "python",
+        "role": "Comprehensive CER data extractor from DOCX/PDF.",
+        "classes": ["CERData", "ManufacturerInfo", "RegulatoryInfo", "DeviceDescription"],
+        "functions": ["extract_cer_data"]
+      },
+      "pms_plan.py": {
+        "type": "python",
+        "role": "LLM-driven PMS Plan parser.",
+        "classes": ["PMSPlanData"],
+        "functions": ["parse_pms_plan"]
+      },
+      "previous_psur.py": {
+        "type": "python",
+        "role": "Structured parser for previous PSUR documents (JSON/DOCX/PDF).",
+        "functions": ["parse_previous_psur"]
+      },
+      "analysis_workbook.py": {
+        "type": "python",
+        "role": "Parser for pre-computed analysis workbooks (multi-sheet Excel with sales, complaints, RACT, etc.).",
+        "functions": ["parse_analysis_workbook"]
+      },
+      "sqlite_db.py": {
+        "type": "python",
+        "role": "SQLite-backed parsers for complaints and sales with integrity checks.",
+        "functions": ["parse_complaints_from_db", "parse_sales_from_db", "resolve_td_id_for_device", "load_product_classification_from_db"]
+      }
+    },
+
+    "pipeline/": {
+      "__init__.py": {"type": "python", "role": "Package init."},
+      "discovery.py": {
+        "type": "python",
+        "role": "Auto-discover and classify input files by filename keywords + AI fallback.",
+        "functions": ["auto_discover_inputs", "print_discovered_files"]
+      },
+      "device_context.py": {
+        "type": "python",
+        "role": "Device metadata extraction: JSON fast-path or LLM fallback from file snippets.",
+        "functions": ["load_device_context_file", "extract_device_context_llm", "resolve_device_metadata", "build_device_context"]
+      },
+      "input_parsing.py": {
+        "type": "python",
+        "role": "Master parser orchestration. Delegates to parsers/*, applies SKILL F2 classification.",
+        "functions": ["parse_all_inputs"]
+      },
+      "performance.py": {
+        "type": "python",
+        "role": "Performance and cost reporting (token usage, timing).",
+        "functions": ["print_performance_summary"]
+      },
+      "harness.py": {
+        "type": "python",
+        "role": "Smarticus PSUR Generation Harness v3. 8-stage pipeline with 11 agents, 16-slot context payload, 25-point validation checklist.",
+        "classes": ["HarnessContext", "HarnessResult", "HarnessIssue", "InputFileReport"],
+        "stages": {
+          "1": "regulatory_classifier_agent — cadence, table selection, jurisdictions",
+          "2": "data_ingestion_agent — parse all sources, populate 16 context slots, apply F3-F10 reconciliations",
+          "3": "imdrf_classifier_agent — aggregate Harm->MDP hierarchy for Table 7",
+          "4": "statistical_engine + risk_assessor (parallel) — rates, UCL, RACT comparison",
+          "5": "chart_generator + narrative_writer + table_generator (parallel) — all content",
+          "6": "benefit_risk_synthesizer — final synthesis after all data stages",
+          "7": "docx_renderer — assemble document (render only)",
+          "8": "validation_agent — 25-point SKILL checklist + existing 331-point validator"
+        },
+        "functions": [
+          "run_harness",
+          "agent_regulatory_classifier",
+          "agent_data_ingestion",
+          "apply_skill_reconciliations",
+          "agent_imdrf_classifier",
+          "agent_statistical_engine",
+          "agent_risk_assessor",
+          "agent_chart_generator",
+          "agent_narrative_writer",
+          "agent_table_generator",
+          "agent_benefit_risk_synthesizer",
+          "agent_docx_renderer",
+          "agent_validation_harness",
+          "inject_skill_authoritative_tables",
+          "sanitize_skill_render_content",
+          "validate_block1_inputs"
+        ]
+      }
+    },
+
+    "validation/": {
+      "__init__.py": {"type": "python", "role": "Exports PSURValidator."},
+      "validator.py": {
+        "type": "python",
+        "role": "PSURValidator facade composing 6 mixin classes.",
+        "classes": ["PSURValidator"]
+      },
+      "_schema_checks.py": {
+        "type": "python",
+        "role": "JSON Schema conformance validation.",
+        "classes": ["SchemaValidationMixin"]
+      },
+      "_fabrication_checks.py": {
+        "type": "python",
+        "role": "Detects LLM-generated fake data: rates, UDI-DIs, regions, UK RP.",
+        "classes": ["FabricationChecksMixin"]
+      },
+      "_formatting_checks.py": {
+        "type": "python",
+        "role": "Document formatting rules: tone, bullets, citations.",
+        "classes": ["FormattingChecksMixin"]
+      },
+      "_content_checks.py": {
+        "type": "python",
+        "role": "Content integrity: Table 7 sums, cover page, rate calculations.",
+        "classes": ["ContentChecksMixin"]
+      },
+      "_consistency_checks.py": {
+        "type": "python",
+        "role": "Cross-section consistency: D vs F serious incidents, A vs M benefit-risk.",
+        "classes": ["ConsistencyChecksMixin"]
+      },
+      "_docx_checks.py": {
+        "type": "python",
+        "role": "Rendered DOCX structure validation: sections, tables, formatting.",
+        "classes": ["DocxChecksMixin"]
+      },
+      "_helpers.py": {
+        "type": "python",
+        "role": "Standalone helpers: resolve_refs, deep_get, iter_string_fields.",
+        "functions": ["resolve_refs", "deep_get", "iter_string_fields"]
+      }
+    },
+
+    "rendering/": {
+      "__init__.py": {"type": "python", "role": "Exports PSURTemplateRenderer."},
+      "renderer.py": {
+        "type": "python",
+        "role": "PSURTemplateRenderer facade. Clones FormQAR-054 template, fills placeholders/tables/charts.",
+        "classes": ["PSURTemplateRenderer"]
+      },
+      "_value_map.py": {
+        "type": "python",
+        "role": "ValueMapMixin — builds placeholder-to-value mapping from PSUR JSON + statistics.",
+        "classes": ["ValueMapMixin"]
+      },
+      "_paragraphs.py": {
+        "type": "python",
+        "role": "ParagraphMixin — paragraph/run replacement in DOCX.",
+        "classes": ["ParagraphMixin"]
+      },
+      "_tables.py": {
+        "type": "python",
+        "role": "TableMixin — table fill for Tables 1-9, hierarchical Table 7.",
+        "classes": ["TableMixin"]
+      },
+      "_formatting.py": {
+        "type": "python",
+        "role": "FormattingMixin — font, size, margins, headers/footers.",
+        "classes": ["FormattingMixin"]
+      },
+      "_helpers.py": {
+        "type": "python",
+        "role": "Shared rendering helpers: deep_get, cb (checkbox), stringify.",
+        "functions": ["deep_get", "cb", "stringify"]
+      }
+    },
+
+    "constraints/": {
+      "template_schema.json": {
+        "type": "json",
+        "role": "JSON Schema — authoritative contract between agents and renderer.",
+        "top_level_keys": ["meta", "schema"],
+        "lines": 1828
+      },
+      "section_guidance.json": {
+        "type": "json",
+        "role": "Field-by-field instructions for each section agent.",
+        "top_level_keys": ["$schema", "$id", "title", "description", "meta", "psur_cover_page", "sections"],
+        "lines": 1155
+      },
+      "mdcg_2022_21_knowledge_base.json": {
+        "type": "json",
+        "role": "MDCG 2022-21 + UK MDR 2024 regulatory requirements knowledge base.",
+        "top_level_keys": ["core_principles", "terminology", "section_knowledge", "annex_iii_data_assessment_rules", "annex_iv_psur_requirements", "device_grouping_rules", "uk_mdr_2024_part_4a"],
+        "lines": 613
+      },
+      "ract_occurrence_codes.json": {
+        "type": "json",
+        "role": "Risk classification O1-O5 with rate thresholds.",
+        "top_level_keys": ["_description", "occurrence_codes"],
+        "lines": 51
+      },
+      "audit_requirements.json": {
+        "type": "json",
+        "role": "96 audit requirements for the LLM auditor.",
+        "top_level_keys": ["requirements"],
+        "lines": 1523
+      },
+      "harm_mdp_codes.csv": {
+        "type": "csv",
+        "role": "IMDRF Annex A (MDP) and Annex F (Harm) code tables.",
+        "columns": ["type", "code", "parent_code", "term", "category", "description"],
+        "lines": 138
+      },
+      "FormQAR-054_template.docx": {
+        "type": "docx",
+        "role": "DOCX template cloned during rendering. US Letter, Arial, CooperSurgical headers/footers."
+      }
+    },
+
+    "data/": {
+      "input/": {
+        "device_context.json": {
+          "type": "json",
+          "role": "Structured device metadata: trade names, classification, UDI-DI, NB, intended purpose.",
+          "lines": 60
+        },
+        "insorb_sales.csv": {
+          "type": "csv",
+          "role": "INSORB sales/distribution data by country, month, product.",
+          "columns": ["Customer Country", "Customer region", "ItemNumber", "ItemDescription", "ProductGroup", "Month", "Quantity", "Calendar year"]
+        },
+        "insorb complaints.csv": {
+          "type": "csv",
+          "role": "CSI complaints with 25 columns including Symptom Code, Fault Code, MDR Issued, Investigation Findings.",
+          "columns": ["CSI Notification Date", "Product Sales Category", "Product Sales Subcategory", "Complaint Type", "Complaint Number", "Date Entered", "Date Closed", "Product Number", "Lot Number", "Product Description", "Being Returned", "Customer Name", "Country", "Nonconformity", "Investigation Findings", "Corrective Actions", "Symptom Code", "Fault Code", "Failure Code", "MDR Issued", "MDR Number", "NCMR Issued", "NCMR Number", "CAPA Number", "Complaint Confirmed"]
+        },
+        "ract.xlsx": {
+          "type": "xlsx",
+          "role": "Risk Assessment and Control Table (38 hazards)."
+        },
+        "external_db_search_results_2025.json": {
+          "type": "json",
+          "role": "External database search results: FDA MAUDE, MHRA, TGA DAEN, Health Canada, EUDAMED.",
+          "top_level_keys": ["product_name", "surveillance_period", "fda_maude", "mhra_yellow_card", "australia_tga_daen", "health_canada", "eudamed", "overall_assessment"],
+          "lines": 47
+        },
+        "previous_psur_data_template.json": {
+          "type": "json",
+          "role": "Previous PSUR structured data: scope, sales, complaints, CAPAs, benefit-risk conclusion.",
+          "top_level_keys": ["SectionA_Scope", "SectionB_SummaryOfCommercialUse", "SectionC_CustomerFeedback", "SectionD_ProductComplaints", "SectionE_ComplaintTrending", "SectionF_AdverseEvents", "SectionG_FSCA", "SectionH_ClinicalLiterature", "SectionI_ExternalDatabases", "SectionJ_ProductionFeedback", "SectionK_CAPA", "SectionL_PMCF", "SectionM_BenefitRiskAssessment", "SectionN_Conclusion"],
+          "lines": 251
+        },
+        "templates/": {
+          "INPUT_README.md": {"type": "markdown", "role": "Full column specifications for all input file types."},
+          "device_context_template.json": {"type": "json", "role": "Empty template with all device_context fields.", "lines": 66},
+          "previous_psur_data_template.json": {"type": "json", "role": "Empty template for previous PSUR data.", "lines": 168},
+          "pms_plan_data_template.json": {"type": "json", "role": "Empty template for PMS plan data.", "lines": 300},
+          "sales_data_template.csv": {"type": "csv", "role": "Template: date, year, month, quantity, region, country, product."},
+          "complaints_data_template.csv": {"type": "csv", "role": "Template: date, complaint_number, description, imdrf_code, harm, serious, region."},
+          "capa_data_template.csv": {"type": "csv", "role": "Template: capa_number, title, status, open_date, close_date, root_cause, type."},
+          "ract_template.csv": {"type": "csv", "role": "Template for Risk Assessment and Control Table."}
+        }
+      },
+      "output/": {
+        "_note": "Generated artifacts (gitignored). Typical contents per run:",
+        "PSUR_<device>_<year>.json": "Complete PSUR as JSON matching template_schema.json.",
+        "PSUR_<device>_<year>.docx": "Rendered DOCX from FormQAR-054 template.",
+        "PSUR_<device>_<year>_statistics.json": "Full PSURStatistics dataclass as JSON.",
+        "PSUR_<device>_<year>_harness_context.json": "16-slot harness context payload.",
+        "charts/": {
+          "chart_sales_trend.png": "Monthly sales trend line chart.",
+          "chart_trend_ucl.png": "Shewhart p-chart with UCL/Western Electric.",
+          "chart_complaints_region.png": "Complaints by region bar chart.",
+          "chart_harm_distribution.png": "Harm category donut chart.",
+          "chart_top_mdps.png": "Top medical device problems bar chart.",
+          "chart_ract_matrix.png": "RACT observed-vs-expected heatmap."
+        }
+      }
+    }
+  },
+
+  "data_flow": {
+    "1_input": "CSV/XLSX/JSON/DOCX/PDF files in data/input/",
+    "2_discovery": "pipeline/discovery.py auto-classifies by filename keywords",
+    "3_parsing": "pipeline/input_parsing.py delegates to parsers/* (sales, complaints, capa, ract, cer, etc.)",
+    "4_device_context": "pipeline/device_context.py extracts device metadata (JSON fast-path or LLM fallback)",
+    "5_imdrf_coding": "imdrf_coder.py deterministic mapping (SKILL F2) + LLM fallback for uncoded complaints",
+    "6_statistics": "statistics.py pre-computes ALL metrics deterministically",
+    "7_section_generation": "agents/orchestrator.py runs 13 section agents with filtered stats per section",
+    "8_postprocessing": "agents/postprocessing.py applies 30+ deterministic fixes to LLM output",
+    "9_validation": "validation/validator.py runs 331-point checklist (6 mixin classes)",
+    "10_rendering": "rendering/renderer.py clones FormQAR-054 template, fills placeholders/tables/charts",
+    "11_output": "PSUR_<device>_<year>.json + .docx in data/output/"
+  },
+
+  "harness_data_flow": {
+    "stage_1": "regulatory_classifier -> cadence, table selection, jurisdictions",
+    "stage_2": "data_ingestion -> parse all sources, populate 16 context slots, apply F3-F10 reconciliations",
+    "stage_3": "imdrf_classifier -> aggregate Harm->MDP hierarchy",
+    "stage_4": "statistical_engine + risk_assessor (parallel) -> rates, UCL, RACT comparison",
+    "stage_5": "chart_generator + narrative_writer + table_generator (parallel) -> all content",
+    "stage_6": "benefit_risk_synthesizer -> final synthesis",
+    "stage_7": "docx_renderer -> assemble document",
+    "stage_8": "validation_agent -> 25-point SKILL checklist + 331-point validator"
+  }
+}

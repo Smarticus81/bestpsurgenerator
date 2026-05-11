@@ -27,7 +27,8 @@ def inject_prefilled_values(
 
     # ── Section A: Executive Summary — high-level conclusion signals ──
     if letter == "A":
-        for key in ("total_complaints", "total_units_sold", "serious_incident_count"):
+        for key in ("total_complaints", "total_units_sold", "serious_incident_count",
+                    "eu_uk_serious_incident_count", "fda_mdr_count"):
             if stats_dict.get(key) is not None:
                 prefilled[key] = stats_dict[key]
         wu = stats_dict.get("total_units_sold", 0)
@@ -46,6 +47,32 @@ def inject_prefilled_values(
         prefilled["denominator_term"] = stats_dict.get(
             "denominator_description", "units distributed"
         )
+        # Reusable vs single-use split (mixed portfolios)
+        if stats_dict.get("portfolio_is_mixed"):
+            prefilled["portfolio_is_mixed"] = True
+            prefilled["reusable_complaints"] = stats_dict.get("reusable_complaints", 0)
+            prefilled["reusable_units"] = stats_dict.get("reusable_units", 0)
+            prefilled["reusable_rate_pct"] = stats_dict.get("reusable_rate_pct", 0.0)
+            prefilled["single_use_complaints"] = stats_dict.get("single_use_complaints", 0)
+            prefilled["single_use_units"] = stats_dict.get("single_use_units", 0)
+            prefilled["single_use_rate_pct"] = stats_dict.get("single_use_rate_pct", 0.0)
+        # Previous period summary for YoY narrative anchoring (prevents
+        # the LLM from inventing prior-period numbers).
+        prev = stats_dict.get("previous_period_summary") or {}
+        if prev:
+            prefilled["previous_period_total_complaints"] = prev.get("total_complaints", 0)
+            prefilled["previous_period_total_units"] = prev.get("total_units_sold", 0)
+            prefilled["previous_period_reusable_rate_pct"] = round(
+                (prev.get("reusable_rate", 0.0) or 0.0) * 100, 4
+            )
+            prefilled["previous_period_single_use_rate_pct"] = round(
+                (prev.get("single_use_rate", 0.0) or 0.0) * 100, 4
+            )
+        # UK breakout for Executive Summary
+        if stats_dict.get("uk_market_detected"):
+            prefilled["uk_units"] = stats_dict.get("uk_units", 0)
+            prefilled["uk_complaints"] = stats_dict.get("uk_complaints", 0)
+            prefilled["uk_rate_display"] = stats_dict.get("uk_rate_display", "")
 
     elif letter == "C":
         if stats_dict.get("eea_units") is not None:
@@ -95,6 +122,28 @@ def inject_prefilled_values(
         sterility = device_context.get("sterility_status", "")
         if sterility:
             prefilled["sterility_status"] = sterility
+        # Mixed-portfolio subclass breakdown
+        if stats_dict.get("portfolio_is_mixed"):
+            prefilled["portfolio_is_mixed"] = True
+            prefilled["reusable_units"] = stats_dict.get("reusable_units", 0)
+            prefilled["single_use_units"] = stats_dict.get("single_use_units", 0)
+            prefilled["unknown_class_units"] = stats_dict.get("unknown_class_units", 0)
+        # ── Certification milestones from device_context ──
+        milestones = device_context.get("certification_milestones", {})
+        if milestones:
+            prefilled["certification_milestones"] = milestones
+        # Also check known_identifiers for milestone dates
+        for ms_field in (
+            "first_declaration_of_conformity_date",
+            "first_ec_eu_certificate_date",
+            "first_ce_marking_date",
+            "first_us_clearance_date",
+            "first_market_placement_eu",
+            "first_market_placement_uk",
+        ):
+            val = ki.get(ms_field)
+            if val:
+                prefilled[ms_field] = val
 
     elif letter == "D":
         si_count = stats_dict.get("serious_incident_count", 0)
@@ -102,6 +151,21 @@ def inject_prefilled_values(
         wu = stats_dict.get("total_units_sold", 0)
         if wu > 0 and si_count is not None:
             prefilled["exact_serious_incident_rate"] = round((si_count / wu) * 100, 3)
+        # Reusable vs single-use breakdown for Section D Table 2 split
+        if stats_dict.get("portfolio_is_mixed"):
+            prefilled["reusable_units"] = stats_dict.get("reusable_units", 0)
+            prefilled["reusable_complaints"] = stats_dict.get("reusable_complaints", 0)
+            prefilled["reusable_rate_pct"] = stats_dict.get("reusable_rate_pct", 0.0)
+            prefilled["reusable_rate_display"] = stats_dict.get("reusable_rate_display", "")
+            prefilled["single_use_units"] = stats_dict.get("single_use_units", 0)
+            prefilled["single_use_complaints"] = stats_dict.get("single_use_complaints", 0)
+            prefilled["single_use_rate_pct"] = stats_dict.get("single_use_rate_pct", 0.0)
+            prefilled["single_use_rate_display"] = stats_dict.get("single_use_rate_display", "")
+        # UK serious incidents for UK MDR 44ZH reporting
+        if stats_dict.get("uk_market_detected"):
+            prefilled["uk_units"] = stats_dict.get("uk_units", 0)
+            prefilled["uk_complaints"] = stats_dict.get("uk_complaints", 0)
+            prefilled["uk_serious_incidents"] = stats_dict.get("uk_serious_incidents", 0)
         serious_by_region = stats_dict.get("serious_by_region_imdrf", {})
         if serious_by_region:
             table2_rows = []
@@ -137,6 +201,16 @@ def inject_prefilled_values(
             prefilled["western_electric_violations"] = trend.get(
                 "western_electric_violations", []
             )
+        # Quarterly cumulative trend (preferred for multi-year-life devices).
+        q = stats_dict.get("quarterly_trend") or {}
+        if q:
+            prefilled["quarterly_labels"] = q.get("quarter_labels", [])
+            prefilled["quarterly_complaints"] = q.get("complaints_per_quarter", [])
+            prefilled["quarterly_units"] = q.get("units_per_quarter", [])
+            prefilled["quarterly_rates_pct"] = q.get("quarterly_rates_pct", [])
+            prefilled["cumulative_rates_pct"] = q.get("cumulative_rates_pct", [])
+            prefilled["final_cumulative_rate_pct"] = q.get("final_cumulative_rate_pct", 0.0)
+            prefilled["trend_method"] = q.get("method", "")
 
     elif letter == "F":
         if stats_dict.get("table7_rows"):
@@ -151,7 +225,7 @@ def inject_prefilled_values(
                     "max_expected_rate_of_occurrence_from_ract": (
                         r.get("ract_max_expected_rate")
                         if r.get("ract_max_expected_rate") is not None
-                        else "N/A"
+                        else None
                     ),
                 }
                 for r in t7_rows
@@ -165,7 +239,7 @@ def inject_prefilled_values(
                 "current_12_month_complaint_rate": (
                     round((tc_sum / wu) * 100, 2) if wu and wu > 0 else 0.0
                 ),
-                "max_expected_rate_of_occurrence_from_ract": "N/A",
+                "max_expected_rate_of_occurrence_from_ract": None,
             }
         tc = stats_dict.get("total_complaints")
         wu = stats_dict.get("total_units_sold")
@@ -173,6 +247,20 @@ def inject_prefilled_values(
             prefilled["exact_total_complaints"] = tc
         if wu and tc is not None:
             prefilled["exact_grand_total_rate"] = round((tc / wu) * 100, 2) if wu > 0 else 0.0
+        # Reusable vs single-use rate split (mixed portfolios)
+        if stats_dict.get("portfolio_is_mixed"):
+            prefilled["reusable_complaints"] = stats_dict.get("reusable_complaints", 0)
+            prefilled["reusable_units"] = stats_dict.get("reusable_units", 0)
+            prefilled["reusable_rate_pct"] = stats_dict.get("reusable_rate_pct", 0.0)
+            prefilled["reusable_rate_display"] = stats_dict.get("reusable_rate_display", "")
+            prefilled["single_use_complaints"] = stats_dict.get("single_use_complaints", 0)
+            prefilled["single_use_units"] = stats_dict.get("single_use_units", 0)
+            prefilled["single_use_rate_pct"] = stats_dict.get("single_use_rate_pct", 0.0)
+            prefilled["single_use_rate_display"] = stats_dict.get("single_use_rate_display", "")
+        if stats_dict.get("uk_market_detected"):
+            prefilled["uk_units"] = stats_dict.get("uk_units", 0)
+            prefilled["uk_complaints"] = stats_dict.get("uk_complaints", 0)
+            prefilled["uk_rate_display"] = stats_dict.get("uk_rate_display", "")
 
     elif letter == "E":
         if stats_dict.get("total_complaints") is not None:

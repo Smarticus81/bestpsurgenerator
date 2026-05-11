@@ -51,8 +51,12 @@ class TableMixin:
                     ],
                     "current_data_collection_period": r.get("units", 0),
                     "percent_of_global_sales": (
-                        round((r.get("units", 0) / total_units) * 100, 1)
-                        if total_units > 0 else 0.0
+                        # Use pre-calculated pct_current if available (from skill),
+                        # else calculate from units
+                        r.get("pct_current") or (
+                            round((r.get("units", 0) / total_units) * 100, 1)
+                            if total_units > 0 else 0.0
+                        )
                     ),
                 }
                 for r in det_rows
@@ -247,13 +251,17 @@ class TableMixin:
     # Duplicate table clearing
     # ==================================================================
     def _clear_duplicate_table(self, table):
-        """Clear data cells in a duplicate table with '—'."""
+        """Remove a duplicate table entirely from the document.
+
+        When the template contains both annual and biennial variants, the
+        second match is the unused variant and should be deleted completely
+        rather than filled with dashes.
+        """
         tbl_el = table._tbl
-        trs = list(tbl_el.iterchildren(qn("w:tr")))
-        for tr in trs[2:]:
-            tcs = list(tr.iterchildren(qn("w:tc")))
-            for tc in tcs[1:]:
-                self._set_cell_text(tc, "—")
+        parent = tbl_el.getparent()
+        if parent is not None:
+            parent.remove(tbl_el)
+            logger.info("Removed duplicate table variant from document")
 
     # ==================================================================
     # Sales table
@@ -350,10 +358,29 @@ class TableMixin:
                     self._set_cell_text(tcs[0], "None reported during this period.")
             return
 
-        harm_groups: Dict[str, list] = {}
+        # Deduplicate MDP rows: same harm + same MDP should only appear once
+        # (take the row with the highest complaint count if duplicated)
+        seen_keys = {}
+        deduped_rows = []
         for row in complaint_rows:
             if not isinstance(row, dict):
                 continue
+            harm = row.get("harm", "No Health Consequence or Impact")
+            mdp = row.get("medical_device_problem", "")
+            key = f"{harm}|{mdp}"
+            if key in seen_keys:
+                # Keep the row with higher count
+                existing = seen_keys[key]
+                if row.get("current_12_month_complaint_count", 0) > existing.get("current_12_month_complaint_count", 0):
+                    deduped_rows.remove(existing)
+                    deduped_rows.append(row)
+                    seen_keys[key] = row
+            else:
+                seen_keys[key] = row
+                deduped_rows.append(row)
+
+        harm_groups: Dict[str, list] = {}
+        for row in deduped_rows:
             harm = row.get("harm", "No Health Consequence or Impact")
             harm_groups.setdefault(harm, []).append(row)
 
@@ -377,7 +404,17 @@ class TableMixin:
             rate_str = f"{rate}%" if rate else ""
             self._set_cell_text(tcs[1], f"{count_str} ({rate_str})" if rate_str else count_str)
             ract = mdp_row.get("max_expected_rate_of_occurrence_from_ract")
-            self._set_cell_text(tcs[2], stringify(ract) if ract else "—")
+            if ract is not None and ract != "" and ract != "N/A":
+                # Format RACT value with occurrence code if available
+                oc_code = mdp_row.get("occurrence_code", "")
+                oc_max = mdp_row.get("occurrence_max_expected_rate", "")
+                if oc_max and oc_code:
+                    ract_str = f"≤{oc_max} ({oc_code})"
+                else:
+                    ract_str = stringify(ract)
+                self._set_cell_text(tcs[2], ract_str)
+            else:
+                self._set_cell_text(tcs[2], "N/A — RACT not provided")
 
         def _fill_harm_header_row(tr_el, harm_name: str, total_count=None):
             tcs = list(tr_el.iterchildren(qn("w:tc")))

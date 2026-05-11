@@ -537,7 +537,10 @@ class FabricationChecksMixin:
 
         # Check if UK RP was provided in device context
         uk_rp = device_context.get("uk_responsible_person", {})
-        has_uk_rp = bool(uk_rp and isinstance(uk_rp, dict) and uk_rp.get("name"))
+        has_uk_rp = bool(
+            (isinstance(uk_rp, dict) and uk_rp.get("name"))
+            or (isinstance(uk_rp, str) and uk_rp.strip())
+        )
 
         if has_uk_rp:
             return errors  # Data was provided

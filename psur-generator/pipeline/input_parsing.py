@@ -312,6 +312,45 @@ def parse_all_inputs(
         parsed_data["sales"] = parse_sales(sales_path, start_date, end_date, user_confirm_callback=confirm_cb)
         console.print(f"    -> {parsed_data['sales']['total_units']:,} units")
         _print_mapping_summary(parsed_data["sales"])
+        # ── Compute preceding period from the same CSV ──
+        # The CSV may contain data beyond the current reporting period.
+        # Parse it again for the preceding 12-month window.
+        try:
+            from datetime import datetime, timedelta
+            _fmt = "%Y-%m-%d"
+            _cur_start = datetime.strptime(start_date, _fmt)
+            _cur_end = datetime.strptime(end_date, _fmt)
+            historical_periods = []
+            for offset in (1, 2, 3):
+                window = _cur_end - _cur_start
+                p_end = _cur_start - timedelta(days=1) - (window * (offset - 1))
+                p_start = p_end - window
+                p_start_s = p_start.strftime(_fmt)
+                p_end_s = p_end.strftime(_fmt)
+                try:
+                    h = parse_sales(sales_path, p_start_s, p_end_s)
+                    historical_periods.append({
+                        "label": f"P-{offset} ({p_start_s} → {p_end_s})",
+                        "start": p_start_s,
+                        "end": p_end_s,
+                        "total_units": h.get("total_units", 0),
+                        "by_country": h.get("by_country", {}),
+                        "by_region": h.get("by_region", {}),
+                        "units_unknown_country": 0,
+                    })
+                except Exception:
+                    historical_periods.append({
+                        "label": f"P-{offset}", "start": p_start_s, "end": p_end_s,
+                        "total_units": 0, "by_country": {}, "by_region": {},
+                        "units_unknown_country": 0,
+                    })
+            # Only attach if at least one period has data
+            if any(p["total_units"] > 0 for p in historical_periods):
+                parsed_data["sales"]["historical_periods"] = historical_periods
+                _ws = ", ".join(f"{p['total_units']:,}" for p in historical_periods)
+                console.print(f"  [dim]Historical 12-mo windows (CSV): {_ws}[/dim]")
+        except Exception as e:
+            console.print(f"  [yellow]Historical sales (CSV) skipped: {e}[/yellow]")
     elif _wb_sheets.get("sales") and unified_workbook_path:
         _sn = _wb_sheets["sales"]
         console.print(f"  Sales: {unified_workbook_path.name} \u2192 sheet '{_sn}'")

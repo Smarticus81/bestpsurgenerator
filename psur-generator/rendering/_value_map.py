@@ -107,9 +107,13 @@ class ValueMapMixin:
         serious_count = stats.get("serious_incident_count", stats.get("serious_incidents", 0))
         trend_status = stats.get("trend_status", "stable")
 
-        # Format the complaint rate
-        if isinstance(complaint_rate, (int, float)):
-            cr_str = f"{complaint_rate:.6f}"
+        # Format the complaint rate as a percentage (P4 fix)
+        # Use overall_complaint_percentage (rate * 100) for human-readable display
+        complaint_pct = stats.get("overall_complaint_percentage", None)
+        if complaint_pct is not None and isinstance(complaint_pct, (int, float)):
+            cr_str = f"{complaint_pct:.4f}%"
+        elif isinstance(complaint_rate, (int, float)):
+            cr_str = f"{complaint_rate * 100:.4f}%"
         else:
             cr_str = stringify(complaint_rate)
 
@@ -140,7 +144,27 @@ class ValueMapMixin:
             f"{complaints_str} customer complaints were received, representing an "
             f"overall complaint rate of {cr_str}."
         )
-        if isinstance(serious_count, (int, float)) and serious_count > 0:
+        # Distinguish EU/UK serious incidents (Art. 2(65)) from FDA MDRs
+        eu_si_count = stats.get("eu_uk_serious_incident_count", None)
+        fda_mdr_count = stats.get("fda_mdr_count", None)
+
+        if eu_si_count is not None and isinstance(eu_si_count, (int, float)):
+            if int(eu_si_count) > 0:
+                exec_parts.append(
+                    f"{int(eu_si_count)} EU/UK serious incident(s) meeting "
+                    f"EU MDR Article 2(65) criteria were reported during this period."
+                )
+            else:
+                exec_parts.append(
+                    "No EU/UK serious incidents (EU MDR Article 2(65)) were "
+                    "identified during this period."
+                )
+            if fda_mdr_count is not None and isinstance(fda_mdr_count, (int, float)) and int(fda_mdr_count) > 0:
+                exec_parts.append(
+                    f"{int(fda_mdr_count)} U.S. FDA MDR report(s) were submitted "
+                    f"(discussed in Section D and Section F)."
+                )
+        elif isinstance(serious_count, (int, float)) and serious_count > 0:
             exec_parts.append(
                 f"{int(serious_count)} serious incident(s) were reported during this period."
             )

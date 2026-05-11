@@ -1,59 +1,60 @@
 {
   "device_trade_names": [
-    "Global® Total® for Fertilization"
+    "INSORB Skin Stapler and Forceps"
   ],
-  "device_description": "Global® Total® for Fertilization is a sterile, ready-to-use assisted reproduction (ART) liquid medium intended for oocyte culture and fertilization. It is manufactured aseptically and supplied sterile. The formulation includes balanced physiological salts; energy substrates (glucose, lactate, pyruvate); a bicarbonate buffer; EDTA; amino acids; the antibiotic gentamicin sulfate (10 µg/mL); Plasma Protein Fraction (PPF: Human Serum Albumin ~4.4 mg/mL plus alpha- and beta-globulins ~0.6 mg/mL); and Phenol Red. The medium provides physiologic osmolality and pH and supports gamete function during in vitro procedures.",
-  "intended_purpose": "Global® Total® for Fertilization is applied in ART treatment intended for human oocyte culture and fertilization. The intended purpose is achieved by providing a liquid environment with physiological osmolality and pH, and energy components supporting the biological function of gametes during in vitro procedures involving the fertilization of human oocytes.",
+  "device_description": "INSORB Skin Stapler and Forceps is a medical device/product manufactured by CooperSurgical.",
+  "intended_purpose": "INSORB Skin Stapler and Forceps is intended for use in clinical or laboratory settings as indicated in the relevant IFU.",
   "indications_for_use": [
-    "Use in Assisted Reproductive Technology (ART) for human oocyte culture and fertilization (IVF and ICSI).",
-    "Use for patients/couples assessed suitable by a gynecologist to undergo IVF."
+    "See IFU for INSORB Skin Stapler and Forceps"
   ],
   "contraindications": [
-    "None stated in the CER",
-    "Cautions: product contains human blood–derived proteins (PPF) and gentamicin; see IFU warnings."
+    "None stated in the IFU \u00e2\u20ac\u201c refer to Technical Documentation TD053"
   ],
-  "target_patient_population": "Persons/couples undergoing ART who have been assessed by a gynecologist as suitable for IVF/ICSI, irrespective of male or female infertility factor.",
-  "intended_user_profile": "Professionals trained in ART procedures, including embryologists, gynecologists, and laboratory technicians.",
-  "basic_udi_di_or_device_family_name": "Not stated in the CER",
-  "model_or_catalog_numbers": [
-    "LGTF"
-  ],
-  "eu_mdr_classification_and_rule": "Not CE-marked; EU MDR classification/rule not assigned in the CER",
-  "uk_mdr_classification_and_rule": "Not applicable (not provided in the CER)",
-  "uk_responsible_person": "Not applicable",
-  "ukca_marking_status": "Not applicable / not provided in the CER",
-  "emdn_code": "Not stated in the CER",
-  "gmdn_code": "Not stated in the CER",
-  "date_of_first_ce_marking_or_doc": "Not CE-marked (CER Version A dated 2025-12-07)",
-  "notified_body_name_and_id": "Not applicable",
-  "cer_document_number_and_version": "CE148R, Version A",
-  "cer_date_or_last_update": "07 Dec 2025",
+  "target_patient_population": "Patients undergoing relevant clinical procedures",
+  "intended_user_profile": "Trained healthcare professionals",
+  "basic_udi_di_or_device_family_name": "0888937TD053ZN",
+  "model_or_catalog_numbers": [],
+  "eu_mdr_classification_and_rule": "EU Class III under EU MDR 2017/745",
+  "uk_mdr_classification_and_rule": "See Technical Documentation",
+  "uk_responsible_person": "CooperSurgical",
+  "ukca_marking_status": "See Technical Documentation",
+  "emdn_code": "See Technical Documentation",
+  "gmdn_code": "See Technical Documentation",
+  "date_of_first_ce_marking_or_doc": "See Technical Documentation",
+  "notified_body_name_and_id": "BSI (0086)",
+  "cer_document_number_and_version": "CE053R",
+  "cer_date_or_last_update": "See Technical Documentation",
   "device_lifetime": {
-    "shelf_life": "Not stated in the CER; unused medium must be discarded within 7 days of opening per IFU warnings",
-    "expected_service_life": "Not applicable (single-use consumable medium per container)"
+    "shelf_life": "See IFU",
+    "expected_service_life": "Single-use"
   },
-  "sterility_status": "Sterile; manufactured aseptically and supplied as a sterile, ready-to-use liquid",
-  "single_use_or_reusable": "Single-use per container (do not resterilize; discard unused within 7 days of opening)",
-  "market_history": "Available and in clinical use since 2012; 510(k) cleared by FDA (K112083) on 2012-05-03 and Health Canada MDL 73389 issued on 2012-03-27. The device has >13 years of market use with no new risks identified through PMS and is classified in the CER as a well-established technology.",
+  "sterility_status": "See IFU",
+  "single_use_or_reusable": "Single-use",
+  "market_history": "See Technical Documentation for INSORB Skin Stapler and Forceps",
   "pms_plan_document": {
-    "number": "PMSXXX (ver. X) – placeholders referenced in CER",
-    "title": "Post-Market Surveillance (PMS) reports covering complaints, vigilance, and FSCAs for Global® Total® for Fertilization"
+    "number": "PMS053R",
+    "title": "Post Market Surveillance Plan for INSORB Skin Stapler and Forceps"
   },
   "pmcf_plan_document": {
-    "number": "PMCF LRR (annual literature review reports) – numbers not specified",
-    "title": "Annual PMCF Literature Review Reports; CER states PMCF data on file and yearly PMCF LRR inform updates"
+    "number": "PMCF053P or N/A",
+    "title": "See Technical Documentation"
   },
-  "risk_management_file_document_number": "RMF0148-RMR (Risk Management Report); Risk Management procedure BSR-ENG-007 referenced",
+  "risk_management_file_document_number": "See Technical Documentation TD053",
   "ifu_document": {
-    "number": "Not stated in the CER",
-    "version": "Not stated in the CER (CER confirms IFU includes cautions for PPF and gentamicin)"
+    "number": "See Technical Documentation TD053",
+    "version": "Current"
   },
+  "psur_reporting_period": {
+    "start": "2025-05-01",
+    "end": "2026-04-30"
+  },
+  "mdr_certificate": "See Technical Documentation",
   "other_associated_documents": [
-    "TD148 – Technical Documentation for Global® Total® for Fertilization",
-    "CE148R – Clinical Evaluation Report (this document)",
-    "BER148 – Biological Evaluation Report (referenced in CER)",
-    "BSR-ENG-007 – Risk Management Procedure (referenced)",
-    "PMSXXX – Post-Market Surveillance Report(s) (placeholders referenced)",
-    "Declaration of Conformity (not applicable / not present for CE since device is not CE-marked)"
+    "TD053 \u00e2\u20ac\u201c Technical Documentation for INSORB Skin Stapler and Forceps",
+    "CE053P \u00e2\u20ac\u201c Clinical Evaluation Plan",
+    "FormQAR-054 \u00e2\u20ac\u201c Clinical Evaluation Procedure",
+    "FormQAR-056 \u00e2\u20ac\u201c Post Market Surveillance Procedure",
+    "QMS ISO 13485 Certificate",
+    "Declaration of Conformity"
   ]
 }

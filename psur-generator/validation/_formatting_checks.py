@@ -165,14 +165,13 @@ class FormattingChecksMixin:
         "method_description_and_justification", "commentary_context_for_exceedances",
         "breaches_commentary_and_actions", "statement_if_not_applicable",
         "literature_search_methodology", "summary_of_new_data_performance_or_safety",
-        "registries_reviewed_summary", "market_history", "market_status",
+        "registries_reviewed_summary", "market_history",
         "estimated_size_of_patient_population_exposed",
         "characteristics_of_patient_population_exposed",
         "actions_and_status_from_previous_report", "high_level_summary_if_adversely_impacted",
         "new_incident_types_identified_this_cycle", "intended_benefits_achieved",
         "limitations_of_data_and_conclusion", "new_or_emerging_risks_or_new_benefits",
-        "comparison_with_similar_devices", "indications", "contraindications",
-        "target_populations", "confirmation_of_ongoing_psur_obligation",
+        "comparison_with_similar_devices",
         "upper_control_limit_definition", "action_details_and_follow_up",
     })
 

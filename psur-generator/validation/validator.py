@@ -128,6 +128,8 @@ class PSURValidator(
         errors.extend(self._check_trend_report_fabrication(psur, parsed_data))
         # 9e. UK Responsible Person fabrication
         errors.extend(self._check_uk_rp_fabrication(psur, device_context))
+        # 9f. Narrative identifier leakage (e.g. stale CAPA-XXX from prior period)
+        errors.extend(self._check_narrative_identifier_leakage(psur, parsed_data))
         # 10. Cover page
         errors.extend(self._check_cover_page(psur))
         # 11. IMDRF codes

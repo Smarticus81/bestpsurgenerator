@@ -360,18 +360,23 @@ def normalize_enum_values(section_key: str, section_content: Any) -> Any:
 
     if section_key == "I_corrective_and_preventive_actions":
         table9 = section_content.get("table_9_capa_initiated_current_reporting_period", [])
+        # CRITICAL: Never auto-mark CAPA as "Completed"/"Closed" without
+        # explicit closure documentation. Default to "In Progress" (not "Closed").
         _STATUS_MAP = {
             "open": "Open", "closed": "Closed", "in progress": "In Progress",
-            "in_progress": "In Progress", "completed": "Closed",
+            "in_progress": "In Progress",
+            "completed": "In Progress",  # Never auto-complete without evidence
             "not started": "Open", "not_started": "Open",
-            "n/a": "Closed", "not applicable": "Closed", "not_applicable": "Closed",
-            "implemented": "Closed", "verified": "Closed",
+            "n/a": "In Progress", "not applicable": "In Progress",
+            "not_applicable": "In Progress",
+            "implemented": "In Progress",  # Needs verification evidence
+            "verified": "Closed",  # Only "verified" maps to Closed
         }
         for row in table9:
             if isinstance(row, dict):
                 status = row.get("status", "")
                 if isinstance(status, str) and status not in ("Open", "Closed", "In Progress"):
-                    row["status"] = _STATUS_MAP.get(status.lower().strip(), "Open")
+                    row["status"] = _STATUS_MAP.get(status.lower().strip(), "In Progress")
 
     if section_key == "H_information_from_fsca":
         table8 = section_content.get("table_8_fsca_initiated_current_period_and_open_fscas", [])
@@ -999,6 +1004,38 @@ def strip_unknown_section_a_keys(section_key: str, section_content: Any) -> Any:
 
 
 # ---------------------------------------------------------------------------
+# Section A — CAPA status override (never auto-complete without evidence)
+# ---------------------------------------------------------------------------
+
+
+def fix_section_a_capa_status(section_key: str, section_content: Any) -> Any:
+    """Prevent Section A from marking previous CAPA actions as COMPLETED
+    without explicit closure evidence.
+
+    CRITICAL: CAPA should default to IN_PROGRESS unless the input data
+    explicitly confirms closure with verification documentation.
+    """
+    if section_key != "A_executive_summary" or not isinstance(section_content, dict):
+        return section_content
+
+    prev = section_content.get("previous_psur_actions_status")
+    if not isinstance(prev, dict):
+        return section_content
+
+    status_obj = prev.get("status_of_previous_actions")
+    if isinstance(status_obj, dict):
+        status = status_obj.get("status", "")
+        # Never auto-mark as COMPLETED — change to IN_PROGRESS
+        if status and status.upper() in ("COMPLETED", "CLOSED", "DONE"):
+            status_obj["status"] = "IN_PROGRESS"
+    elif isinstance(status_obj, str):
+        if status_obj.upper() in ("COMPLETED", "CLOSED", "DONE"):
+            prev["status_of_previous_actions"] = {"status": "IN_PROGRESS"}
+
+    return section_content
+
+
+# ---------------------------------------------------------------------------
 # Section B — shorten verbose placeholder fields
 # ---------------------------------------------------------------------------
 
@@ -1386,8 +1423,10 @@ _SECTION_ENUMERATION_TRAILING_I_RE = re.compile(
 # narrative string in the PSUR and replaces any identifier that does NOT
 # appear in the current period's parsed records with a neutral phrase.
 
+# Negative lookbehind excludes "EU MDR", "UK MDR", "under MDR", "the MDR"
+# which are regulatory framework references, not leaked identifiers.
 _LEAKABLE_IDENTIFIER_RE = re.compile(
-    r"\b(CAPA|MDR|FSCA|CMP)[-\s]?(\d{2,10}|[A-Z0-9\-]{3,20})\b",
+    r"(?<!EU )(?<!UK )(?<!the )(?<!under )\b(CAPA|MDR|FSCA|CMP)[-\s]?(\d{2,10}|[A-Z0-9\-]{3,20})\b",
     re.IGNORECASE,
 )
 
@@ -1438,8 +1477,12 @@ def scrub_leaked_identifiers(value: Any, allowed: set) -> Any:
         norm = (m.group(1) + m.group(2)).upper().replace("-", "").replace(" ", "")
         if norm in allowed:
             return m.group(0)
-        # Generic, non-fabricated substitute
+        # Don't replace MDR certificate numbers (6+ digit numbers like "800217")
         prefix = m.group(1).upper()
+        suffix = m.group(2)
+        if prefix == "MDR" and suffix.isdigit() and len(suffix) >= 6:
+            return m.group(0)  # Likely a certificate number, keep it
+        # Generic, non-fabricated substitute
         return {
             "CAPA": "a CAPA from the previous reporting period",
             "MDR": "a prior MDR report",

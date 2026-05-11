@@ -6,7 +6,9 @@ This folder contains optimized input templates for the PSUR Generator pipeline. 
 
 ## Quick Start
 
-1. Copy the template files you need into `data/input/`
+This `templates/` folder holds **blank scaffolds only**. Real input files belong in the parent `data/input/` directory (the auto-discovery scanner only looks there, not in subfolders).
+
+1. Copy the template files you need from `data/input/templates/` into `data/input/`
 2. Rename them using the naming conventions below (for auto-discovery)
 3. Replace sample data with your actual device data
 4. Run: `python main.py generate --start 2025-01-01 --end 2025-12-31`
