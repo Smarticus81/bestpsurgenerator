@@ -201,6 +201,85 @@ class TableMixin:
             self._fill_table_placeholders(table, values)
 
     # ==================================================================
+    # Standalone-tables splice
+    # ==================================================================
+    def _classify_table_header(self, header_text: str):
+        """Categorise a table by its header text. Returns a category key
+        used to match standalone-tables docx tables against template tables."""
+        ht = (header_text or "").lower()
+        if "health impact" in ht or "annex f" in ht:
+            return "health_impact"
+        if "imdrf" in ht and ("annex a" in ht or "problem code" in ht):
+            return "incident_annex_a"
+        if "imdrf" in ht and ("annex c" in ht or "cause code" in ht or "cause" in ht):
+            return "incident_annex_c"
+        if ("region" in ht and "imdrf" not in ht
+                and ("sales" in ht or "units" in ht or "volume" in ht
+                     or "devices sold" in ht or "distributed" in ht
+                     or "percent of global" in ht)):
+            return "sales"
+        if "feedback" in ht and ("type" in ht or "source" in ht or "customer" in ht):
+            return "customer_feedback"
+        if (("harm" in ht and "medical device problem" in ht)
+                or ("complaint" in ht and ("rate" in ht or "count" in ht
+                    or "harm" in ht or "mdp" in ht))):
+            return "complaint_rate"
+        if "fsca" in ht or "field safety" in ht:
+            return "fsca"
+        if "capa" in ht or ("corrective" in ht and "preventive" in ht):
+            return "capa"
+        if (("database" in ht and ("registr" in ht or "total matches" in ht))
+                or "maude" in ht or "bfarm" in ht or "mhra" in ht):
+            return "external_db"
+        if "pmcf" in ht or "post-market clinical" in ht or "post market clinical" in ht:
+            return "pmcf"
+        return None
+
+    def _replace_tables_from_docx(self, tables_docx_path) -> int:
+        """Replace data tables in self.doc with the equivalent tables from a
+        standalone tables-only DOCX produced by build_tables_standalone.
+
+        Matching is by header-text category (sales / IMDRF / complaint /
+        FSCA / CAPA / external_db / PMCF / health_impact / customer_feedback).
+        Returns the number of tables swapped.
+        """
+        from docx import Document as _Document
+        from pathlib import Path as _Path
+
+        path = _Path(tables_docx_path)
+        if not path.exists():
+            logger.warning("Standalone tables docx not found: %s", path)
+            return 0
+
+        src_doc = _Document(str(path))
+        src_by_cat: Dict[str, list] = {}
+        for stbl in src_doc.tables:
+            cat = self._classify_table_header(self._get_table_header_text(stbl))
+            if cat:
+                src_by_cat.setdefault(cat, []).append(stbl._tbl)
+
+        if not src_by_cat:
+            logger.warning("No classifiable tables found in %s", path)
+            return 0
+
+        swapped = 0
+        for dtbl in list(self.doc.tables):
+            cat = self._classify_table_header(self._get_table_header_text(dtbl))
+            if not cat or not src_by_cat.get(cat):
+                continue
+            src_el = src_by_cat[cat].pop(0)
+            new_el = copy.deepcopy(src_el)
+            parent = dtbl._tbl.getparent()
+            if parent is None:
+                continue
+            parent.replace(dtbl._tbl, new_el)
+            swapped += 1
+            logger.info("Spliced standalone table into '%s' slot", cat)
+
+        logger.info("Replaced %d tables from %s", swapped, path.name)
+        return swapped
+
+    # ==================================================================
     # Header detection
     # ==================================================================
     def _get_table_header_text(self, table) -> str:

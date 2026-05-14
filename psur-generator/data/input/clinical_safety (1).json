@@ -1,0 +1,56 @@
+{
+  "document_type": "PMCF_Report",
+  "device_model": "Stapler-X100",
+  "device_name": "Laparoscopic Stapler X100",
+  "is_pmcf": true,
+  "studies": [
+    {
+      "study_id": "CLIN001",
+      "name": "Stapler Clinical Trial Phase III",
+      "period_start": "2022-05-01",
+      "period_end": "2023-05-31",
+      "sample_size": 100,
+      "safety_endpoints": [
+        {
+          "event": "Skin/Subcutaneous Injury (Laceration)",
+          "count": 5,
+          "serious": true
+        },
+        {
+          "event": "Tissue Reaction",
+          "count": 3,
+          "serious": false
+        },
+        {
+          "event": "Device malfunction",
+          "count": 7,
+          "serious": true
+        }
+      ]
+    },
+    {
+      "study_id": "CLIN002",
+      "name": "Stapler Post-market Observational Study",
+      "period_start": "2022-01-01",
+      "period_end": "2023-12-31",
+      "sample_size": 500,
+      "safety_endpoints": [
+        {
+          "event": "Skin/Subcutaneous Injury (Laceration)",
+          "count": 20,
+          "serious": false
+        },
+        {
+          "event": "Tissue Reaction",
+          "count": 8,
+          "serious": true
+        },
+        {
+          "event": "Stapler Misfire",
+          "count": 15,
+          "serious": true
+        }
+      ]
+    }
+  ]
+}

@@ -1,0 +1,32 @@
+{
+  "document_type": "PMCF_Report",
+  "device_model": "Stapler-X100",
+  "device_name": "Laparoscopic Stapler X100",
+  "is_pmcf": true,
+  "studies": [
+    {
+      "study_id": "CLIN-PERF001",
+      "name": "Stapler Performance Trial",
+      "period_start": "2022-02-01",
+      "period_end": "2023-02-01",
+      "sample_size": 120,
+      "performance_metrics": {
+        "success_rate": 0.93,
+        "mean_procedure_time_minutes": 3.5,
+        "reoperation_rate": 0.05
+      }
+    },
+    {
+      "study_id": "CLIN-PERF002",
+      "name": "Stapler Real-World Use Study",
+      "period_start": "2022-06-01",
+      "period_end": "2023-06-01",
+      "sample_size": 400,
+      "performance_metrics": {
+        "success_rate": 0.96,
+        "mean_procedure_time_minutes": 3.2,
+        "reoperation_rate": 0.02
+      }
+    }
+  ]
+}

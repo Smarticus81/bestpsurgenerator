@@ -42,9 +42,3 @@ RACT_CODES_PATH = CONSTRAINTS_DIR / "ract_occurrence_codes.json"
 HARM_MDP_PATH = CONSTRAINTS_DIR / "harm_mdp_codes.csv"
 
 DATABASE_URL = os.environ.get("DATABASE_URL")
-
-# SQLite source for complaints + sales (preferred over CSV/Excel when set)
-PSUR_DB_PATH = os.environ.get(
-    "PSUR_DB_PATH",
-    r"C:\Users\tmuso\Desktop\Inference\DataModel\psur_data.sqlite",
-)

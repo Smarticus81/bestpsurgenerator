@@ -141,6 +141,6 @@ Place files in `psur-generator/data/input/`. Auto-discovery uses filename keywor
 - CAPA: `*capa*`, `*corrective*`, `*preventive*`
 - Device context: `device_context.json`
 - RACT: `*ract*`, `*risk*`
-- Templates with column specs are in `data/input/templates/`
+- Templates with column specs are in `data/templates/`
 
-See `data/input/templates/INPUT_README.md` for full column specifications.
+See `data/templates/INPUT_README.md` for full column specifications.

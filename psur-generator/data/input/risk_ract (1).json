@@ -1,0 +1,42 @@
+{
+  "device_model": "Stapler-X100",
+  "device_name": "Laparoscopic Stapler X100",
+  "hazards": [
+    {
+      "hazard_id": "HZ001",
+      "name": "Device breakage",
+      "description": "Breakage of stapler mechanism",
+      "severity": "High",
+      "max_rate_per_1000": 0.02,
+      "controls": [
+        "Improved Packaging",
+        "Design Modification A"
+      ]
+    },
+    {
+      "hazard_id": "HZ002",
+      "name": "Skin/Subcutaneous Injury (Laceration)",
+      "description": "Laceration from stapler misfire",
+      "severity": "Medium",
+      "max_rate_per_1000": 0.05,
+      "controls": [
+        "Training Program",
+        "Design Update B"
+      ]
+    },
+    {
+      "hazard_id": "HZ003",
+      "name": "Stapler Misfire",
+      "description": "Stapler misfire during procedure",
+      "severity": "Medium",
+      "max_rate_per_1000": 0.04,
+      "controls": [
+        "Material Improvement",
+        "Procedure Checklist"
+      ]
+    }
+  ],
+  "global_thresholds": {
+    "overall_serious_rate_max": 0.1
+  }
+}

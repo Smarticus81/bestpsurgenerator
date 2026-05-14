@@ -12,7 +12,6 @@ import json
 import os
 import re
 import sys
-import sqlite3
 import faulthandler
 from datetime import datetime
 faulthandler.enable()
@@ -37,7 +36,7 @@ import time as _time
 import logging
 from rich.console import Console
 
-from config import INPUT_DIR, OUTPUT_DIR, PSUR_DB_PATH
+from config import INPUT_DIR, OUTPUT_DIR
 from statistics import compute_psur_statistics
 from agents.orchestrator import generate_psur
 from validation import PSURValidator
@@ -46,6 +45,7 @@ from charts import generate_all_charts
 
 # Pipeline modules
 from pipeline.discovery import auto_discover_inputs, print_discovered_files
+from pipeline.format_contract import audit_discovered_formats
 from pipeline.device_context import (
     extract_device_context_llm,
     gather_file_snippets,
@@ -163,10 +163,6 @@ def generate(
     extra_files: Optional[List[Path]] = typer.Option(None, "--extra", help="Override: Extra files", hidden=True),
     output_dir: Path = typer.Option(None, "--output", "-o", help="Output directory"),
     resume: bool = typer.Option(False, "--resume", help="Resume from last checkpoint"),
-    # SQLite source for complaints + sales (overrides CSV/Excel files)
-    db: Optional[Path] = typer.Option(None, "--db", help="SQLite DB with complaints + sales tables (default: config.PSUR_DB_PATH)"),
-    no_db: bool = typer.Option(False, "--no-db", help="Disable SQLite source even if PSUR_DB_PATH is set"),
-    td_id: Optional[str] = typer.Option(None, "--td-id", help="Filter SQLite rows by td_id (auto-resolved from device name if omitted)"),
     # Ollama local model support
     ollama_model: Optional[str] = typer.Option(None, "--ollama-model", help="Use a local Ollama model for ALL LLM calls (e.g. qwen3:32b, deepseek-r1:70b)"),
     ollama_url: Optional[str] = typer.Option(None, "--ollama-url", help="Ollama API base URL (default: http://localhost:11434)"),
@@ -207,6 +203,7 @@ def generate(
 
     discovered = auto_discover_inputs(in_dir)
     print_discovered_files(discovered)
+    audit_discovered_formats(discovered)
 
     def _resolve(explicit_path, category):
         if explicit_path and Path(explicit_path).exists():
@@ -300,34 +297,9 @@ def generate(
         and context_file_rich.get("device_description")
     )
 
-    # Resolve SQLite source: explicit --db > config.PSUR_DB_PATH > none.
-    # The DB is validated with PRAGMA integrity_check; a malformed file
-    # transparently falls back to CSV/Excel inputs in data/input/.
-    _db_resolved: Optional[Path] = None
-    if not no_db:
-        _candidate = db or (Path(PSUR_DB_PATH) if PSUR_DB_PATH else None)
-        if _candidate and Path(_candidate).exists():
-            try:
-                _con = sqlite3.connect(f"file:{Path(_candidate)}?mode=ro", uri=True)
-                _con.execute("PRAGMA quick_check").fetchone()
-                _row = _con.execute("PRAGMA integrity_check(1)").fetchone()
-                _con.close()
-                if not _row or str(_row[0]).strip().lower() != "ok":
-                    raise sqlite3.DatabaseError(f"integrity_check returned {_row}")
-                _db_resolved = Path(_candidate)
-                console.print(f"[cyan]SQLite source enabled:[/cyan] {_db_resolved}")
-            except (sqlite3.DatabaseError, sqlite3.OperationalError) as _db_err:
-                console.print(
-                    f"  [yellow]SQLite source unusable ({_db_err}) — "
-                    f"falling back to file inputs in {in_dir}[/yellow]"
-                )
-                _db_resolved = None
-        elif _candidate:
-            console.print(f"  [yellow]SQLite path set but not found: {_candidate} — falling back to file inputs[/yellow]")
-
-    # Build in-scope part-number list from input documents so DB queries
-    # are scoped to THIS PSUR instead of returning every row under td_id.
-    # Sources (in priority): device_context.model_or_catalog_numbers,
+    # Resolve in-scope part numbers from input documents so downstream
+    # filtering is scoped to THIS PSUR. Sources (in priority):
+    # device_context.model_or_catalog_numbers,
     # previous_psur.appendix_a1_models.* (if previous PSUR is JSON).
     _scope_pns: List[str] = []
     _seen_pns: set = set()
@@ -388,9 +360,6 @@ def generate(
         confirm_cb=None,  # auto-map always on
         skip_cer=_skip_cer,
         unified_workbook_path=input_paths.get("analysis_workbook"),
-        db_path=_db_resolved,
-        db_td_id=td_id,
-        scope_product_numbers=_scope_pns or None,
     )
     parsed_data = parse_result["parsed_data"]
     expanded_context = parse_result["expanded_context"]
@@ -560,6 +529,32 @@ def generate(
     if stats.yoy_rate_change is not None:
         console.print(f"  YoY rate change: {stats.yoy_rate_change}%")
 
+    # ── 5b. Build deterministic FormQAR-054 tables DOCX ─────────────
+    # Ports the psur-tables / sales-aggregate / imdrf-classify skills into
+    # a deterministic Python pipeline step. Produces a tables-only DOCX as
+    # a first-class artifact alongside the LLM-generated narrative.
+    tables_path = None
+    try:
+        from build_tables_standalone import build_tables_docx
+        from datetime import date as _date
+        out_dir.mkdir(parents=True, exist_ok=True)
+        safe_name = "".join(c if c.isalnum() else "_" for c in _device_name).strip("_") or "device"
+        tables_path = out_dir / f"PSUR_Tables_{safe_name}_{end_date[:4]}.docx"
+        cadence = meta.get("psur_cadence") or "annual"
+        cadence_label = f"{cadence} cadence, EU Class {meta.get('device_class', 'IIb')}"
+        build_tables_docx(
+            reporting_start=_date.fromisoformat(start_date),
+            reporting_end=_date.fromisoformat(end_date),
+            input_dir=in_dir,
+            output_path=tables_path,
+            device_label=_device_name,
+            cadence_label=cadence_label,
+        )
+        console.print(f"  [green]FormQAR-054 tables DOCX: {tables_path}[/green]")
+    except Exception as _e:
+        console.print(f"  [yellow]FormQAR-054 tables build skipped: {_e}[/yellow]")
+        tables_path = None
+
     # ── 6. Generate charts (skip if user supplied) ────────────────
 
     console.print("\n[bold]Preparing charts...[/bold]")
@@ -653,13 +648,26 @@ def generate(
 
     docx_path = out_dir / f"PSUR_{safe_name}_{end_date[:4]}.docx"
     renderer = PSURTemplateRenderer()
-    renderer.render(psur, docx_path, chart_paths=chart_paths)
+    renderer.render(psur, docx_path, chart_paths=chart_paths,
+                    tables_docx_path=tables_path)
     console.print(f"  DOCX (template-based): {docx_path}")
 
     stats_path = out_dir / f"PSUR_{safe_name}_{end_date[:4]}_statistics.json"
     with open(stats_path, "w") as f:
         json.dump(stats_dict, f, indent=2, default=str)
     console.print(f"  Stats: {stats_path}")
+
+    # Traceability matrix — every narrative sentence → data source
+    trace_matrix = getattr(validator, "last_traceability_matrix", None)
+    if trace_matrix:
+        trace_path = out_dir / f"PSUR_{safe_name}_{end_date[:4]}_traceability.json"
+        with open(trace_path, "w") as f:
+            json.dump(trace_matrix, f, indent=2, default=str)
+        leak_count = trace_matrix.get("summary", {}).get("total_leakage_findings", 0)
+        if leak_count:
+            console.print(f"  [yellow]Traceability: {trace_path} ({leak_count} leakage findings)[/yellow]")
+        else:
+            console.print(f"  [green]Traceability: {trace_path} (clean)[/green]")
 
     if checkpoint_path.exists():
         checkpoint_path.unlink()
@@ -772,9 +780,6 @@ def harness(
     end_date: str = typer.Option(..., "--end", "-e", help="Reporting period end (YYYY-MM-DD)"),
     input_dir: Path = typer.Option(None, "--input", "-i", help="Input directory (default: data/input/)"),
     output_dir: Path = typer.Option(None, "--output", "-o", help="Output directory (default: data/output/)"),
-    db: Optional[Path] = typer.Option(None, "--db", help="SQLite DB with complaints + sales tables"),
-    no_db: bool = typer.Option(False, "--no-db", help="Disable SQLite source even if PSUR_DB_PATH is set"),
-    td_id: Optional[str] = typer.Option(None, "--td-id", help="Filter SQLite rows by td_id"),
     is_first_psur: bool = typer.Option(False, "--first-psur", help="Skip the previous_psur mandatory check"),
     resume: bool = typer.Option(False, "--resume", help="Resume from last checkpoint"),
     ollama_model: Optional[str] = typer.Option(None, "--ollama-model", help="Use a local Ollama model for ALL LLM calls"),
@@ -814,9 +819,6 @@ def harness(
             input_dir=in_dir,
             output_dir=out_dir,
             device_name=device_name,
-            db_path=db,
-            db_td_id=td_id,
-            no_db=no_db,
             is_first_psur=is_first_psur,
             resume=resume,
         )

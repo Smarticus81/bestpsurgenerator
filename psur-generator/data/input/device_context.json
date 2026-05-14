@@ -1,60 +1,65 @@
 {
   "device_trade_names": [
-    "INSORB Skin Stapler and Forceps"
+    "Laparoscopic Stapler X100\u00ae",
+    "Laparoscopic Stapler X100 Reload\u2122"
   ],
-  "device_description": "INSORB Skin Stapler and Forceps is a medical device/product manufactured by CooperSurgical.",
-  "intended_purpose": "INSORB Skin Stapler and Forceps is intended for use in clinical or laboratory settings as indicated in the relevant IFU.",
+  "device_description": "The Laparoscopic Stapler X100 is a single-use, sterile medical device designed to create endoscopic stapled anastomoses during minimally invasive surgical procedures. It consists of a polymer handle with an integrated trigger mechanism, an articulating metal shaft for precise positioning, and removable staple cartridges made of titanium and synthetic polymers. The stapling mechanism clamps the tissue and deploys staggered rows of staples while simultaneously cutting between them, enabling safe transection and reconnection of soft tissue.",
+  "intended_purpose": "The Laparoscopic Stapler X100 is intended for use in minimally invasive laparoscopic surgical procedures to transect and staple soft tissue of the gastrointestinal tract. It is intended for use by trained surgeons in hospital operating rooms.",
   "indications_for_use": [
-    "See IFU for INSORB Skin Stapler and Forceps"
+    "Transection and stapling of soft tissue during laparoscopic bowel resection",
+    "Stapled sleeve gastrectomy procedures",
+    "Stapled anastomosis during laparoscopic colorectal surgery"
   ],
   "contraindications": [
-    "None stated in the IFU \u00e2\u20ac\u201c refer to Technical Documentation TD053"
+    "Patients with known hypersensitivity to titanium or device polymers",
+    "Patients whose anatomy is incompatible with laparoscopic stapler introduction",
+    "None stated in the CER"
   ],
-  "target_patient_population": "Patients undergoing relevant clinical procedures",
-  "intended_user_profile": "Trained healthcare professionals",
-  "basic_udi_di_or_device_family_name": "0888937TD053ZN",
-  "model_or_catalog_numbers": [],
-  "eu_mdr_classification_and_rule": "EU Class III under EU MDR 2017/745",
-  "uk_mdr_classification_and_rule": "See Technical Documentation",
-  "uk_responsible_person": "CooperSurgical",
-  "ukca_marking_status": "See Technical Documentation",
-  "emdn_code": "See Technical Documentation",
-  "gmdn_code": "See Technical Documentation",
-  "date_of_first_ce_marking_or_doc": "See Technical Documentation",
-  "notified_body_name_and_id": "BSI (0086)",
-  "cer_document_number_and_version": "CE053R",
-  "cer_date_or_last_update": "See Technical Documentation",
+  "target_patient_population": "Adult patients undergoing elective laparoscopic gastrointestinal surgery assessed by a surgeon as suitable for staple anastomosis and transection.",
+  "intended_user_profile": "Trained healthcare professionals, including general surgeons and bariatric surgeons, familiar with minimally invasive laparoscopic stapling techniques.",
+  "basic_udi_di_or_device_family_name": "TD1001 / UDI-DI-LSX100",
+  "model_or_catalog_numbers": [
+    "LSX100",
+    "LSX100-Reload",
+    "LSX100-Std"
+  ],
+  "eu_mdr_classification_and_rule": "EU Class IIb under EU MDR 2017/745, Rule 10",
+  "uk_mdr_classification_and_rule": "UK Class IIb under UK MDR 2002 (as amended 2024), Rule 10",
+  "uk_responsible_person": "MedCorp UK Ltd, 123 London Road, London, UK",
+  "ukca_marking_status": "UKCA marked",
+  "emdn_code": "Not applicable",
+  "gmdn_code": "14652",
+  "date_of_first_ce_marking_or_doc": "2015",
+  "notified_body_name_and_id": "BSI Group The Netherlands B.V. (2797)",
+  "cer_document_number_and_version": "CE1234R, Version 3",
+  "cer_date_or_last_update": "20 October 2023",
   "device_lifetime": {
-    "shelf_life": "See IFU",
-    "expected_service_life": "Single-use"
+    "shelf_life": "5 years",
+    "expected_service_life": "10 years"
   },
-  "sterility_status": "See IFU",
+  "sterility_status": "Sterile",
   "single_use_or_reusable": "Single-use",
-  "market_history": "See Technical Documentation for INSORB Skin Stapler and Forceps",
+  "market_history": "The Laparoscopic Stapler X100 was first launched and CE marked in 2015, with prior FDA 510(k) clearance (K123456) obtained in July 2014. Annual cumulative global sales exceed 200,000 units. Since launch, significant post-market events include two major design enhancements in 2017 and 2020 addressing reported misfire incidences, the implementation of a comprehensive surgeon training program in 2021, and introduction in the Asia-Pacific region in 2022.",
   "pms_plan_document": {
-    "number": "PMS053R",
-    "title": "Post Market Surveillance Plan for INSORB Skin Stapler and Forceps"
+    "number": "PMS-1001R",
+    "title": "Post Market Surveillance Report for Laparoscopic Stapler X100"
   },
   "pmcf_plan_document": {
-    "number": "PMCF053P or N/A",
-    "title": "See Technical Documentation"
+    "number": "PMCF-1001P",
+    "title": "Post-Market Clinical Follow-up Plan for Laparoscopic Stapler X100"
   },
-  "risk_management_file_document_number": "See Technical Documentation TD053",
+  "risk_management_file_document_number": "RMF1000-RMR; RMF1000-RA",
   "ifu_document": {
-    "number": "See Technical Documentation TD053",
-    "version": "Current"
+    "number": "IFU-LSX100",
+    "version": "v5.2"
   },
-  "psur_reporting_period": {
-    "start": "2025-05-01",
-    "end": "2026-04-30"
-  },
-  "mdr_certificate": "See Technical Documentation",
   "other_associated_documents": [
-    "TD053 \u00e2\u20ac\u201c Technical Documentation for INSORB Skin Stapler and Forceps",
-    "CE053P \u00e2\u20ac\u201c Clinical Evaluation Plan",
-    "FormQAR-054 \u00e2\u20ac\u201c Clinical Evaluation Procedure",
-    "FormQAR-056 \u00e2\u20ac\u201c Post Market Surveillance Procedure",
-    "QMS ISO 13485 Certificate",
-    "Declaration of Conformity"
+    "TD1001 \u2013 Technical Documentation for Laparoscopic Stapler X100",
+    "CE1001P \u2013 Clinical Evaluation Plan",
+    "QAR1001 \u2013 Clinical Evaluation Procedure",
+    "QAR1002 \u2013 Post Market Surveillance Procedure",
+    "ENG1001 \u2013 Risk Management Procedure",
+    "QMS ISO 13485 Certificate (CERT-ISO13485-001)",
+    "Declaration of Conformity (DoC-2023-001)"
   ]
 }

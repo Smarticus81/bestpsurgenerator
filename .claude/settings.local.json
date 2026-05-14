@@ -1,0 +1,12 @@
+{
+  "permissions": {
+    "allow": [
+      "Bash(cp \"/c/Users/tmuso/OneDrive/Printer Friendly Receipt Detail_files/Desktop/bestpsurgenerator/psur-generator/files/SKILL.md\" \"/c/Users/tmuso/OneDrive/Printer Friendly Receipt Detail_files/Desktop/bestpsurgenerator/.claude/skills/psur-tables/SKILL.md\")",
+      "Bash(cp \"/c/Users/tmuso/OneDrive/Printer Friendly Receipt Detail_files/Desktop/bestpsurgenerator/psur-generator/files/table-schemas.md\" \"/c/Users/tmuso/OneDrive/Printer Friendly Receipt Detail_files/Desktop/bestpsurgenerator/.claude/skills/psur-tables/table-schemas.md\")",
+      "Bash(cp \"/c/Users/tmuso/OneDrive/Printer Friendly Receipt Detail_files/Desktop/bestpsurgenerator/psur-generator/files/psur-imdrf-classify/SKILL.md\" \"/c/Users/tmuso/OneDrive/Printer Friendly Receipt Detail_files/Desktop/bestpsurgenerator/.claude/skills/psur-imdrf-classify/SKILL.md\")",
+      "Bash(cp \"/c/Users/tmuso/OneDrive/Printer Friendly Receipt Detail_files/Desktop/bestpsurgenerator/psur-generator/files/psur-sales-aggregate/SKILL.md\" \"/c/Users/tmuso/OneDrive/Printer Friendly Receipt Detail_files/Desktop/bestpsurgenerator/.claude/skills/psur-sales-aggregate/SKILL.md\")",
+      "Bash(cp \"/c/Users/tmuso/OneDrive/Printer Friendly Receipt Detail_files/Desktop/bestpsurgenerator/psur-generator/files/psur-validate/SKILL.md\" \"/c/Users/tmuso/OneDrive/Printer Friendly Receipt Detail_files/Desktop/bestpsurgenerator/.claude/skills/psur-validate/SKILL.md\")",
+      "Bash(python -c \":*)"
+    ]
+  }
+}

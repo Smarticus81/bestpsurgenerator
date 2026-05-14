@@ -14,6 +14,7 @@ from validation._formatting_checks import FormattingChecksMixin
 from validation._content_checks import ContentChecksMixin
 from validation._consistency_checks import ConsistencyChecksMixin
 from validation._docx_checks import DocxChecksMixin
+from validation._traceability import TraceabilityChecksMixin
 
 
 class PSURValidator(
@@ -23,6 +24,7 @@ class PSURValidator(
     ContentChecksMixin,
     ConsistencyChecksMixin,
     DocxChecksMixin,
+    TraceabilityChecksMixin,
 ):
     """Validates PSUR against template schema and writing rules."""
 
@@ -55,6 +57,9 @@ class PSURValidator(
 
         # Build resolved section schemas for JSON Schema validation
         self._resolved_section_schemas = self._build_resolved_section_schemas()
+
+        # Populated by the most recent validate() call
+        self.last_traceability_matrix: Dict[str, Any] = {}
 
     # --------------- main entry point ---------------
     def validate(self, psur: Dict[str, Any], parsed_data: Dict[str, Any] = None,
@@ -186,5 +191,11 @@ class PSURValidator(
         errors.extend(self._check_sales_narrative_vs_table(psur))
         # 37. D vs F serious incident harm count consistency
         errors.extend(self._check_serious_incident_d_vs_f_harm(psur))
+        # 38. Sentence-level traceability / leakage prevention
+        trace_errors, trace_matrix = self._check_traceability(
+            psur, parsed_data=parsed_data, device_context=device_context,
+        )
+        errors.extend(trace_errors)
+        self.last_traceability_matrix = trace_matrix
 
         return (len(errors) == 0, errors)

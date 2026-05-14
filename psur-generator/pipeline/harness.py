@@ -33,7 +33,7 @@ from typing import Any, Callable, Dict, List, Optional, Tuple
 from rich.console import Console
 
 # Existing pipeline modules (re-used, never duplicated).
-from config import INPUT_DIR, OUTPUT_DIR, PSUR_DB_PATH
+from config import INPUT_DIR, OUTPUT_DIR
 from pipeline.discovery import auto_discover_inputs, print_discovered_files
 from pipeline.device_context import (
     load_device_context_file,
@@ -530,8 +530,6 @@ def agent_data_ingestion(
     end_date: str,
     device_meta: Dict[str, Any],
     device_context_rich: Optional[Dict[str, Any]],
-    db_path: Optional[Path],
-    db_td_id: Optional[str],
     scope_pns: Optional[List[str]],
     skip_cer: bool,
 ) -> Dict[str, Any]:
@@ -560,9 +558,6 @@ def agent_data_ingestion(
         confirm_cb=None,
         skip_cer=skip_cer,
         unified_workbook_path=_first("analysis_workbook"),
-        db_path=db_path,
-        db_td_id=db_td_id,
-        scope_product_numbers=scope_pns or None,
     )
     parsed = parse_result["parsed_data"]
     expanded = parse_result["expanded_context"]
@@ -2024,9 +2019,6 @@ def run_harness(
     input_dir: Path,
     output_dir: Path,
     device_name: str = "",
-    db_path: Optional[Path] = None,
-    db_td_id: Optional[str] = None,
-    no_db: bool = False,
     is_first_psur: bool = False,
     resume: bool = False,
     confirm_first_psur_explicit: bool = False,
@@ -2093,8 +2085,7 @@ def run_harness(
             "or place a device_context.json with device_trade_names in data/input/."
         )
 
-    # ---- DB resolution (with integrity gate from main.py) ----
-    db_resolved = _resolve_sqlite_db(db_path, no_db=no_db)
+    # ---- Scope product numbers from device context ----
     scope_pns: List[str] = []
     if device_context_rich:
         for v in (
@@ -2131,8 +2122,6 @@ def run_harness(
         end_date=end_date,
         device_meta=meta,
         device_context_rich=device_context_rich,
-        db_path=db_resolved,
-        db_td_id=db_td_id,
         scope_pns=scope_pns or None,
         skip_cer=skip_cer,
     )
@@ -2543,31 +2532,3 @@ def _safe_write_path(path: Path) -> Path:
     except (PermissionError, OSError):
         ts = datetime.utcnow().strftime("%Y%m%dT%H%M%SZ")
         return path.with_name(f"{path.stem}_{ts}{path.suffix}")
-
-
-def _resolve_sqlite_db(
-    db_path: Optional[Path], *, no_db: bool
-) -> Optional[Path]:
-    """Resolve SQLite DB or transparently fall back when it is malformed."""
-    import sqlite3
-    if no_db:
-        return None
-    candidate = db_path or (Path(PSUR_DB_PATH) if PSUR_DB_PATH else None)
-    if not candidate or not Path(candidate).exists():
-        return None
-    try:
-        con = sqlite3.connect(f"file:{Path(candidate)}?mode=ro", uri=True)
-        con.execute("PRAGMA quick_check").fetchone()
-        row = con.execute("PRAGMA integrity_check(1)").fetchone()
-        con.close()
-        if not row or str(row[0]).strip().lower() != "ok":
-            console.print(
-                f"  [yellow]SQLite source unusable - falling back to CSV inputs[/yellow]"
-            )
-            return None
-        return Path(candidate)
-    except (sqlite3.DatabaseError, sqlite3.OperationalError) as ex:
-        console.print(
-            f"  [yellow]SQLite source unusable ({ex}) - falling back to CSV inputs[/yellow]"
-        )
-        return None

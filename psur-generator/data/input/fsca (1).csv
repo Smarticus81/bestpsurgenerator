@@ -1,0 +1,4 @@
+action_id,reason,device_model,device_name,date_initiated,regions_affected,status,effectiveness
+FSCA01,Device breakage observed in field,Stapler-X100,Laparoscopic Stapler X100,2023-06-23,"NorthAmerica,Europe,Asia",Completed,Effective
+FSCA02,Unexpected tissue reaction,Stapler-X100,Laparoscopic Stapler X100,2023-08-14,"Europe,NorthAmerica",Completed,Effective
+FSCA03,Device breakage observed in field,Stapler-X100,Laparoscopic Stapler X100,2023-08-15,"Asia,NorthAmerica,Europe",Completed,Pending

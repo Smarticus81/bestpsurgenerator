@@ -46,7 +46,11 @@ FILE_TYPE_KEYWORDS = {
     "previous_psur": (["previous_psur", "prior_psur", "previous psur"],
                       "Previous PSUR"),
     "device_context": (["device_context", "device context"],
-                       "Device Context (JSON metadata)"),
+                       "Device Context (JSON metadata) — ONLY source of truth for device identity; "
+                       "matched by exact filename 'device_context' only"),
+    "coding_dictionary": (["coding_dictionary", "imdrf_codes", "imdrf_dictionary",
+                           "annex_a", "annex_f", "harm_mdp", "code_dictionary"],
+                          "Coding dictionary / taxonomy (e.g. IMDRF Annex A/F)"),
     "chart_sales":    (["sales_chart", "chart_sales", "sales_trend", "volume_chart",
                         "distribution_chart"],
                        "Sales / distribution trend chart (image)"),
@@ -163,6 +167,15 @@ def auto_discover_inputs(input_dir: Path) -> Dict[str, List[Path]]:
         stem_lower = f.stem.lower().replace("-", "_")
         matched = False
         for category, (keywords, _desc) in FILE_TYPE_KEYWORDS.items():
+            # device_context is strict: exact stem match only ("device_context.json").
+            # No fuzzy/substring matches — it is the single source of truth for
+            # device identity and must never be inferred from another file.
+            if category == "device_context":
+                if stem_lower == "device_context":
+                    classified[category].append(f)
+                    matched = True
+                    break
+                continue
             if any(kw in stem_lower for kw in keywords):
                 classified[category].append(f)
                 matched = True
@@ -193,6 +206,15 @@ def auto_discover_inputs(input_dir: Path) -> Dict[str, List[Path]]:
                 snippet = f"(Image file — classify by filename only: {f.name})"
 
             ai_category = _ai_classify_file(f.name, snippet, categories_desc)
+            # device_context is reserved for exact-filename matches in Phase 1
+            # only. Block AI from ever assigning it to prevent silent identity
+            # corruption (e.g. coding_dictionary.json → device_context).
+            if ai_category == "device_context":
+                console.print(
+                    f"  [yellow]AI tried to classify {f.name} as device_context — "
+                    f"blocked. device_context.json must be exact filename match.[/yellow]"
+                )
+                ai_category = None
             if ai_category and ai_category in FILE_TYPE_KEYWORDS:
                 classified[ai_category].append(f)
                 unmatched.remove(f)

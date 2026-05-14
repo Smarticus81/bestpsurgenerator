@@ -1,0 +1,11 @@
+event_id,date,device_model,device_name,external_source,description,narrative,event_type,serious,outcome
+E001,2023-10-11,Competitor-A1,Competitor A1,CompetitorDB,Stent failed to expand,Competitor device malfunction led to minor injury,Use Error,1,No Harm
+E002,2023-06-11,Competitor-B2,Competitor B2,EUDAMED,Stent failed to expand,Competitor device malfunction led to minor injury,Injury,1,Device breakage
+E003,2023-08-24,Stapler-X100,Laparoscopic Stapler X100,CompetitorDB,Stent failed to expand,Unspecified malfunction occurred,Procedure Issue,0,No Harm
+E004,2023-07-31,Competitor-B2,Competitor B2,CompetitorDB,Device did not deploy,External report: patient experienced complication,Procedure Issue,1,Tissue Reaction
+E005,2023-06-27,Competitor-A1,Competitor A1,CompetitorDB,Device did not deploy,Unspecified malfunction occurred,Malfunction,0,Skin/Subcutaneous Injury (Laceration)
+E006,2023-06-14,Competitor-A1,Competitor A1,MAUDE,Foreign object left behind,External report: patient experienced complication,Use Error,1,Tissue Reaction
+E007,2023-09-04,Stapler-X100,Laparoscopic Stapler X100,EUDAMED,Device did not deploy,Operator error caused foreign debris,Procedure Issue,0,Tissue Reaction
+E008,2023-12-18,Competitor-B2,Competitor B2,CompetitorDB,Device did not deploy,Competitor device malfunction led to minor injury,Use Error,0,No Harm
+E009,2023-12-19,Competitor-A1,Competitor A1,MAUDE,Stent failed to expand,Competitor device malfunction led to minor injury,Use Error,1,Tissue Reaction
+E010,2023-08-09,Competitor-B2,Competitor B2,CompetitorDB,Foreign object left behind,External report: patient experienced complication,Malfunction,0,Tissue Reaction

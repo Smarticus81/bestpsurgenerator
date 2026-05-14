@@ -44,8 +44,15 @@ class PSURTemplateRenderer(ValueMapMixin, ParagraphMixin, TableMixin, Formatting
         self.chart_paths: Dict[str, Path] = {}
 
     def render(self, psur: Dict[str, Any], output_path: Path,
-               chart_paths: Optional[Dict[str, Path]] = None) -> None:
-        """Clone the template, fill all placeholders, save to *output_path*."""
+               chart_paths: Optional[Dict[str, Path]] = None,
+               tables_docx_path: Optional[Path] = None) -> None:
+        """Clone the template, fill all placeholders, save to *output_path*.
+
+        If ``tables_docx_path`` is provided and exists, the data tables
+        (sales / IMDRF / complaint / FSCA / CAPA / external DB / PMCF /
+        health impact / customer feedback) in the rendered document are
+        replaced with the deterministic standalone equivalents.
+        """
         output_path = Path(output_path)
         if not self.template_path.exists():
             raise FileNotFoundError(
@@ -70,6 +77,10 @@ class PSURTemplateRenderer(ValueMapMixin, ParagraphMixin, TableMixin, Formatting
 
         # 2) Fill data into all tables + placeholder substitution
         self._fill_all_tables(psur, values)
+
+        # 2b) Splice deterministic standalone tables on top of filled ones
+        if tables_docx_path is not None:
+            self._replace_tables_from_docx(tables_docx_path)
 
         # 3) Update headers/footers
         self._update_headers(psur, values)

@@ -1,0 +1,33 @@
+{
+  "device": {
+    "model": "Stapler-X100",
+    "udi": "UDI-12345",
+    "name": "Laparoscopic Stapler X100"
+  },
+  "plan_effective_period": {
+    "start_date": "2023-01-01",
+    "end_date": "2023-12-31"
+  },
+  "planned_activities": [
+    {
+      "name": "Complaint analysis",
+      "frequency": "quarterly"
+    },
+    {
+      "name": "Trend analysis",
+      "frequency": "quarterly"
+    },
+    {
+      "name": "PMCF review",
+      "frequency": "annual"
+    },
+    {
+      "name": "External vigilance search",
+      "frequency": "semiannual"
+    },
+    {
+      "name": "Risk File update",
+      "frequency": "annual"
+    }
+  ]
+}

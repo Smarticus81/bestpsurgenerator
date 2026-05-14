@@ -1,0 +1,28 @@
+{
+  "psur_id": "PSUR001",
+  "reporting_period_end": "2023-03-31",
+  "baseline_incident_rates": {
+    "Device breakage": 0.015,
+    "Skin/Subcutaneous Injury (Laceration)": 0.04,
+    "Stapler Misfire": 0.03
+  },
+  "open_signals": [
+    "Stapler misfire cluster in NorthAmerica"
+  ],
+  "author": "Quality Manager",
+  "date_submitted": "2023-04-15",
+  "benefit_risk_evaluation": {
+    "verdict": "favorable",
+    "comments": "Benefit outweighs risks based on stable incidence rates."
+  },
+  "previous_actions": [
+    "FSCA01",
+    "CAPA01"
+  ],
+  "summary": {
+    "total_complaints": 15,
+    "serious_incidents": 2
+  },
+  "device_model": "Stapler-X100",
+  "device_name": "Laparoscopic Stapler X100"
+}

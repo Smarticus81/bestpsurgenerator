@@ -19,12 +19,7 @@ from parsers.cer_extractor import extract_cer_data
 from parsers.universal import parse_file, parse_any_to_text
 from parsers.previous_psur import parse_previous_psur
 from parsers.ract import parse_ract
-from parsers.sqlite_db import (
-    parse_complaints_from_db,
-    parse_sales_from_db,
-    resolve_td_id_for_device,
-    load_product_classification_from_db,
-)
+from pipeline.format_contract import normalize_to_canonical
 from imdrf_coder import (
     auto_code_complaints,
     strip_imdrf_code,
@@ -121,9 +116,6 @@ def parse_all_inputs(
     confirm_cb: Optional[Callable] = None,
     skip_cer: bool = False,
     unified_workbook_path: Optional[Path] = None,
-    db_path: Optional[Path] = None,
-    db_td_id: Optional[str] = None,
-    scope_product_numbers: Optional[List[str]] = None,
     classification_hint: Optional[Dict[str, str]] = None,
 ) -> Dict[str, Any]:
     """Parse all input files and return (parsed_data, expanded_context, previous_stats).
@@ -138,6 +130,13 @@ def parse_all_inputs(
     expanded_context: Dict[str, str] = {}
     previous_stats: Optional[Dict[str, Any]] = None
     product_classification: Dict[str, Dict[str, str]] = {}
+
+    # ── Normalize CSV-typed inputs (xlsx → temp .csv per format contract) ──
+    sales_path      = normalize_to_canonical("sales", sales_path)
+    complaints_path = normalize_to_canonical("complaints", complaints_path)
+    capa_path       = normalize_to_canonical("capa", capa_path)
+    fsca_path       = normalize_to_canonical("fsca", fsca_path)
+    ext_db_path     = normalize_to_canonical("external_db", ext_db_path)
 
     # ── Pre-load classification from previous PSUR JSON if available ──
     # appendix_a1_models keys map directly to reusable / single-use buckets.
@@ -187,127 +186,7 @@ def parse_all_inputs(
 
     # ── Core inputs ─────────────────────────────────────────────────
 
-    # SQLite DB takes priority over CSV/Excel files for sales + complaints.
-    _db_path = Path(db_path) if db_path else None
-    _use_db = bool(_db_path and _db_path.exists())
-    _resolved_td_id: Optional[str] = db_td_id
-
-    if _use_db:
-        if not _resolved_td_id and device_name:
-            try:
-                _resolved_td_id = resolve_td_id_for_device(_db_path, device_name)
-            except Exception as e:
-                console.print(f"  [yellow]td_id auto-resolution failed: {e}[/yellow]")
-        td_label = f" td_id={_resolved_td_id}" if _resolved_td_id else " (all td_id)"
-        console.print(f"  [cyan]SQLite source:[/cyan] {_db_path.name}{td_label}")
-
-        # Normalize scope: deduplicate, strip blanks, preserve order.
-        _scope_pns: Optional[List[str]] = None
-        if scope_product_numbers:
-            seen = set()
-            _scope_pns = []
-            for pn in scope_product_numbers:
-                key = str(pn).strip()
-                if key and key.upper() not in seen:
-                    seen.add(key.upper())
-                    _scope_pns.append(key)
-            if _scope_pns:
-                _preview = ", ".join(_scope_pns[:8]) + (" …" if len(_scope_pns) > 8 else "")
-                console.print(
-                    f"  [cyan]Scope filter:[/cyan] {len(_scope_pns)} part numbers "
-                    f"from input documents ({_preview})"
-                )
-            else:
-                _scope_pns = None
-        if not _scope_pns:
-            console.print(
-                "  [yellow]No part-number scope provided — DB queries will return ALL "
-                "rows for the device family (td_id only)[/yellow]"
-            )
-
-    if _use_db:
-        # Resolve per-item classification once; passed to both sales and complaints.
-        try:
-            product_classification = load_product_classification_from_db(
-                _db_path,
-                td_id=_resolved_td_id,
-                product_numbers=_scope_pns,
-                classification_map=classification_map or None,
-            ) or {}
-            if product_classification:
-                _r = sum(1 for v in product_classification.values() if v.get("class") == "reusable")
-                _s = sum(1 for v in product_classification.values() if v.get("class") == "single_use")
-                _u = sum(1 for v in product_classification.values() if v.get("class") == "unknown")
-                console.print(
-                    f"  [cyan]DB classification resolved:[/cyan] "
-                    f"{_r} reusable / {_s} single-use / {_u} unknown"
-                )
-        except Exception as e:
-            console.print(f"  [yellow]Classification resolution failed: {e}[/yellow]")
-            product_classification = {}
-
-        try:
-            parsed_data["sales"] = parse_sales_from_db(
-                _db_path, start_date, end_date,
-                td_id=_resolved_td_id,
-                product_numbers=_scope_pns,
-                product_classification=product_classification,
-            )
-            _neg = parsed_data["sales"].get("negative_unit_rows_excluded", 0)
-            console.print(f"  Sales (DB): {parsed_data['sales']['total_units']:,} units "
-                          f"({parsed_data['sales']['rows_processed']} rows)")
-            if _neg:
-                console.print(
-                    f"    [yellow]Excluded {_neg} negative-unit rows totalling "
-                    f"{parsed_data['sales'].get('negative_units_total', 0)} units[/yellow]"
-                )
-        except Exception as e:
-            console.print(f"  [red]Sales DB read failed: {e}[/red]")
-            parsed_data["sales"] = {"total_units": 0, "by_month": {}, "by_region": {}, "by_product": {}}
-
-        # ── Pull up to 3 prior 12-month windows for Section C trend columns ──
-        # The FormQAR-054 sales table has 3 "Preceding 12-Month" columns. The
-        # DB lets us fill them deterministically without asking the LLM.
-        try:
-            from datetime import datetime, timedelta
-            _fmt = "%Y-%m-%d"
-            _cur_start = datetime.strptime(start_date, _fmt)
-            _cur_end = datetime.strptime(end_date, _fmt)
-            historical_periods = []
-            for offset in (1, 2, 3):
-                # Each prior window is the same length, shifted back by offset windows
-                window = _cur_end - _cur_start
-                p_end = _cur_start - timedelta(days=1) - (window * (offset - 1))
-                p_start = p_end - window
-                p_start_s = p_start.strftime(_fmt)
-                p_end_s = p_end.strftime(_fmt)
-                try:
-                    h = parse_sales_from_db(
-                        _db_path, p_start_s, p_end_s,
-                        td_id=_resolved_td_id,
-                        product_numbers=_scope_pns,
-                    )
-                    historical_periods.append({
-                        "label": f"P-{offset} ({p_start_s} → {p_end_s})",
-                        "start": p_start_s,
-                        "end": p_end_s,
-                        "total_units": h.get("total_units", 0),
-                        "by_country": h.get("by_country", {}),
-                        "by_region": h.get("by_region", {}),
-                        "units_unknown_country": h.get("units_unknown_country", 0),
-                    })
-                except Exception:
-                    historical_periods.append({
-                        "label": f"P-{offset}", "start": p_start_s, "end": p_end_s,
-                        "total_units": 0, "by_country": {}, "by_region": {},
-                        "units_unknown_country": 0,
-                    })
-            parsed_data["sales"]["historical_periods"] = historical_periods
-            _ws = ", ".join(f"{p['total_units']:,}" for p in historical_periods)
-            console.print(f"  [dim]Historical 12-mo windows: {_ws}[/dim]")
-        except Exception as e:
-            console.print(f"  [yellow]Historical sales pull skipped: {e}[/yellow]")
-    elif sales_path:
+    if sales_path:
         console.print(f"  Sales: {sales_path.name}")
         parsed_data["sales"] = parse_sales(sales_path, start_date, end_date, user_confirm_callback=confirm_cb)
         console.print(f"    -> {parsed_data['sales']['total_units']:,} units")
@@ -362,25 +241,7 @@ def parse_all_inputs(
         console.print("  [yellow]No sales file — using empty data[/yellow]")
         parsed_data["sales"] = {"total_units": 0, "by_month": {}, "by_region": {}, "by_product": {}}
 
-    if _use_db:
-        try:
-            parsed_data["complaints"] = parse_complaints_from_db(
-                _db_path, start_date, end_date,
-                td_id=_resolved_td_id,
-                product_numbers=_scope_pns,
-                product_classification=product_classification,
-            )
-            console.print(f"  Complaints (DB): {parsed_data['complaints']['total_complaints']} complaints "
-                          f"({parsed_data['complaints']['serious_incident_count']} serious)")
-        except Exception as e:
-            console.print(f"  [red]Complaints DB read failed: {e}[/red]")
-            parsed_data["complaints"] = {
-                "total_complaints": 0, "by_month": {}, "by_imdrf_code": {},
-                "by_harm_category": {}, "by_region": {}, "serious_incidents": [],
-                "harm_by_imdrf": {}, "serious_by_region_imdrf": {},
-                "complaint_number_format": "", "complaint_summaries": []
-            }
-    elif complaints_path:
+    if complaints_path:
         console.print(f"  Complaints: {complaints_path.name}")
         parsed_data["complaints"] = parse_complaints(complaints_path, start_date, end_date, user_confirm_callback=confirm_cb)
         console.print(f"    -> {parsed_data['complaints']['total_complaints']} complaints")

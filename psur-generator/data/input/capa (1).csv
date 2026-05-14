@@ -1,0 +1,6 @@
+capa_id,complaint_id,device_model,device_name,trigger,root_cause,actions_taken,effectiveness
+CAPA01,,Stapler-X100,Laparoscopic Stapler X100,Complaint,Mechanical jam,Improve packaging,Effective
+CAPA02,C016,Stapler-X100,Laparoscopic Stapler X100,Trend,Inadequate training,Update manual,Not Effective
+CAPA03,C001,Stapler-X100,Laparoscopic Stapler X100,Complaint,Design flaw,Retrain staff,Effective
+CAPA04,C008,Stapler-X100,Laparoscopic Stapler X100,Audit,Mechanical jam,Update manual,Pending
+CAPA05,C005,Stapler-X100,Laparoscopic Stapler X100,Audit,Design flaw,Update manual,Pending
