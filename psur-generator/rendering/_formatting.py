@@ -247,6 +247,15 @@ class FormattingMixin:
         if _SECTION_HEADING_RE.match(text):
             return "title"
 
+        # Label/value fields such as "Device Description: ..." and
+        # "Intended Purpose/Use: ..." are body paragraphs. Only the label may
+        # be bold; the content after the colon must remain regular weight.
+        colon_idx = text.find(":")
+        if 2 < colon_idx < 80 and colon_idx < len(text) - 1:
+            label = text[:colon_idx].strip().lower()
+            if label in {"device description", "intended purpose", "intended purpose/use", "intended use"}:
+                return "body"
+
         # Sub-section patterns
         for pat in _SUBTITLE_TEXT_PATTERNS:
             if pat.match(text):

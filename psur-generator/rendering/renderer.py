@@ -29,10 +29,18 @@ _TEMPLATE_PHRASES = [
     "(remove if not applicable)",
     "[Add or delete rows as needed]",
     "[add or delete rows as needed]",
+    "[Space for line chart showing:]",
     "[Note: Multiply number of sales units",
     "[Any other countries which have more than 5% of global sales. Add rows as needed.]",
     "[Any other countries which have more than 5%",
 ]
+
+_CHART_INSTRUCTION_PARAGRAPHS = {
+    "space for line chart showing:",
+    "x-axis: time periods",
+    "y-axis: units sold",
+    "trend line showing overall growth/decline pattern",
+}
 
 
 class PSURTemplateRenderer(ValueMapMixin, ParagraphMixin, TableMixin, FormattingMixin):
@@ -62,6 +70,8 @@ class PSURTemplateRenderer(ValueMapMixin, ParagraphMixin, TableMixin, Formatting
 
         self.doc = Document(str(self.template_path))
         self.chart_paths = chart_paths or {}
+        self._placed_chart_keys = set()
+        self._chart_context = self._build_chart_context(psur)
 
         values = self._build_value_map(psur)
 
@@ -109,7 +119,10 @@ class PSURTemplateRenderer(ValueMapMixin, ParagraphMixin, TableMixin, Formatting
         debris_count = 0
 
         # Strip from body paragraphs
-        for para in self.doc.paragraphs:
+        for para in list(self.doc.paragraphs):
+            if self._remove_chart_instruction_paragraph(para):
+                debris_count += 1
+                continue
             debris_count += self._strip_debris_from_paragraph(para)
 
         # Strip from table cells
@@ -117,6 +130,9 @@ class PSURTemplateRenderer(ValueMapMixin, ParagraphMixin, TableMixin, Formatting
             for row in table.rows:
                 for cell in row.cells:
                     for para in cell.paragraphs:
+                        if self._remove_chart_instruction_paragraph(para):
+                            debris_count += 1
+                            continue
                         debris_count += self._strip_debris_from_paragraph(para)
 
         # Strip from headers/footers
@@ -126,10 +142,24 @@ class PSURTemplateRenderer(ValueMapMixin, ParagraphMixin, TableMixin, Formatting
                 if hf is None:
                     continue
                 for para in hf.paragraphs:
+                    if self._remove_chart_instruction_paragraph(para):
+                        debris_count += 1
+                        continue
                     self._strip_debris_from_paragraph(para)
 
         if debris_count > 0:
             logger.info(f"Stripped {debris_count} template debris instances from document")
+
+    def _remove_chart_instruction_paragraph(self, para) -> bool:
+        """Remove the FormQAR chart placeholder instruction block."""
+        text = " ".join((para.text or "").replace("[", "").replace("]", "").split())
+        text_lower = text.lower().lstrip("-• ").strip()
+        if text_lower in _CHART_INSTRUCTION_PARAGRAPHS:
+            parent = para._element.getparent()
+            if parent is not None:
+                parent.remove(para._element)
+                return True
+        return False
 
     def _strip_debris_from_paragraph(self, para) -> int:
         """Strip template debris from a single paragraph. Returns count of removals."""
