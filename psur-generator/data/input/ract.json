@@ -1,0 +1,61 @@
+{
+  "device_model": "HUG2000",
+  "device_name": "Huggler 2000",
+  "hazards": [
+    {
+      "hazard_id": "HZ001",
+      "name": "Excessive compression",
+      "description": "Hug bladder applies pressure above the labeled comfort limit, potentially causing transient pressure marks or restricted movement.",
+      "severity": "High",
+      "max_rate_per_1000": 0.03,
+      "controls": [
+        "Dual pressure sensors",
+        "Automatic pressure relief",
+        "Maximum-cycle lockout",
+        "User training on fit checks"
+      ]
+    },
+    {
+      "hazard_id": "HZ002",
+      "name": "Skin irritation or pressure mark",
+      "description": "Textile contact, seam placement, or prolonged use may contribute to skin redness, irritation, or pressure marking.",
+      "severity": "Medium",
+      "max_rate_per_1000": 0.06,
+      "controls": [
+        "Soft-contact textile specification",
+        "Single-patient-use wrap",
+        "Inspection before each use",
+        "Maximum use-duration labeling"
+      ]
+    },
+    {
+      "hazard_id": "HZ003",
+      "name": "Alarm or release delay",
+      "description": "Delayed alarm response or delayed hug release may prolong exposure to an unintended hug cycle.",
+      "severity": "High",
+      "max_rate_per_1000": 0.02,
+      "controls": [
+        "Audible and visual alarm",
+        "Manual quick-release tab",
+        "Software watchdog",
+        "Preventive maintenance check"
+      ]
+    },
+    {
+      "hazard_id": "HZ004",
+      "name": "Temperature discomfort",
+      "description": "Localized warmth from the wrap or control unit tubing may cause discomfort or transient skin redness.",
+      "severity": "Medium",
+      "max_rate_per_1000": 0.04,
+      "controls": [
+        "Temperature sensor alarm",
+        "Breathable textile",
+        "Cleaning compatibility limits",
+        "Use-environment labeling"
+      ]
+    }
+  ],
+  "global_thresholds": {
+    "overall_serious_rate_max": 0.1
+  }
+}

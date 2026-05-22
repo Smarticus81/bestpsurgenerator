@@ -1,0 +1,65 @@
+{
+  "device_trade_names": [
+    "Your Device Name®",
+    "Your Device Name Accessory™"
+  ],
+  "device_description": "Replace with a detailed technical description of your device, including its physical construction, materials, operating principle, and key components. Example: The [Device Name] is a [reusable/single-use], [sterile/non-sterile] medical device designed to [primary function]. It consists of [list key components and materials].",
+  "intended_purpose": "Replace with the exact intended purpose statement from your Declaration of Conformity or Technical Documentation. Example: The [Device Name] is intended for use in [clinical context] to [specific function]. It is intended for use by [user type] in [use environment].",
+  "indications_for_use": [
+    "Replace with your first indication for use",
+    "Replace with your second indication for use",
+    "Add additional indications as needed"
+  ],
+  "contraindications": [
+    "Replace with your first contraindication",
+    "Replace with your second contraindication",
+    "Add additional contraindications as needed; use 'None stated in the CER' if none"
+  ],
+  "target_patient_population": "Replace with your target patient population description. Example: Adult patients diagnosed with [condition] who are assessed by a [specialist] as suitable for [procedure type].",
+  "intended_user_profile": "Replace with your intended user profile. Example: Trained healthcare professionals, including [list specialties], familiar with [relevant procedures or techniques].",
+  "basic_udi_di_or_device_family_name": "TDXXX / YOUR-UDI-DI-HERE",
+  "model_or_catalog_numbers": [
+    "MODEL-001",
+    "MODEL-002",
+    "ACCESSORY-001"
+  ],
+  "eu_mdr_classification_and_rule": "EU Class [I/IIa/IIb/III] under EU MDR 2017/745, Rule [X]",
+  "uk_mdr_classification_and_rule": "UK Class [I/IIa/IIb/III] under UK MDR 2002 (as amended 2024), or 'Not applicable' if device is not on the GB market",
+  "uk_responsible_person": "Replace with UK Responsible Person name and address, or 'Not applicable'",
+  "ukca_marking_status": "Replace with UKCA marking status (e.g., 'UKCA marked', 'CE marking accepted under transitional provisions', 'Not applicable')",
+  "emdn_code": "Replace with your EMDN code or 'Not applicable'",
+  "gmdn_code": "Replace with your GMDN code",
+  "date_of_first_ce_marking_or_doc": "YYYY",
+  "notified_body_name_and_id": "Your Notified Body Name (XXXX)",
+  "cer_document_number_and_version": "CEXXXR, Version X",
+  "cer_date_or_last_update": "DD Month YYYY",
+  "device_lifetime": {
+    "shelf_life": "Replace with shelf life or 'Not applicable'",
+    "expected_service_life": "Replace with expected service life (e.g., '5 years')"
+  },
+  "sterility_status": "Replace with sterility status (e.g., 'Sterile', 'Non-sterile')",
+  "single_use_or_reusable": "Replace with 'Single-use' or 'Reusable'",
+  "market_history": "Replace with a narrative of your device's market history, including first launch date, regulatory clearances, cumulative sales context, and any significant post-market events. Example: The [Device Name] was first launched and CE marked in [year], with prior FDA 510(k) clearance ([K-number]) obtained in [date].",
+  "pms_plan_document": {
+    "number": "PMSXXXR",
+    "title": "Post Market Surveillance Report for [Your Device Name]"
+  },
+  "pmcf_plan_document": {
+    "number": "PMCFXXXP or N/A",
+    "title": "Replace with PMCF plan title or rationale for why PMCF is not required"
+  },
+  "risk_management_file_document_number": "RMFXXXX-RMR; RMFXXXX-RA",
+  "ifu_document": {
+    "number": "IFU-YOUR-DEVICE",
+    "version": "Replace with current IFU revision"
+  },
+  "other_associated_documents": [
+    "TDXXX – Technical Documentation for [Your Device Name]",
+    "CEXXXP – Clinical Evaluation Plan",
+    "YOUR-QAR-XXX – Clinical Evaluation Procedure",
+    "YOUR-QAR-XXX – Post Market Surveillance Procedure",
+    "YOUR-ENG-XXX – Risk Management Procedure",
+    "QMS ISO 13485 Certificate (CERTXXX)",
+    "Declaration of Conformity (DoCXXX)"
+  ]
+}

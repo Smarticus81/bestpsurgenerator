@@ -1,0 +1,1154 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "urn:coopersurgical:psur:agent-guidance:FormQAR-054:v1",
+  "title": "PSUR Agent Guidance — FormQAR-054 Field-by-Field Instructions",
+  "description": "This JSON provides field-level generation instructions for each element of FormQAR-054 Rev C. It is consumed by the GENERATE_SECTIONS and LLM_ENHANCE_SECTIONS agents in the RegulatoryOS pipeline. Every narrative field includes structured guidance for Description, Analysis, Conclusion, Benefit-Risk linkage, trend/action callouts, and a clearly marked example. Agents must not cite specific regulation article numbers, standard clause numbers, or guidance document section references in generated narratives — the compliance obligation is embedded in the template structure itself.",
+  "meta": {
+    "version": "1.0.0",
+    "compatible_with": "RegulatoryOS v1 Agent Pipeline (GENERATE_SECTIONS, LLM_ENHANCE_SECTIONS)",
+    "template_source": "FormQAR-054_FINAL.docx Rev C"
+  },
+
+  "psur_cover_page": {
+    "section_id": "COVER",
+    "section_title": "PSUR Cover Page",
+    "purpose": "Provides immediate identification of the PSUR document, the manufacturer, regulatory pathway, and the reporting period. This is the first page a Notified Body reviewer sees and must contain all required identification elements.",
+    "fields": {
+      "manufacturer_information": {
+        "company_name": {
+          "field_description": "The legal entity name of the device manufacturer as registered with regulatory authorities. For CooperSurgical products, this is always 'CooperSurgical, Inc.'",
+          "data_source": "Static — from company registration records",
+          "default_value": "CooperSurgical, Inc."
+        },
+        "address_lines": {
+          "field_description": "The complete registered business address of the manufacturer. This is the address on file with EUDAMED and competent authorities.",
+          "data_source": "Static — from company registration records",
+          "default_value": ["CooperSurgical, Inc.", "95 Corporate Drive, Trumbull, CT 06611", "United States of America"]
+        },
+        "manufacturer_srn": {
+          "field_description": "The Single Registration Number assigned to the manufacturer in EUDAMED. Format is country code + entity type + numeric sequence.",
+          "data_source": "Static — from EUDAMED registration",
+          "format": "XX-MF-XXXXXXXXXX",
+          "default_value": "US-MF-000002607"
+        },
+        "authorized_representative": {
+          "is_applicable": {
+            "field_description": "Whether the manufacturer requires an authorized representative in the EU. Required when the manufacturer is established outside the EU/EEA.",
+            "data_source": "Static — determined by manufacturer location",
+            "default_value": true
+          },
+          "name": {
+            "field_description": "Legal name of the authorized representative registered in EUDAMED.",
+            "default_value": "CooperSurgical Distribution B.V."
+          },
+          "address_lines": {
+            "field_description": "Registered address of the authorized representative within the EU/EEA.",
+            "default_value": ["Celsiusweg 35", "5928 PR Venlo", "The Netherlands"]
+          },
+          "authorized_representative_srn": {
+            "field_description": "The Single Registration Number assigned to the authorized representative in EUDAMED.",
+            "format": "XX-AR-XXXXXXXXXX",
+            "default_value": "NL-AR-0000000059"
+          }
+        }
+      },
+      "regulatory_information": {
+        "certificate_number": {
+          "field_description": "The EU-type examination certificate number issued by the Notified Body for the device(s) covered by this PSUR. This is the certificate that authorizes CE-marking.",
+          "data_source": "From the device's EU certificate of conformity. Found in the PMS Plan or technical documentation pack.",
+          "example": "CE 738857"
+        },
+        "date_of_issue": {
+          "field_description": "The date the EU-type examination certificate was issued by the Notified Body.",
+          "data_source": "From the certificate document",
+          "format": "YYYY-MM-DD",
+          "example": "2022-06-15"
+        },
+        "notified_body": {
+          "name": {
+            "field_description": "Full legal name of the Notified Body that issued the certificate.",
+            "default_value": "BSI Group The Netherlands B.V."
+          },
+          "number": {
+            "field_description": "The four-digit identification number assigned to the Notified Body by the European Commission.",
+            "format": "Four-digit numeric string",
+            "default_value": "2797"
+          }
+        },
+        "psur_available_within_3_working_days": {
+          "field_description": "Confirmation that this PSUR can be made available to competent authorities within three working days of a request. This is a standing compliance commitment.",
+          "default_value": true
+        }
+      },
+      "document_information": {
+        "data_collection_period": {
+          "start_date": {
+            "field_description": "The first day of the surveillance data collection window. This is the day after the previous PSUR's data collection period ended, or the device's first CE-marking date for the inaugural PSUR.",
+            "data_source": "Calculated from previous PSUR end date or certificate milestone dates",
+            "format": "YYYY-MM-DD"
+          },
+          "end_date": {
+            "field_description": "The last day of the surveillance data collection window. For annual PSURs this is 12 months after the start date. For biennial PSURs this is 24 months after the start date.",
+            "data_source": "Calculated: start_date + 12 months (annual) or + 24 months (biennial)",
+            "format": "YYYY-MM-DD"
+          }
+        },
+        "psur_cadence": {
+          "field_description": "How frequently the PSUR is updated. Determined by the highest device classification in the PSUR scope. Class IIa devices update every two years. Class IIb, Class III, and implantable devices update annually.",
+          "data_source": "Derived from device classification in the PMS Plan",
+          "allowed_values": ["ANNUALLY", "EVERY_TWO_YEARS"]
+        }
+      }
+    }
+  },
+
+  "sections": {
+    "A_executive_summary": {
+      "section_id": "A",
+      "section_title": "Section A: Executive Summary",
+      "purpose": "Provides the Notified Body reviewer with a rapid overview of the entire PSUR. This section must answer four questions: (1) Were there open actions from the last PSUR, and what is their status? (2) Did the Notified Body raise any actions on the previous PSUR? (3) Has the data collection period changed? (4) What is the overall benefit-risk conclusion?",
+      "fields": {
+        "previous_psur_actions_status": {
+          "actions_and_status_from_previous_report": {
+            "field_description": "A narrative description of any corrective actions, risk management updates, design changes, labeling changes, CAPAs, or FSCAs that were identified as required in the previous PSUR cycle. If this is the first PSUR for the device, state that explicitly.",
+            "narrative_guidance": {
+              "description": "Identify each action item from the previous PSUR by its type (CAPA, RMF update, IFU revision, FSCA, design change) and the specific issue it addressed. State the action reference number if available.",
+              "analysis": "For each action, describe what was done during this reporting period to address it. Include implementation dates, verification activities, and any evidence of effectiveness.",
+              "conclusion": "State whether each action achieved its intended outcome and whether the underlying issue has been resolved or requires continued monitoring.",
+              "benefit_risk_linkage": "Explicitly connect any completed actions to their impact on the benefit-risk profile — did completing the action reduce a specific risk, improve device performance, or close a gap in the safety evidence?"
+            },
+            "example": "NOTE: The following is an example only and should be used as a guideline, not verbatim. — The previous PSUR (reporting period Jan-2022 to Dec-2022) identified two actions. The first action was an update to the Risk Management File (RMF-0042, Rev D) to incorporate a newly identified hazardous situation relating to device breakage during insertion, which was completed in March 2023 and verified effective through subsequent complaint rate monitoring showing a decrease from 0.15% to 0.08%. The second action was a revision to the Instructions for Use to clarify the maximum insertion force specification, which was completed in April 2023 and distributed to all markets by June 2023. Both actions have been verified as effective and are considered closed. The completion of these actions has had a positive impact on the overall benefit-risk profile by reducing the occurrence of the identified hazardous situation."
+          },
+          "status_of_previous_actions": {
+            "status": {
+              "field_description": "A single selection indicating the overall status of actions from the previous PSUR.",
+              "allowed_values": ["COMPLETED", "IN_PROGRESS", "NOT_STARTED", "NOT_APPLICABLE"],
+              "selection_logic": "Select COMPLETED only if all actions are verified closed. Select IN_PROGRESS if any action remains open. Select NOT_APPLICABLE only for the first PSUR or if the previous PSUR identified no actions."
+            },
+            "details_if_needed": {
+              "field_description": "Additional context when status is IN_PROGRESS or NOT_STARTED. Must include target completion dates, responsible parties, and interim risk mitigation measures.",
+              "example": "NOTE: Example only. — One of two actions remains in progress. CAPA-2023-017 (root cause investigation of elevated complaint rate for lot 2023-A07) has completed the investigation phase identifying a supplier material variation as root cause. The corrective action (updated incoming inspection criteria) has been implemented but effectiveness verification is pending collection of 6 months of post-implementation data, expected by September 2024. Interim risk mitigation includes 100% incoming inspection of the affected material parameter."
+            }
+          }
+        },
+        "notified_body_review_status": {
+          "previous_psur_reviewed_by_notified_body": {
+            "field_description": "Whether the Notified Body has reviewed the most recently submitted PSUR. Select YES if a formal review was conducted (with or without findings), NO if the PSUR was submitted but no review has been communicated, and N_A if this is the first PSUR.",
+            "allowed_values": ["YES", "NO", "N_A"]
+          },
+          "notified_body_actions_taken": {
+            "field_description": "A narrative of any actions, observations, findings, or requests raised by the Notified Body during or after their review of the previous PSUR.",
+            "narrative_guidance": {
+              "description": "List each NB finding or action by reference number or category. Describe what the NB specifically requested.",
+              "analysis": "Describe what was done to address each NB finding. Include evidence of closure or progress.",
+              "conclusion": "State whether all NB actions have been resolved to the NB's satisfaction.",
+              "benefit_risk_linkage": "If an NB action led to a change in the device's safety documentation or risk profile, state the impact."
+            },
+            "example": "NOTE: Example only. — The Notified Body reviewed the previous PSUR in August 2023 and raised one observation requesting additional detail in the complaint trending methodology, specifically requesting that Upper Control Limit calculations be shown with the underlying formula and baseline data. This observation has been addressed in the current PSUR through enhanced statistical analysis in Section G, which now includes the complete UCL calculation methodology, baseline period selection rationale, and period-by-period rate data. The Notified Body confirmed closure of this observation via written correspondence dated October 2023."
+          },
+          "status_of_nb_actions": {
+            "field_description": "Current status of any Notified Body actions. Use 'All actions closed' or describe remaining open items with timelines.",
+            "example": "NOTE: Example only. — All Notified Body actions from the previous review cycle have been addressed and confirmed closed."
+          }
+        },
+        "data_collection_period_changes": {
+          "data_collection_period_changed": {
+            "field_description": "Whether the data collection period has changed from the previous PSUR cycle. Common reasons include certificate renewal dates, classification changes, or alignment with other reporting obligations.",
+            "allowed_values": ["YES", "NO"]
+          },
+          "justification_for_change": {
+            "field_description": "If the data collection period changed, explain why. This must be a substantive regulatory or operational reason, not convenience.",
+            "example": "NOTE: Example only. — The data collection period has been shifted by three months to align with the EU certificate renewal cycle, moving from a calendar-year basis (Jan-Dec) to a certificate-year basis (Apr-Mar). This change was implemented to ensure the PSUR reflects the most current data at the time of certificate renewal review."
+          },
+          "impact_on_comparability": {
+            "field_description": "Assessment of how the period change affects the ability to compare current data to historical periods. Must address whether trends can still be reliably assessed.",
+            "example": "NOTE: Example only. — The three-month shift creates a transitional period where direct period-over-period comparison is not possible for the first year. To maintain trend visibility, this PSUR presents both the full 12-month shifted period and a bridging analysis that recalculates the previous period on the new basis. Future PSURs will compare on a consistent basis."
+          }
+        },
+        "benefit_risk_assessment_conclusion": {
+          "conclusion": {
+            "field_description": "The high-level benefit-risk determination for the device(s) covered by this PSUR. This is the single most important field in Section A. It must be a definitive statement, not hedged or ambiguous.",
+            "allowed_values": ["NOT_ADVERSELY_IMPACTED_UNCHANGED", "ADVERSELY_IMPACTED"],
+            "selection_logic": "Select NOT_ADVERSELY_IMPACTED_UNCHANGED when all complaint rates are within UCL, no new unacceptable risks have been identified, all serious incidents are within expected rates, and the clinical benefit evidence remains consistent. Select ADVERSELY_IMPACTED when any serious safety concern has been identified that changes the risk profile, a statistically significant adverse trend has been confirmed, or a new unacceptable risk has been identified."
+          },
+          "high_level_summary_if_adversely_impacted": {
+            "field_description": "Required only when benefit-risk conclusion is ADVERSELY_IMPACTED. Must describe the specific adverse change, the data supporting it, the actions taken, and the current status.",
+            "narrative_guidance": {
+              "description": "Identify the specific change to the benefit-risk profile — which risk increased, which benefit decreased, or what new risk emerged.",
+              "analysis": "Present the quantitative data supporting the determination: complaint rates that exceeded UCL, incident rates above expected, clinical evidence gaps, etc.",
+              "conclusion": "Describe all corrective actions taken or planned, including FSCAs, CAPAs, design changes, and labeling updates, with implementation timelines.",
+              "benefit_risk_linkage": "State whether the corrective actions are expected to restore the benefit-risk profile to acceptable status, and the monitoring plan to verify this."
+            },
+            "example": "NOTE: Example only. — The benefit-risk profile has been adversely impacted due to a statistically significant increase in the complaint rate for device malfunction (membrane rupture) during the current reporting period. The observed complaint rate of 0.42% exceeded the Upper Control Limit of 0.31% and the maximum expected rate of occurrence of 0.25% established in the Risk Assessment and Control Table. Investigation identified a change in membrane supplier raw material properties as the root cause. A Field Safety Corrective Action (FSCA-2024-003) was initiated in June 2024 to notify affected customers, and CAPA-2024-011 was opened to implement enhanced incoming inspection criteria and qualify an alternative membrane material. Interim data following the corrective action shows the complaint rate returning to 0.12% in the most recent quarter, indicating the benefit-risk profile is trending toward restoration."
+          }
+        }
+      }
+    },
+
+    "B_scope_and_device_description": {
+      "section_id": "B",
+      "section_title": "Section B: Scope and Device Description",
+      "purpose": "Establishes the complete scope of the PSUR by identifying every device, model, and catalog number covered, and provides the foundational device information against which all subsequent surveillance data is analyzed. This section ensures the reviewer understands exactly what is being assessed.",
+      "fields": {
+        "device_information": {
+          "product_name": {
+            "field_description": "The official product name exactly as it appears on the device labeling, Instructions for Use, and regulatory registration documents. This must match the name on the EU-type examination certificate.",
+            "data_source": "IFU, CE certificate, EUDAMED registration"
+          },
+          "implantable_device": {
+            "field_description": "Whether the device is an implantable medical device. This determination affects PSUR update frequency (implantable devices require annual updates regardless of classification) and whether a Summary of Safety and Clinical Performance (SSCP) is required.",
+            "allowed_values": ["YES", "NO"]
+          }
+        },
+        "device_classification": {
+          "eu_mdr_classification": {
+            "field_description": "The device classification under EU MDR Annex VIII rules. This determines the PSUR update frequency and the level of Notified Body scrutiny.",
+            "allowed_values": ["CLASS_IIA", "CLASS_IIB", "CLASS_III"],
+            "data_source": "EU-type examination certificate, technical documentation"
+          },
+          "eu_technical_documentation_number": {
+            "field_description": "The internal document control number for the EU technical documentation file that supports this device's CE marking.",
+            "data_source": "Document control system",
+            "example": "NOTE: Example only. — TD-2023-0042"
+          },
+          "classification_rule_mdr_annex_viii": {
+            "field_description": "The specific classification rule from MDR Annex VIII that was applied to determine the device's class. State the rule number and a brief descriptor of the rule's applicability.",
+            "example": "NOTE: Example only. — Rule 6 (devices intended to supply energy absorbed by the human body)"
+          },
+          "uk_classification": {
+            "is_applicable": {
+              "field_description": "Whether the device is marketed or intended for the GB (Great Britain) market under UKCA marking. Set to false if the device is not sold in England, Scotland, or Wales.",
+              "data_source": "Sales data and market access strategy"
+            },
+            "uk_classification_value": {
+              "field_description": "The device classification under UK Medical Devices Regulations. Typically mirrors the EU classification but is determined independently.",
+              "allowed_values": ["CLASS_IIA", "CLASS_IIB", "CLASS_III"]
+            },
+            "uk_conformity_assessment_details": {
+              "field_description": "Details of the UK conformity assessment route used for UKCA marking, including the UK Approved Body name and certificate reference if applicable.",
+              "example": "NOTE: Example only. — UKCA conformity assessment performed by BSI (UK Approved Body 0086) under the transitional provisions. Certificate UK CA 12345 issued 01-Jan-2025."
+            },
+            "uk_classification_rule": {
+              "field_description": "The UK MDR classification rule applied. Follows the same rule structure as EU MDR Annex VIII.",
+              "example": "NOTE: Example only. — Part 3, Rule 6"
+            }
+          },
+          "us_fda_classification": {
+            "field_description": "The device classification under US FDA regulations. While the FDA does not require PSURs, this classification provides context for the global regulatory profile of the device.",
+            "allowed_values": ["CLASS_I", "CLASS_II", "CLASS_III"]
+          },
+          "us_pre_market_submission_number": {
+            "field_description": "The FDA pre-market submission reference number. This is the 510(k) clearance number, PMA approval number, or De Novo classification number.",
+            "example": "NOTE: Example only. — K201234"
+          }
+        },
+        "device_timeline_and_status": {
+          "certification_milestones": {
+            "eu": {
+              "first_declaration_of_conformity_date": {
+                "field_description": "The date the manufacturer first signed the EU Declaration of Conformity for this device. This establishes when the manufacturer first took legal responsibility for conformity.",
+                "format": "YYYY-MM-DD"
+              },
+              "first_ec_eu_certificate_date": {
+                "field_description": "The date the Notified Body first issued the EC-type or EU-type examination certificate for this device.",
+                "format": "YYYY-MM-DD"
+              },
+              "first_ce_marking_date": {
+                "field_description": "The date the CE mark was first affixed to the device and it was made available on the EU market.",
+                "format": "YYYY-MM-DD"
+              }
+            },
+            "uk": {
+              "is_applicable": {
+                "field_description": "Whether UK market milestones apply. Set to true only if the device has been or will be placed on the GB market.",
+                "data_source": "Market access records"
+              },
+              "first_date_of_certification_or_doc_for_gb_market": {
+                "field_description": "The date of the first UKCA certificate or declaration of conformity for the GB market.",
+                "format": "YYYY-MM-DD"
+              },
+              "first_ce_marking_date": {
+                "field_description": "The date CE marking was first applied (relevant for transitional period devices that used CE marking for GB market access before UKCA was required).",
+                "format": "YYYY-MM-DD"
+              },
+              "first_market_placement_date": {
+                "field_description": "The date the device was first placed on the GB market, meaning the first time a device was made available to an end user in England, Scotland, or Wales.",
+                "format": "YYYY-MM-DD"
+              },
+              "first_service_deployment_date": {
+                "field_description": "The date the device was first put into service (used by a patient or healthcare professional) in GB. For devices sold to distributors, this may differ from the market placement date.",
+                "format": "YYYY-MM-DD"
+              }
+            }
+          },
+          "psur_obligation_status_assessment": {
+            "market_status": {
+              "field_description": "The current commercial status of the device. Must be one of three states: 'On market' (actively manufactured, sold, and distributed), 'No longer marketed' (sales have ceased but devices remain in use in the field), or 'In service only' (applies to implantable devices where no new devices are sold but implanted devices remain in patients).",
+              "narrative_guidance": {
+                "description": "State the exact current commercial status and provide context — if the device is no longer marketed, state when sales ceased and why.",
+                "analysis": "If the device is no longer marketed, estimate the number of devices still in use in the field based on the device lifetime and historical sales volumes.",
+                "conclusion": "State whether the PSUR obligation continues and when it is projected to end.",
+                "benefit_risk_linkage": "If market status has changed, explain whether this change affects the benefit-risk assessment (e.g., reduced exposure reduces population risk, but remaining devices still need monitoring)."
+              },
+              "example": "NOTE: Example only. — On market — the device is actively manufactured and sold worldwide. Sales during the current reporting period totaled 8,547 units across 12 markets."
+            },
+            "last_device_sold_date_or_na": {
+              "field_description": "The actual date the last unit was sold or distributed, or 'N/A — currently in active production' if the device is still being sold. This date is critical for calculating the projected end of the PMS period.",
+              "data_source": "ERP/D365 sales records — most recent shipment date"
+            },
+            "certificate_status": {
+              "field_description": "The current status of the EU-type examination certificate. State 'Valid' with the expiry date, 'Expired' with the expiration date, 'Withdrawn' with the withdrawal date and reason, or 'Suspended' with the suspension reason.",
+              "example": "NOTE: Example only. — Valid — certificate expires 14-Jun-2027"
+            },
+            "projected_end_of_pms_period": {
+              "field_description": "The calculated date at which the post-market surveillance obligation for this device ends. Calculation: last device sold date + device lifetime (shelf life remaining at time of sale + expected service life). If the device is actively marketed, state 'Cannot be determined — device actively marketed.'",
+              "calculation": "last_device_sold_date + shelf_life + service_life = projected_end_date",
+              "example": "NOTE: Example only. — Cannot be determined — device actively marketed with valid certificate through June 2027."
+            },
+            "confirmation_of_ongoing_psur_obligation": {
+              "field_description": "A definitive statement on whether the PSUR obligation continues. Must state the reason — active marketing, devices in field within lifetime, or obligation ended.",
+              "example": "NOTE: Example only. — PSUR obligation CONTINUES — the device is actively marketed with a valid EU-type examination certificate and an active installed base of approximately 25,000 units within their expected service life."
+            }
+          }
+        },
+        "device_description_and_information": {
+          "device_description": {
+            "field_description": "A complete technical description of the device including its physical construction, materials, operating principle, components, accessories, and any software. This should be sufficiently detailed that a reviewer unfamiliar with the device can understand what it is and how it works.",
+            "data_source": "IFU, technical documentation, CER device description section",
+            "narrative_guidance": {
+              "description": "Describe the device's physical form, materials of construction, functional mechanism, and key specifications. Include whether the device is sterile, single-use or reusable, powered or non-powered, and whether it contains software.",
+              "analysis": "Not applicable — this is a descriptive field.",
+              "conclusion": "Not applicable — this is a descriptive field.",
+              "benefit_risk_linkage": "Identify any design features that are specifically intended as risk control measures (e.g., safety locks, biocompatibility coatings, force limiters)."
+            },
+            "example": "NOTE: Example only. — The Fischer Cone Biopsy Excisor is a sterile, single-use, electrosurgical accessory device consisting of a wire loop electrode attached to a non-conductive handle with an integrated smoke evacuation port. The loop electrode is constructed from surgical-grade stainless steel wire formed into a cone shape designed to excise a conical tissue specimen from the uterine cervix. The device is supplied in a sealed, sterile package with a shelf life of three years. It is designed to be used with a compatible electrosurgical generator operating at frequencies between 300 kHz and 4 MHz. The device incorporates a depth stop feature as a risk control measure to limit the maximum excision depth and reduce the risk of unintended tissue injury."
+          },
+          "intended_purpose_use": {
+            "field_description": "The intended purpose (EU MDR term) or intended use (FDA term) of the device exactly as stated in the approved labeling and technical documentation. This is a controlled statement and must not be paraphrased or expanded.",
+            "data_source": "IFU, EU Declaration of Conformity, technical documentation"
+          },
+          "indications": {
+            "field_description": "The specific clinical conditions, patient symptoms, or diagnostic findings for which the device is indicated. This defines the clinical context in which the device's benefits are expected to be realized.",
+            "data_source": "IFU, CER"
+          },
+          "contraindications": {
+            "field_description": "The specific clinical conditions, patient characteristics, or use scenarios in which the device must not be used. Contraindications represent situations where the device's risks are known to outweigh its benefits.",
+            "data_source": "IFU, RMF"
+          },
+          "target_populations": {
+            "field_description": "Description of the patient population and, separately, the user population. Include demographics (age range, sex), clinical characteristics, and any population dynamics relevant to the device.",
+            "narrative_guidance": {
+              "description": "Define the patient population by age, sex, clinical condition, and any relevant subpopulations. Define the intended users (physicians, nurses, technicians, patients for self-use devices).",
+              "analysis": "If available, describe population characteristics based on actual usage data from the surveillance period (e.g., age distribution from registry data, geographic distribution from sales data).",
+              "conclusion": "Confirm whether the actual user population during the reporting period was consistent with the intended target population.",
+              "benefit_risk_linkage": "Identify any subpopulations that may experience different benefit-risk profiles (e.g., elderly patients, pediatric use, patients with comorbidities)."
+            },
+            "example": "NOTE: Example only. — The target patient population comprises women of reproductive age (typically 18 to 50 years) presenting with cervical intraepithelial neoplasia (CIN) grades 1 through 3, or other cervical abnormalities requiring diagnostic or therapeutic excision. The device is intended for use by qualified gynecologists and surgeons trained in electrosurgical excision procedures in hospital and ambulatory surgical center settings. Population exposure during this reporting period, estimated from sales data and average procedures per device, encompasses approximately 8,500 procedures performed across 12 countries."
+          }
+        },
+        "device_information_breakdown": {
+          "mdr_devices": {
+            "basic_udi_di_rows": {
+              "field_description": "A table listing each Basic UDI-DI covered by this PSUR. Each row represents a distinct device identification entry in EUDAMED. Include the trade name associated with the UDI-DI, the EMDN (European Medical Device Nomenclature) code, and any changes since the previous PSUR.",
+              "table_columns": ["basic_udi_di", "device_trade_name", "emdn_code", "changes_from_previous_psur"],
+              "example_table": [
+                {
+                  "basic_udi_di": "00862461000197",
+                  "device_trade_name": "Fischer Cone Biopsy Excisor",
+                  "emdn_code": "V030201",
+                  "changes_from_previous_psur": "No changes from previous PSUR."
+                },
+                {
+                  "basic_udi_di": "00862461000203",
+                  "device_trade_name": "Fischer Cone Biopsy Excisor Plus",
+                  "emdn_code": "V030201",
+                  "changes_from_previous_psur": "New catalog number FCB-025 added to this Basic UDI-DI grouping following design change to handle ergonomics (DCR-2023-019)."
+                }
+              ],
+              "note": "NOTE: The above table is an example only. Populate with actual device UDI-DIs from EUDAMED and the PMS Plan."
+            }
+          },
+          "legacy_devices": {
+            "is_applicable": {
+              "field_description": "Whether any devices in scope are legacy MDD-certified devices rather than MDR-certified. Set to true only for devices still under MDD certificates that have not yet transitioned to MDR.",
+              "data_source": "Certificate records"
+            },
+            "device_group_family_rows": {
+              "field_description": "For legacy devices, list the device group or family, all trade names under which the device is marketed across different member states, the GMDN code, and the member states where it is available.",
+              "table_columns": ["device_group", "trade_names", "gmdn_code", "market_availability_member_states"]
+            }
+          }
+        },
+        "data_collection_period_reporting_period_information": {
+          "date_range": {
+            "field_description": "The start and end dates of the data collection period. This must exactly match the dates on the cover page. All data presented in the PSUR must fall within this date range (with the exception of preceding period data shown for comparison).",
+            "data_source": "Must match psur_cover_page.document_information.data_collection_period"
+          },
+          "pms_period_determination_uk_devices": {
+            "is_applicable": {
+              "field_description": "Whether UK-specific PMS period determination is required. Set to true only for UKCA-marked devices sold on the GB market."
+            },
+            "pms_period_determination_text": {
+              "field_description": "For UK devices, describe how the device lifetime was determined and how it drives the PMS period. The PMS period extends from first market placement through the end of the device lifetime of the last device sold.",
+              "example": "NOTE: Example only. — The PMS period for UK market devices is determined by the device lifetime. The device has a shelf life of 3 years and is a single-use device with no additional service life beyond the procedure. Therefore, the device lifetime is 3 years from manufacture, and the PMS period extends to 3 years after the last unit is sold on the GB market."
+            },
+            "device_lifetime_text": {
+              "field_description": "The stated device lifetime including its components: shelf life (how long the device can be stored before use) plus service life (how long the device is expected to perform once put into service). For single-use devices, service life is typically one use/procedure.",
+              "example": "NOTE: Example only. — Shelf life: 3 years from date of manufacture. Service life: single-use (one procedure). Total device lifetime: 3 years."
+            },
+            "projected_end_of_pms_period_text": {
+              "field_description": "The UK-specific projected end of PMS period based on the device lifetime calculation.",
+              "example": "NOTE: Example only. — The device is actively marketed on the GB market. The projected end of PMS period cannot be determined at this time, as the device continues to be sold."
+            }
+          }
+        },
+        "technical_information": {
+          "risk_management_file_number": {
+            "field_description": "The document control number for the Risk Management File (RMF) that governs this device. This file contains the Risk Assessment and Control Table (RACT) that defines maximum expected rates of occurrence for all identified hazardous situations.",
+            "data_source": "Document control system",
+            "example": "NOTE: Example only. — RMF-0042, Rev E"
+          },
+          "associated_documents": {
+            "field_description": "A table listing all documents that form part of the post-market surveillance system for this device. At minimum, this must include the PMS Plan, Clinical Evaluation Report, and PMCF Plan (or justification for why PMCF is not required).",
+            "table_columns": ["document_type", "document_number", "document_title"],
+            "required_document_types": ["PMS Plan", "Clinical Evaluation Report", "PMCF Plan"],
+            "example_table": [
+              {"document_type": "PMS Plan", "document_number": "PMS-2023-042", "document_title": "Post-Market Surveillance Plan for Fischer Cone Biopsy Excisor Family"},
+              {"document_type": "Clinical Evaluation Report", "document_number": "CER-2023-042", "document_title": "Clinical Evaluation Report for Fischer Cone Biopsy Excisor Family"},
+              {"document_type": "PMCF Plan", "document_number": "PMCF-2023-042", "document_title": "Post-Market Clinical Follow-Up Plan for Fischer Cone Biopsy Excisor Family"},
+              {"document_type": "Other", "document_number": "RMF-0042", "document_title": "Risk Management File for Fischer Cone Biopsy Excisor Family"}
+            ],
+            "note": "NOTE: The above is an example only. Populate with actual document references from the data pack."
+          }
+        },
+        "model_catalog_numbers": {
+          "complete_listing_reference": {
+            "field_description": "A reference to the complete and verified listing of all model numbers and catalog numbers covered by this PSUR. This can be an inline table, a reference to an appendix, or a reference to the PMS Plan where the full listing is maintained. Every catalog number that appears in sales or complaint data must be accounted for here.",
+            "data_source": "PMS Plan Appendix, product master data"
+          }
+        },
+        "device_grouping_information": {
+          "is_applicable": {
+            "field_description": "Whether this PSUR covers multiple devices grouped together. Device grouping is permitted when devices share the same Clinical Evaluation Report, have similar intended use, use similar technology, and are assessed by the same Notified Body."
+          },
+          "multiple_devices_included": {
+            "field_description": "Explicit confirmation of whether multiple devices are included.",
+            "allowed_values": ["YES", "NO"]
+          },
+          "justification_for_grouping": {
+            "field_description": "A narrative justification explaining why the grouped devices are appropriate to assess together in a single PSUR. Must address shared CER, similar technology, same intended use, and same NB.",
+            "example": "NOTE: Example only. — The Fischer Cone Biopsy Excisor and Fischer Cone Biopsy Excisor Plus are grouped in this PSUR because they share the same Clinical Evaluation Report (CER-2023-042), employ the same electrosurgical excision technology with identical electrode materials and operating parameters, are intended for the same clinical use (cervical cone biopsy), and are assessed by the same Notified Body (BSI, NB 2797). The devices differ only in handle ergonomics and smoke evacuation port diameter, which do not affect the clinical risk profile."
+          },
+          "leading_device": {
+            "field_description": "The device within the group that determines the PSUR update schedule. This is the device with the highest risk classification. If classifications are equal, select the device with the highest sales volume.",
+            "example": "NOTE: Example only. — Fischer Cone Biopsy Excisor Plus (Class IIb)"
+          },
+          "leading_device_rationale": {
+            "field_description": "Explanation of why this device was selected as the leading device. Must reference classification or risk level.",
+            "example": "NOTE: Example only. — Selected as leading device because both devices share the same Class IIb classification, and the Excisor Plus has the higher sales volume (5,200 units vs. 3,347 units in the current period), making it the more representative device for population exposure assessment."
+          },
+          "same_clinical_evaluation_report": {
+            "field_description": "Confirmation that all grouped devices are covered by the same CER.",
+            "allowed_values": ["YES", "NO"]
+          },
+          "same_notified_body_for_all_devices": {
+            "field_description": "Confirmation that all grouped devices are certified by the same Notified Body.",
+            "allowed_values": ["YES", "NO"]
+          },
+          "grouping_changes_from_previous_psur": {
+            "field_description": "Whether the device grouping has changed since the previous PSUR. Changes might include new devices added, devices removed, or changes to the leading device.",
+            "allowed_values": ["YES", "NO"]
+          }
+        }
+      }
+    },
+
+    "C_volume_of_sales_and_population_exposure": {
+      "section_id": "C",
+      "section_title": "Section C: Volume of Sales and Population Exposure",
+      "purpose": "Establishes the denominator for all rate calculations in the PSUR (complaint rates, incident rates) and characterizes the population exposed to the device. This section is foundational — errors here propagate through every subsequent quantitative analysis.",
+      "fields": {
+        "sales_methodology": {
+          "criteria_used_for_sales_data": {
+            "field_description": "Selection of the methodology used to count devices for rate calculation purposes. For single-use devices, 'units distributed within each time period' is the standard choice. For reusable devices, 'episodes of use' or 'active installed base' may be more appropriate. The selected methodology must be justified and used consistently across all PSUR cycles.",
+            "allowed_values": {
+              "devices_placed_on_market_or_put_into_service": "Devices that have received CE-marking and been made available.",
+              "units_distributed_from_doc_or_ec_eu_mark_approval_to_end_date": "Cumulative from first CE-marking to period end.",
+              "units_distributed_within_each_time_period": "Units shipped during each discrete 12-month period. Most common for single-use devices.",
+              "episodes_of_use_for_reusable_devices": "Estimated number of times a reusable device was used. Requires usage frequency assumptions.",
+              "active_installed_base": "Number of reusable devices currently in service. Appropriate for capital equipment with multi-year service lives.",
+              "units_implanted": "Number of devices actually implanted in patients. Appropriate for implantable devices.",
+              "other": "Any other methodology with documented rationale."
+            }
+          },
+          "market_history": {
+            "field_description": "A narrative paragraph providing the market introduction history of the device. Include when the device was first placed on each major market, significant market events (launches, withdrawals, expansions), and any relevant context for understanding the sales trajectory.",
+            "narrative_guidance": {
+              "description": "State when the device was first introduced to market, in which regions, and the progression of market access over time.",
+              "analysis": "Describe any significant market events during the reporting period or preceding periods that affect the interpretation of sales data (e.g., market launches, product transitions, competitive dynamics).",
+              "conclusion": "Summarize the current market footprint and trajectory.",
+              "benefit_risk_linkage": "Connect market expansion or contraction to population exposure implications — more markets mean more diverse patient populations and potentially different use patterns."
+            },
+            "example": "NOTE: Example only. — The Fischer Cone Biopsy Excisor was first placed on the EU market in March 2019 following receipt of the EU-type examination certificate. Market access was subsequently extended to the United States (510(k) clearance received August 2019), Canada (MDEL issued January 2020), and the United Kingdom (UKCA transitional recognition from January 2021). During the current reporting period, the device was launched in Australia (TGA registration August 2023) and Japan (PMDA approval November 2023), expanding the total addressable market. The device has demonstrated steady year-over-year growth of approximately 12% since market introduction, reflecting increasing adoption of electrosurgical excision techniques for cervical pathology management."
+          }
+        },
+        "table_1_sales_by_region": {
+          "field_description": "The primary sales data table. Use the annual format (Table 1) for devices with annual PSUR cadence, or the biennial format (Table 2) for devices with every-two-years cadence. This table must show three preceding 12-month periods plus the current data collection period, broken down by regulatory region.",
+          "use_if_psur_frequency": {
+            "field_description": "Determines which table format to use. ANNUALLY uses the annual format with a single current 12-month column and 12-month percent of global sales. EVERY_TWO_YEARS uses the biennial format with a 24-month total column and 24-month percent of global sales.",
+            "allowed_values": ["ANNUALLY", "EVERY_TWO_YEARS"]
+          },
+          "table_structure_annual": {
+            "columns": [
+              "Region",
+              "Preceding Period 1 (mmm-yyyy to mmm-yyyy)",
+              "Preceding Period 2 (mmm-yyyy to mmm-yyyy)",
+              "Preceding Period 3 (mmm-yyyy to mmm-yyyy)",
+              "Current Data Collection Period (mmm-yyyy to mmm-yyyy)",
+              "12-Month Percent of Global Sales"
+            ],
+            "required_regions": [
+              "EEA+TR+XI (European Economic Area including all EU countries plus Iceland, Liechtenstein, Norway, Turkey, and Northern Ireland)",
+              "Australia",
+              "Brazil",
+              "Canada",
+              "China",
+              "Japan",
+              "UK (includes only England, Scotland, and Wales)",
+              "United States",
+              "Any other countries which have more than 5% of global sales (add rows as needed)",
+              "Rest of World (includes all other countries with less than 5% of global sales)",
+              "Worldwide (bold, total row)"
+            ],
+            "calculation_rules": "Worldwide row must equal the sum of all regional rows. Percent of Global Sales must sum to 100.0%. Unit counts must be whole numbers. Percentages to 1 decimal place. Date ranges in format mmm-yyyy to mmm-yyyy.",
+            "example_table": {
+              "note": "NOTE: The following table is an example only and should not be used verbatim.",
+              "date_ranges": ["Jan-2021 to Dec-2021", "Jan-2022 to Dec-2022", "Jan-2023 to Dec-2023", "Jan-2024 to Dec-2024"],
+              "rows": [
+                {"region": "EEA+TR+XI", "values": [1050, 1200, 1380, 1520], "percent": 17.8},
+                {"region": "Australia", "values": [0, 0, 120, 285], "percent": 3.3},
+                {"region": "Brazil", "values": [0, 0, 0, 0], "percent": 0.0},
+                {"region": "Canada", "values": [310, 340, 375, 410], "percent": 4.8},
+                {"region": "China", "values": [0, 0, 0, 0], "percent": 0.0},
+                {"region": "Japan", "values": [0, 0, 0, 95], "percent": 1.1},
+                {"region": "UK", "values": [280, 310, 350, 385], "percent": 4.5},
+                {"region": "United States", "values": [3200, 3600, 4100, 4650], "percent": 54.4},
+                {"region": "Rest of World", "values": [460, 580, 720, 1202], "percent": 14.1},
+                {"region": "Worldwide", "values": [5300, 6030, 7045, 8547], "percent": 100.0}
+              ]
+            }
+          },
+          "table_structure_biennial": {
+            "columns": [
+              "Region",
+              "Preceding Period 1 (mmm-yyyy to mmm-yyyy)",
+              "Preceding Period 2 (mmm-yyyy to mmm-yyyy)",
+              "Current Period Year 1 (mmm-yyyy to mmm-yyyy)",
+              "Current Period Year 2 (mmm-yyyy to mmm-yyyy)",
+              "24-Month Total",
+              "24-Month Percent of Global Sales"
+            ],
+            "note": "Same required regions and calculation rules as the annual format."
+          }
+        },
+        "sales_data_analysis": {
+          "sales_trend_over_time_chart_reference": {
+            "field_description": "A reference to the embedded sales trend chart (line chart with X-axis = time periods, Y-axis = units sold). The chart should include a trend line to visually communicate growth or decline patterns.",
+            "data_source": "Generated by the COMPUTE_METRICS agent from sales table data"
+          },
+          "narrative_analysis": {
+            "field_description": "A narrative paragraph analyzing the sales data trends, growth patterns, regional shifts, and implications for population exposure.",
+            "narrative_guidance": {
+              "description": "State the total units sold worldwide during the current data collection period. Identify the primary markets by percentage of global sales. State the period-over-period change in total sales (absolute number and percentage).",
+              "analysis": "Analyze the sales trend across the four displayed periods. Identify growth, decline, or stability patterns. Explain significant regional changes (new market launches, market exits, unusual volume changes). For grouped devices, break down trends by individual device/catalog number.",
+              "conclusion": "Summarize the sales trajectory and its implications for population exposure in the upcoming period.",
+              "benefit_risk_linkage": "Explain how changes in sales volume and geographic distribution affect the representativeness of complaint and incident rates. Larger sales volumes provide more statistical power for trend detection. New market entries may introduce different use patterns."
+            },
+            "example": "NOTE: Example only. — During the current data collection period (Jan-2024 to Dec-2024), CooperSurgical distributed 8,547 units of the Fischer Cone Biopsy Excisor family worldwide, representing a 21.3% increase from the preceding period (7,045 units, Jan-2023 to Dec-2023). The United States remained the primary market at 54.4% of global sales (4,650 units), followed by the EEA region at 17.8% (1,520 units). The year-over-year growth trajectory has been consistent at approximately 15 to 21% per period over the four periods shown, reflecting sustained adoption of the device. Two new markets were entered during the reporting period: Australia contributed 285 units (3.3%) and Japan contributed 95 units (1.1%) following regulatory approvals in those markets. The increasing global distribution and growing sales volume provide a robust denominator for complaint rate calculations and improve the statistical sensitivity for trend detection in the vigilance and complaint analyses presented in Sections D through G. The broader geographic distribution also increases the diversity of the population exposure, which strengthens the generalizability of the safety conclusions."
+          }
+        },
+        "size_and_characteristics_of_population_using_device": {
+          "usage_frequency": {
+            "single_use_per_patient": {
+              "field_description": "Whether the device is used once per patient. For single-use disposable devices, this is typically YES. For reusable devices or devices used in repeat procedures, this is NO.",
+              "allowed_values": ["YES", "NO"]
+            },
+            "multiple_uses_per_patient": {
+              "field_description": "Whether the device may be used multiple times on the same patient. This is relevant for reusable devices or devices used in procedures that may be repeated.",
+              "allowed_values": ["YES", "NO"]
+            },
+            "average_uses_per_patient": {
+              "field_description": "If multiple uses per patient is YES, the estimated average number of uses per patient. Used to calculate total patient exposure from units sold.",
+              "data_source": "Clinical literature, registry data, or clinical expert input"
+            }
+          },
+          "estimated_size_of_patient_population_exposed": {
+            "field_description": "A narrative providing the estimated number of patients exposed to the device during the reporting period, including the methodology and assumptions used to derive the estimate.",
+            "narrative_guidance": {
+              "description": "State the estimated number of patients exposed. Describe the calculation method: for single-use devices, patient exposure typically equals units sold; for reusable devices, explain the usage frequency assumptions.",
+              "analysis": "Discuss any factors that make the estimate uncertain (e.g., devices sold but not yet used, devices used in multiple procedures on the same patient, multi-pack configurations where one sales unit serves multiple patients).",
+              "conclusion": "State the estimated exposure with appropriate confidence qualifiers.",
+              "benefit_risk_linkage": "Population exposure size directly affects the interpretability of incident and complaint rates. State whether the exposure volume is sufficient for meaningful statistical analysis."
+            },
+            "example": "NOTE: Example only. — The estimated patient population exposed to the Fischer Cone Biopsy Excisor during the current reporting period is approximately 8,547 patients, based on the 8,547 units sold worldwide during this period. This estimate assumes a one-to-one correspondence between units sold and patients treated, which is appropriate given the device's single-use designation. The estimate may slightly overstate actual patient exposure in the current period, as some units sold near the end of the period may not yet have been used (the device has a 3-year shelf life). However, units sold in previous periods that were used during the current period would partially offset this effect. The patient population estimate of 8,547 provides a sufficient denominator for meaningful complaint rate analysis, with the ability to detect rate changes of approximately 0.1 percentage points with statistical significance."
+          },
+          "characteristics_of_patient_population_exposed": {
+            "field_description": "A narrative describing the demographic and clinical characteristics of the patient population exposed to the device.",
+            "narrative_guidance": {
+              "description": "Describe the age range, sex distribution, and clinical conditions of the typical patient population. Include any known subpopulations.",
+              "analysis": "If data is available from registries, clinical studies, or PMCF activities, describe actual patient demographics observed during the reporting period.",
+              "conclusion": "Confirm whether the actual patient population is consistent with the intended target population defined in the device labeling.",
+              "benefit_risk_linkage": "Identify any population characteristics that may influence the benefit-risk profile (e.g., age-related tissue fragility, comorbidities that affect healing)."
+            },
+            "example": "NOTE: Example only. — The patient population exposed to the Fischer Cone Biopsy Excisor consists of women of reproductive age, predominantly between 25 and 45 years, presenting with abnormal cervical pathology requiring diagnostic or therapeutic excision biopsy. Based on published epidemiological data, the peak incidence of cervical intraepithelial neoplasia occurs in women aged 25 to 35 years, and this age group is expected to represent the majority of device exposures. The patient population spans all geographic regions where the device is marketed, with the largest populations in the United States and European Union reflecting the sales distribution. No subpopulation-specific safety concerns have been identified in the current or previous surveillance data. The device is not indicated for use in pregnant patients or patients with active cervical infection, consistent with the contraindications stated in the labeling."
+          }
+        }
+      }
+    },
+
+    "D_information_on_serious_incidents": {
+      "section_id": "D",
+      "section_title": "Section D: Information on Serious Incidents",
+      "purpose": "Presents all serious incidents (reportable events) that occurred during the data collection period, classified using IMDRF terminology, with investigation findings and health impact analysis. This section directly feeds the risk re-evaluation and benefit-risk determination.",
+      "fields": {
+        "narrative_summary": {
+          "field_description": "A comprehensive narrative summarizing all serious incidents reported during the data collection period. This is the primary analytical narrative for vigilance data.",
+          "narrative_guidance": {
+            "description": "State the total number of serious incidents reported during the period. Break down by severity category (death, serious injury, malfunction that could have led to death or serious injury). State the overall serious incident rate (incidents / units sold x 100). Identify the most common IMDRF Medical Device Problem codes observed.",
+            "analysis": "Compare the current period's serious incident rate to the preceding periods shown in Table 2. Determine whether the rate is stable, increasing, or decreasing. Compare the observed rate to the maximum expected rate of occurrence from the Risk Assessment and Control Table. Analyze whether any new types of incidents were observed that were not previously identified in the Risk Management File. For each incident type, describe the investigation findings and root causes identified.",
+            "conclusion": "State whether the serious incident profile is consistent with the known risk profile of the device. Conclude whether any incidents represent new or elevated risks requiring action. Reference any CAPAs or FSCAs initiated as a result of incident analysis.",
+            "benefit_risk_linkage": "Explicitly state whether the serious incident data affects the benefit-risk determination. Quantify the patient harm (or absence of harm) and contextualize it against the device's clinical benefits.",
+            "trends_and_actions": "Identify any trends in serious incident types, rates, or severity. If trends are detected, describe the root cause investigation and any corrective actions. Cross-reference Section G (Trend Reporting) and Section I (CAPAs) as applicable."
+          },
+          "example": "NOTE: Example only. — During the current 12-month data collection period (Jan-2024 to Dec-2024), two serious incidents were reported involving the Fischer Cone Biopsy Excisor, yielding a serious incident rate of 0.023% (2 incidents per 8,547 units sold). No deaths were reported. Both incidents were classified as malfunctions with no associated patient injury. The first incident (complaint FCB-2024-0187) involved electrode wire fracture during the excision procedure, classified under IMDRF Medical Device Problem term Device Breakage. Investigation findings under IMDRF Annex C identified the cause as material fatigue in the electrode wire at the junction point with the handle. The electrode fragment was recovered, and the procedure was completed using a replacement device with no adverse clinical outcome. The second incident (complaint FCB-2024-0312) involved failure of the depth stop mechanism, classified under IMDRF Medical Device Problem term Failure of Device to Self-Test or Self-Check. The clinician identified the malfunction before initiating the excision and replaced the device, resulting in no patient harm. Investigation found the depth stop component had been deformed during shipping. Both incidents were within the maximum expected rate of occurrence of 0.05% established in the Risk Assessment and Control Table (RMF-0042-RACT). The serious incident rate of 0.023% in the current period is consistent with the preceding period rate of 0.028% (2 incidents per 7,045 units) and does not indicate an upward trend. No new incident types were identified that were not previously captured in the Risk Management File. These findings do not adversely impact the benefit-risk profile of the device."
+        },
+        "table_2_serious_incidents_by_imdrf_annex_a_by_region": {
+          "field_description": "Table showing serious incidents classified by IMDRF Annex A Medical Device Problem code, broken down by regulatory region (EEA+TR+XI, UK, Worldwide), with counts, rates, and complaint reference numbers.",
+          "table_columns": ["Region", "IMDRF Problem Term", "N (current period)", "Rate (%)", "Complaint number"],
+          "calculation_rules": "Rate = (N / units sold in region) x 100, to 2 decimal places. Use region-specific sales as denominator for regional rates. Use worldwide sales for worldwide rates.",
+          "example_table": {
+            "note": "NOTE: Example only.",
+            "rows": [
+              {"region": "EEA+TR+XI", "imdrf_problem_term": "Device Breakage", "n_current_period": 1, "rate_percent": 0.07, "complaint_number": "FCB-2024-0187"},
+              {"region": "EEA+TR+XI", "imdrf_problem_term": "Failure of Device to Self-Test or Self-Check", "n_current_period": 0, "rate_percent": 0.00, "complaint_number": "N/A"},
+              {"region": "UK", "imdrf_problem_term": "Device Breakage", "n_current_period": 0, "rate_percent": 0.00, "complaint_number": "N/A"},
+              {"region": "UK", "imdrf_problem_term": "Failure of Device to Self-Test or Self-Check", "n_current_period": 0, "rate_percent": 0.00, "complaint_number": "N/A"},
+              {"region": "Worldwide", "imdrf_problem_term": "Device Breakage", "n_current_period": 1, "rate_percent": 0.01, "complaint_number": "FCB-2024-0187"},
+              {"region": "Worldwide", "imdrf_problem_term": "Failure of Device to Self-Test or Self-Check", "n_current_period": 1, "rate_percent": 0.01, "complaint_number": "FCB-2024-0312"}
+            ]
+          }
+        },
+        "table_3_serious_incidents_by_imdrf_annex_c_investigation_findings_by_region": {
+          "field_description": "Table showing serious incidents classified by IMDRF Annex C Investigation Finding codes, broken down by region. This table presents the root cause classification of each serious incident.",
+          "table_columns": ["Region", "IMDRF Cause Term", "N (current period)", "Rate (%)", "Complaint number"],
+          "example_table": {
+            "note": "NOTE: Example only.",
+            "rows": [
+              {"region": "Worldwide", "imdrf_cause_term": "Material Integrity Problem", "n_current_period": 1, "rate_percent": 0.01, "complaint_number": "FCB-2024-0187"},
+              {"region": "Worldwide", "imdrf_cause_term": "Packaging or Shipping Problem", "n_current_period": 1, "rate_percent": 0.01, "complaint_number": "FCB-2024-0312"}
+            ]
+          }
+        },
+        "table_4_health_impact_by_investigation_conclusion": {
+          "field_description": "Cross-tabulation of IMDRF Annex F Health Impact codes against IMDRF Annex D Investigation Conclusion codes. This table shows what health consequences occurred and what the investigation concluded about each incident's root cause.",
+          "table_columns": ["Region", "IMDRF Health Impact (Annex F) Term", "Number of serious incidents", "Investigation Conclusion 1 (Term, %)", "Investigation Conclusion 2 (Term, %)", "Investigation Conclusion 3 (Term, %)", "Investigation Conclusion 4 (Term, %)"],
+          "example_table": {
+            "note": "NOTE: Example only.",
+            "rows": [
+              {
+                "region": "Worldwide",
+                "imdrf_health_impact_annex_f_term": "No Consequence or Impact to Patient",
+                "number_of_serious_incidents": 2,
+                "investigation_conclusion_1": {"term": "Device Issue - confirmed", "percent": 100.0},
+                "investigation_conclusion_2": {"term": "", "percent": 0.0},
+                "investigation_conclusion_3": {"term": "", "percent": 0.0},
+                "investigation_conclusion_4": {"term": "", "percent": 0.0}
+              }
+            ]
+          }
+        },
+        "new_incident_types_identified_this_cycle": {
+          "field_description": "A narrative describing any new incident types observed during this reporting period that were not previously captured in the Risk Management File. If no new types were identified, state this explicitly.",
+          "example": "NOTE: Example only. — No new incident types were identified during this reporting period. Both serious incidents were associated with hazardous situations already documented in the Risk Management File (RMF-0042, Rev E)."
+        }
+      }
+    },
+
+    "E_customer_feedback": {
+      "section_id": "E",
+      "section_title": "Section E: Customer Feedback",
+      "purpose": "Captures non-complaint feedback received through post-market surveillance channels including surveys, user training feedback, sales representative reports, and proactive customer engagement. This section provides qualitative signals that may not rise to the level of formal complaints but can indicate emerging trends.",
+      "fields": {
+        "summary": {
+          "field_description": "A narrative summarizing all customer feedback received during the reporting period through post-market surveillance channels.",
+          "narrative_guidance": {
+            "description": "State the total volume of feedback received, the channels through which it was collected (surveys, sales visits, training sessions, customer service inquiries), and the general themes observed.",
+            "analysis": "Categorize feedback into themes (positive performance feedback, usability concerns, training needs, feature requests, safety-adjacent observations). Quantify where possible. Compare to feedback from previous periods to identify new or evolving themes.",
+            "conclusion": "State whether customer feedback indicates any safety or performance concerns that are not captured in the formal complaint process. Identify any feedback that should trigger investigation or proactive action.",
+            "benefit_risk_linkage": "Connect feedback themes to the benefit-risk profile — positive feedback provides real-world evidence of intended benefits being achieved, while usability concerns may indicate latent risk factors.",
+            "trends_and_actions": "Highlight any recurring feedback themes that suggest a trend. Describe any actions taken in response to feedback (e.g., updated training materials, improved packaging, enhanced customer communications)."
+          },
+          "example": "NOTE: Example only. — During the current reporting period, 47 items of structured customer feedback were received through the Post-Market Surveillance and Customer Feedback procedure. Of these, 32 items (68.1%) were received through post-sales customer surveys, 10 items (21.3%) were collected during user training sessions, and 5 items (10.6%) were proactively reported by field sales representatives. The predominant feedback themes were positive clinical performance (24 items, 51.1% of total feedback, with clinicians reporting consistent excision quality and good visualization during procedures), requests for additional loop electrode size options (12 items, 25.5%), and requests for enhanced training materials on generator settings optimization (8 items, 17.0%). Three items (6.4%) related to packaging concerns (difficulty opening sterile barrier under time pressure), which has been communicated to the packaging engineering team for evaluation. No feedback items indicated unreported safety concerns or performance deficiencies beyond those captured in the formal complaint process. The feedback profile is consistent with previous reporting periods and supports the conclusion that the device is achieving its intended clinical benefits in routine clinical use."
+        },
+        "table_6_feedback_by_type_and_source": {
+          "field_description": "A summary table categorizing customer feedback by type and collection source. Remove this table if no structured feedback was received.",
+          "table_columns": ["Feedback Type", "Source", "Count", "Summary"],
+          "example_table": {
+            "note": "NOTE: Example only.",
+            "rows": [
+              {"feedback_type": "Positive clinical performance", "source": "Customer survey", "count": 24, "summary": "Clinicians reported consistent excision quality, good tissue specimen integrity, and adequate visualization during procedures."},
+              {"feedback_type": "Feature request", "source": "Customer survey / Training", "count": 12, "summary": "Requests for additional loop electrode sizes (smaller diameter for smaller lesions)."},
+              {"feedback_type": "Training request", "source": "Training sessions", "count": 8, "summary": "Requests for enhanced guidance on electrosurgical generator power settings for different tissue types."},
+              {"feedback_type": "Packaging concern", "source": "Sales representatives", "count": 3, "summary": "Difficulty opening sterile peel pouch under time pressure in procedure setting."}
+            ]
+          }
+        }
+      }
+    },
+
+    "F_product_complaint_types_counts_and_rates": {
+      "section_id": "F",
+      "section_title": "Section F: Product Complaint Types, Complaint Counts, and Complaint Rates",
+      "purpose": "Presents the quantitative complaint analysis using IMDRF-classified harm and medical device problem categories. This section is the core of the PSUR's safety signal detection capability and provides the data that drives the risk re-evaluation in Section H and the benefit-risk determination in Section M.",
+      "fields": {
+        "complaint_rate_calculation": {
+          "method_description_and_justification": {
+            "field_description": "A narrative explaining the complaint rate calculation methodology, including the numerator definition (what counts as a complaint), the denominator definition (units sold, episodes of use, etc.), the formula, and the justification for the chosen approach.",
+            "narrative_guidance": {
+              "description": "Define the complaint rate formula explicitly. State what is included in the numerator (product quality complaints, excluding administrative or shipping issues unless device-related). State the denominator and how it corresponds to population exposure.",
+              "analysis": "Justify why this denominator is appropriate for this device type. If the device is single-use, explain why units sold is appropriate. If the device is reusable, explain the usage frequency estimate.",
+              "conclusion": "Confirm that this methodology is consistent with previous PSURs to enable trend comparison.",
+              "benefit_risk_linkage": "Explain how the complaint rate relates to risk — complaint rate is a proxy for the probability of occurrence of identified hazardous situations."
+            },
+            "example": "NOTE: Example only. — The complaint rate is calculated as the number of product complaints received during a period divided by the number of units sold during that same period, expressed as a percentage. The numerator includes all product quality complaints documented in the complaint handling system where the reported issue relates to device performance, safety, or quality. Administrative complaints (e.g., order errors, pricing disputes) and shipping damage complaints unrelated to device integrity are excluded from the numerator. The denominator uses units distributed within each time period as reported in Section C, Table 1. This methodology is appropriate for the Fischer Cone Biopsy Excisor because the device is a sterile single-use product where each unit sold corresponds to approximately one patient exposure. This calculation methodology has been applied consistently across all PSUR cycles for this device, enabling direct period-over-period trend comparison."
+          }
+        },
+        "annual_number_of_complaints_and_complaint_rate_by_harm_and_medical_device_problem": {
+          "commentary_context_for_exceedances": {
+            "field_description": "A narrative addressing any harm/MDP category where the observed complaint rate exceeded the maximum expected rate of occurrence from the Risk Assessment and Control Table. If no exceedances occurred, state this explicitly.",
+            "narrative_guidance": {
+              "description": "Identify each harm/MDP combination where the current period complaint rate exceeds the RACT maximum expected rate.",
+              "analysis": "For each exceedance, investigate and explain the root cause. Determine whether the exceedance is statistically significant or within normal variation. Assess whether it represents a genuine increase in risk or is explained by external factors (e.g., improved complaint capture, expanded market).",
+              "conclusion": "State whether any exceedance requires a RACT update, CAPA initiation, or other corrective action.",
+              "benefit_risk_linkage": "Explicitly state the impact of each exceedance on the benefit-risk profile.",
+              "trends_and_actions": "Cross-reference Section G for UCL analysis and Section I for any CAPAs initiated as a result."
+            },
+            "example": "NOTE: Example only. — During the current 12-month data collection period, all harm and medical device problem categories showed complaint rates within the maximum expected rates of occurrence established in the Risk Assessment and Control Table (RMF-0042-RACT, Rev E). The highest individual category rate was observed for 'No Health Consequence or Impact — Device Breakage' at 0.18%, which remains below the maximum expected rate of 0.25%. No updates to the risk documentation are required based on the complaint rate data for this period."
+          },
+          "risk_documentation_update_needed": {
+            "field_description": "A definitive determination on whether the complaint data requires an update to the Risk Assessment and Control Table or other risk documentation.",
+            "allowed_values": ["YES", "NO"],
+            "selection_logic": "Select YES if any complaint rate exceeded the RACT maximum expected rate, if a new complaint type was observed that is not in the RACT, or if trend analysis indicates an emerging risk. Select NO if all rates are within expected ranges and no new risk signals were detected."
+          }
+        },
+        "table_7_complaint_rate_and_count": {
+          "field_description": "The complaint data table organized by IMDRF Harm category and Medical Device Problem subcategory. Each row shows the complaint count and rate for the current period, compared against the RACT maximum expected rate.",
+          "table_structure_annual": {
+            "columns": [
+              "Harm / Medical Device Problem (hierarchical: Harm in bold, MDP indented under parent Harm)",
+              "Current 12-Month Data Collection Period — Complaint Count (mmm-yyyy to mmm-yyyy)",
+              "Current 12-Month Data Collection Period — Complaint Rate (%)",
+              "Max Expected Rate of Occurrence (from the RACT)"
+            ],
+            "required_rows": "Must include all harm/MDP combinations that have at least one complaint in any period shown. Must include 'No Health Consequence or Impact' as a harm category for complaints where no patient harm occurred. Must include a Grand Total row.",
+            "calculation_rules": "Complaint Rate = (Complaint Count / Units Sold in Period) x 100. Rates to 2 decimal places. RACT reference must include the document number (e.g., RMF-0042-RACT)."
+          },
+          "example_table_annual": {
+            "note": "NOTE: Example only.",
+            "date_range": "Jan-2024 to Dec-2024",
+            "ract_reference": "RMF-0042-RACT, Risk Assessment & Control Table for Fischer Cone Biopsy Excisor Family",
+            "rows": [
+              {"harm": "Injury", "medical_device_problem": "", "count": null, "rate": null, "max_expected": null},
+              {"harm": "", "medical_device_problem": "Device Breakage", "count": 3, "rate": 0.04, "max_expected": 0.10},
+              {"harm": "", "medical_device_problem": "Thermal Injury", "count": 1, "rate": 0.01, "max_expected": 0.05},
+              {"harm": "No Health Consequence or Impact", "medical_device_problem": "", "count": null, "rate": null, "max_expected": null},
+              {"harm": "", "medical_device_problem": "Device Breakage", "count": 15, "rate": 0.18, "max_expected": 0.25},
+              {"harm": "", "medical_device_problem": "Failure of Device to Self-Test or Self-Check", "count": 5, "rate": 0.06, "max_expected": 0.10},
+              {"harm": "", "medical_device_problem": "Packaging Problem", "count": 4, "rate": 0.05, "max_expected": 0.08},
+              {"harm": "", "medical_device_problem": "Difficult to Use", "count": 3, "rate": 0.04, "max_expected": 0.06},
+              {"harm": "Grand Total", "medical_device_problem": "", "count": 31, "rate": 0.36, "max_expected": null}
+            ]
+          }
+        }
+      }
+    },
+
+    "G_information_from_trend_reporting": {
+      "section_id": "G",
+      "section_title": "Section G: Information from Trend Reporting",
+      "purpose": "Presents statistical trend analysis of complaint data using control chart methodology (Upper Control Limit analysis) and identifies any statistically significant trends that may require regulatory reporting or corrective action.",
+      "fields": {
+        "overall_monthly_complaint_rate_trending": {
+          "graph_reference": {
+            "field_description": "Reference to the monthly complaint rate control chart embedded in the PSUR. This chart must show the monthly complaint rate across the entire data collection period, the mean complaint rate line, the Upper Control Limit (UCL) line, and any breach points highlighted.",
+            "data_source": "Generated by the COMPUTE_METRICS agent"
+          },
+          "upper_control_limit_definition": {
+            "field_description": "The UCL calculation methodology used. Standard approach is 3-sigma: UCL = mean rate + (3 x standard deviation of monthly rates over the baseline period).",
+            "example": "NOTE: Example only. — The Upper Control Limit (UCL) is calculated using a 3-sigma methodology. The baseline period used for UCL calculation is the preceding 24 months of complaint rate data (Jan-2022 to Dec-2023). The mean monthly complaint rate over this baseline period was 0.031% with a standard deviation of 0.009%. The UCL is therefore calculated as 0.031% + (3 x 0.009%) = 0.058%."
+          },
+          "breaches_commentary_and_actions": {
+            "field_description": "A narrative addressing any months where the complaint rate breached the UCL, or confirming that no breaches occurred.",
+            "narrative_guidance": {
+              "description": "State whether any UCL breaches occurred during the reporting period. If breaches occurred, identify the specific month(s), the observed rate, and the UCL value.",
+              "analysis": "For each breach, investigate the root cause. Determine whether the breach represents a genuine signal (systematic issue) or an outlier (random variation, unusual reporting pattern). Describe any lot-specific, regional, or product-specific concentration of complaints that contributed to the breach.",
+              "conclusion": "State whether each breach required formal trend reporting to any regulatory authority, and if so, the date and reference of the report. State whether any corrective actions were initiated.",
+              "benefit_risk_linkage": "Assess whether the breach represents a meaningful change to the risk profile of the device.",
+              "trends_and_actions": "Describe any notifications made (e.g., to PMS personnel, management, regulatory authorities) and any investigations or CAPAs triggered by the breach."
+            },
+            "example": "NOTE: Example only. — Review of the monthly complaint rate control chart for the current data collection period shows that the overall monthly complaint rate remained below the Upper Control Limit of 0.058% for all 12 months of the reporting period. The highest monthly rate observed was 0.048% in July 2024, which coincided with a 15% increase in sales volume that month due to seasonal ordering patterns. This rate remained below the UCL and no trend investigation was triggered. The mean monthly complaint rate for the current period was 0.030%, which is consistent with the baseline mean of 0.031%. No statistically significant upward or downward trends were identified. The complaint rate profile supports the conclusion that the device's risk profile remains stable and within expected parameters."
+          }
+        },
+        "trend_reporting_summary": {
+          "statement_if_not_applicable": {
+            "field_description": "If no trend reports were submitted during the data collection period, use this field to make the required N/A statement.",
+            "example": "NOTE: Example only. — N/A — no trend reports were submitted regarding the data collection period. All complaint rates remained within expected variation and below the Upper Control Limit throughout the reporting period."
+          },
+          "trend_reports": {
+            "field_description": "A table listing any formal trend reports submitted during the reporting period. Each row captures the affected device, the manufacturer reference number, when the trend was identified, when it was reported to the MHRA (if applicable), the current investigation status, whether CAPAs resulted, and the FSCA reference if relevant.",
+            "table_columns": ["Affected device models or trade names", "Manufacturer reference number", "Date trend first identified", "Date reported to MHRA (if applicable)", "Current status of trend investigation", "Corrective or preventive actions resulted", "FSCA reference number if relevant"],
+            "example_table": {
+              "note": "NOTE: Example only — use only if there are actual trend reports to document.",
+              "rows": [
+                {
+                  "affected_device_models_or_trade_names": "Fischer Cone Biopsy Excisor, catalog FCB-020",
+                  "manufacturer_reference_number": "TR-2024-003",
+                  "date_trend_first_identified": "2024-05-15",
+                  "date_reported_to_mhra_if_applicable": "N/A — UK complaint rate did not independently exceed threshold",
+                  "current_status_of_trend_investigation": "Investigation complete. Root cause identified as dimensional variation in supplier-provided electrode wire lot W2024-07. Lot quarantined and replaced.",
+                  "corrective_or_preventive_actions_resulted": "CAPA-2024-011 initiated to implement tighter incoming inspection specification for electrode wire diameter.",
+                  "fsca_reference_number_if_relevant": "N/A"
+                }
+              ]
+            }
+          }
+        }
+      }
+    },
+
+    "H_information_from_fsca": {
+      "section_id": "H",
+      "section_title": "Section H: Information from Field Safety Corrective Actions (FSCA)",
+      "purpose": "Documents any FSCAs initiated during the reporting period and the status of any previously initiated FSCAs that remain open. FSCAs represent the most significant risk-mitigating actions a manufacturer can take and have direct impact on the benefit-risk determination.",
+      "fields": {
+        "summary_or_na_statement": {
+          "field_description": "A narrative summarizing FSCAs or an N/A statement if none were initiated.",
+          "narrative_guidance": {
+            "description": "If FSCAs were initiated, describe each one including the safety concern that triggered it, the devices affected, the type of action, and the geographic scope. If no FSCAs were initiated, state this clearly.",
+            "analysis": "For each FSCA, assess its effectiveness — has the corrective action resolved the safety concern? What is the implementation status (percent complete)?",
+            "conclusion": "State whether all FSCAs have been effectively implemented and whether the underlying safety concerns have been adequately addressed.",
+            "benefit_risk_linkage": "For each FSCA, explicitly state its impact on the benefit-risk profile — did it restore the profile to acceptable status, or is ongoing monitoring required?",
+            "trends_and_actions": "Cross-reference any CAPAs in Section I that were initiated as a result of the FSCA."
+          },
+          "example_na": "NOTE: Example only. — N/A — There were no FSCAs initiated during the data collection period (Jan-2024 to Dec-2024), and no previously initiated FSCAs remain open. The absence of FSCAs during this reporting period is consistent with the overall favorable safety profile of the device as demonstrated by the vigilance and complaint data presented in Sections D and F.",
+          "example_with_fsca": "NOTE: Example only. — One FSCA was initiated during the data collection period. FSCA-2024-003 was initiated in June 2024 in response to a confirmed trend of elevated electrode wire fracture rates in a specific manufacturing lot (lot W2024-07). The FSCA consisted of a customer notification letter advising healthcare facilities to quarantine and return affected devices, accompanied by replacement stock. The action affected 342 devices distributed across 8 facilities in Germany, France, and the Netherlands. Implementation was completed in August 2024 with a 100% return rate. No patient injuries were reported in association with the affected lot. The root cause (supplier material variation) was addressed through CAPA-2024-011, and post-FSCA monitoring of replacement devices shows complaint rates within expected parameters. The benefit-risk profile, which was temporarily impacted by the elevated malfunction rate, has been restored to its baseline favorable status following completion of the FSCA."
+        },
+        "table_8_fsca_initiated_current_period_and_open_fscas": {
+          "field_description": "A detailed table documenting each FSCA initiated during the reporting period and any open FSCAs from previous periods.",
+          "table_columns": ["Type of action", "Manufacturer reference number", "Issuing date / Date of final FSN", "Scope of the FSCA / Device models within scope", "Status of the FSCA", "Rationale and description of action taken", "Impacted regions", "Date reported to MHRA (if applicable)"],
+          "example_table": {
+            "note": "NOTE: Example only.",
+            "rows": [
+              {
+                "type_of_action": "Customer notification and device replacement",
+                "manufacturer_reference_number": "FSCA-2024-003",
+                "issuing_date_or_date_of_final_fsn": "2024-06-15",
+                "scope_of_fsca_device_models_within_scope": "Fischer Cone Biopsy Excisor, catalog FCB-020, lot W2024-07 (342 units)",
+                "status_of_fsca": "Closed — implementation complete August 2024, 100% return rate achieved",
+                "rationale_and_description_of_action_taken": "Elevated electrode wire fracture rate detected in lot W2024-07 during routine complaint monitoring. Complaint rate for this lot reached 1.2% compared to overall fleet rate of 0.18%. Customer notification issued advising quarantine and return of affected devices. Replacement devices from verified lots provided.",
+                "impacted_regions": "Germany, France, Netherlands (EEA)",
+                "date_reported_to_mhra_if_applicable": "N/A — affected devices not distributed to UK market"
+              }
+            ]
+          }
+        }
+      }
+    },
+
+    "I_corrective_and_preventive_actions": {
+      "section_id": "I",
+      "section_title": "Section I: Corrective and Preventive Actions",
+      "purpose": "Documents CAPAs initiated during the reporting period that relate to the device's safety, performance, or quality. CAPAs demonstrate the manufacturer's proactive approach to addressing identified issues and are a key indicator of the effectiveness of the post-market surveillance system.",
+      "fields": {
+        "summary_or_na_statement": {
+          "field_description": "A narrative summarizing CAPAs or an N/A statement.",
+          "narrative_guidance": {
+            "description": "State the total number of CAPAs initiated during the reporting period that relate to the device(s) in scope. For each CAPA, identify the problem statement, scope, and current status.",
+            "analysis": "Assess the root causes identified across all CAPAs. Determine whether they represent isolated issues or systemic patterns. Evaluate the effectiveness of completed CAPAs.",
+            "conclusion": "State whether all CAPAs are progressing on schedule and whether interim risk mitigation is adequate for open CAPAs.",
+            "benefit_risk_linkage": "Explain how each CAPA contributes to maintaining or restoring the acceptable benefit-risk profile.",
+            "trends_and_actions": "Cross-reference CAPAs to the vigilance data (Section D), complaint data (Section F), trend data (Section G), or FSCA data (Section H) that triggered them."
+          },
+          "example_na": "NOTE: Example only. — N/A — There were no CAPAs initiated during the data collection period that relate to the safety, performance, or quality of the device(s) covered by this PSUR.",
+          "example_with_capas": "NOTE: Example only. — One CAPA was initiated during the current reporting period. CAPA-2024-011, initiated in July 2024, addresses the root cause of elevated electrode wire fracture complaints identified in lot W2024-07 (see Section H for related FSCA-2024-003). The investigation determined that the supplier's electrode wire raw material exhibited dimensional variation outside the specified tolerance range, resulting in reduced fatigue resistance at the electrode-handle junction. The corrective action comprised implementation of 100% incoming inspection for electrode wire diameter with tightened acceptance criteria (from ±0.05mm to ±0.02mm tolerance). The preventive action comprised qualification of an alternative electrode wire supplier meeting the tightened specification. The corrective action was implemented in August 2024. Effectiveness verification data collected over the subsequent four months (September to December 2024) shows zero wire fracture complaints from devices manufactured with inspected wire, confirming the corrective action's effectiveness. Supplier qualification is on track for completion by March 2025. This CAPA directly supports the maintenance of the acceptable benefit-risk profile by reducing the probability of the electrode wire fracture hazardous situation."
+        },
+        "table_9_capa_initiated_current_reporting_period": {
+          "field_description": "A detailed table documenting each CAPA initiated during the reporting period.",
+          "table_columns": ["CAPA Number / Manufacturer Reference Number", "Initiation Date", "Scope of the CAPA", "Status of the CAPA", "CAPA description", "Root cause", "Effectiveness of the CAPA", "Target date for completion if ongoing"],
+          "example_table": {
+            "note": "NOTE: Example only.",
+            "rows": [
+              {
+                "capa_number_or_manufacturer_reference_number": "CAPA-2024-011",
+                "initiation_date": "2024-07-01",
+                "scope_of_capa": "Fischer Cone Biopsy Excisor, all catalog numbers using electrode wire from supplier X",
+                "status_of_capa": "Corrective action implemented and verified effective. Preventive action (alternative supplier qualification) in progress.",
+                "capa_description": "Implement tightened incoming inspection specification for electrode wire diameter and qualify alternative supplier.",
+                "root_cause": "Supplier electrode wire raw material exhibited dimensional variation outside specified tolerance (±0.05mm), resulting in reduced fatigue resistance at electrode-handle junction point.",
+                "effectiveness_of_capa": "Zero wire fracture complaints from devices manufactured after corrective action implementation (Sep-2024 to Dec-2024, 2,150 units shipped). Effectiveness confirmed.",
+                "target_date_for_completion_if_ongoing": "2025-03-31 (alternative supplier qualification)"
+              }
+            ]
+          }
+        }
+      }
+    },
+
+    "J_scientific_literature_review": {
+      "section_id": "J",
+      "section_title": "Section J: Scientific Literature Review of Relevant Specialist or Technical Literature",
+      "purpose": "Summarizes the systematic literature review conducted during the reporting period to identify new safety or performance data, newly observed uses, previously unassessed risks, changes to the state of the art, and comparative data with similar devices.",
+      "fields": {
+        "literature_search_methodology": {
+          "field_description": "A narrative describing the literature search strategy including databases searched, search terms used, date range, inclusion/exclusion criteria, and the number of articles identified and screened.",
+          "narrative_guidance": {
+            "description": "State the databases searched (e.g., PubMed, Embase, Cochrane Library), the search date range, the search terms and Boolean logic used, and the screening methodology.",
+            "analysis": "Report the number of initial hits, the number after de-duplication, the number after title/abstract screening, and the number of articles included in the final review. Describe the types of evidence found (clinical studies, case reports, systematic reviews, meta-analyses).",
+            "conclusion": "Summarize the overall quality and relevance of the literature identified.",
+            "benefit_risk_linkage": "State whether the literature review identified any data that changes the understanding of the device's benefits or risks."
+          },
+          "example": "NOTE: Example only. — A systematic literature search was conducted covering the period from January 2024 to December 2024 using PubMed, Embase, and the Cochrane Library. Search terms included combinations of 'cervical cone biopsy,' 'LEEP,' 'loop electrosurgical excision,' 'cervical excision device,' and 'electrosurgical cone biopsy.' The search yielded 127 initial results across all databases. After removal of 34 duplicates, 93 unique articles were screened by title and abstract. Of these, 18 articles were identified as potentially relevant to the safety or performance of electrosurgical cervical excision devices and were reviewed in full text. Eight articles were included in the final review as directly relevant to the device or equivalent devices. Detailed search results and article-level assessments are documented in the Clinical Evaluation Report (CER-2023-042, Rev C, Appendix B)."
+        },
+        "number_of_relevant_articles_identified": {
+          "field_description": "The count of articles included in the final literature review after screening.",
+          "data_source": "Literature search results from CER update"
+        },
+        "summary_of_new_data_performance_or_safety": {
+          "field_description": "A narrative summarizing any new data relating to the device's performance or safety identified in the literature.",
+          "narrative_guidance": {
+            "description": "Summarize key findings from each relevant publication, focusing on safety outcomes, performance metrics, complication rates, and comparative effectiveness data.",
+            "analysis": "Compare published complication rates and performance outcomes to the device's observed complaint and incident rates from Sections D and F. Identify any discrepancies.",
+            "conclusion": "State whether the literature supports the current understanding of the device's safety and performance profile or whether revisions are needed.",
+            "benefit_risk_linkage": "Explicitly state how the literature findings affect the benefit-risk determination. New safety data may increase or decrease the risk characterization. New performance data may strengthen or weaken the benefit characterization."
+          },
+          "example": "NOTE: Example only. — The eight relevant publications identified during the literature review period included three prospective clinical studies, two retrospective analyses, two narrative reviews, and one case series. The prospective studies reported complication rates for electrosurgical cervical excision ranging from 2.1% to 4.8%, encompassing bleeding, infection, and cervical stenosis, which are consistent with the established safety profile for this device class. One retrospective analysis of 1,247 LEEP procedures reported a device malfunction rate of 0.16%, which is comparable to the device's observed complaint rate of 0.36% (noting that the literature figure likely underreports non-injury malfunctions). No new safety signals were identified in the literature that are not already addressed in the Risk Management File. The literature continues to support the clinical benefit of electrosurgical cervical excision as a tissue-sparing alternative to cold-knife conization, with comparable diagnostic accuracy and lower complication rates. These findings are consistent with the favorable benefit-risk profile of the device."
+        },
+        "newly_observed_uses": {
+          "field_description": "Any uses of the device or similar devices identified in the literature that are beyond the approved intended use.",
+          "example": "NOTE: Example only. — No newly observed uses beyond the approved intended purpose were identified in the literature during this reporting period."
+        },
+        "previously_unassessed_risks": {
+          "field_description": "Any risks identified in the literature that are not currently addressed in the Risk Management File.",
+          "example": "NOTE: Example only. — No previously unassessed risks were identified in the literature. All complication types reported in the reviewed publications are already documented as hazardous situations in the Risk Management File (RMF-0042)."
+        },
+        "state_of_the_art_changes": {
+          "field_description": "Any significant changes to the clinical state of the art for the device's therapeutic area that may affect the benefit-risk assessment.",
+          "example": "NOTE: Example only. — No significant changes to the state of the art for electrosurgical cervical excision were identified during this reporting period. The technique remains the recommended first-line approach for management of high-grade cervical intraepithelial neoplasia as reflected in current clinical practice guidelines."
+        },
+        "comparison_with_similar_devices": {
+          "field_description": "Performance and safety comparison of the subject device against similar devices based on published data.",
+          "example": "NOTE: Example only. — Comparison with published data on similar electrosurgical excision devices shows that the Fischer Cone Biopsy Excisor's observed complication profile is consistent with or better than reported rates for comparable devices. The device's serious incident rate of 0.023% compares favorably to the range of 0.05% to 0.12% reported for similar devices in the reviewed literature."
+        },
+        "technical_documentation_search_results_reference": {
+          "field_description": "Reference to the location of the detailed literature search results within the technical documentation.",
+          "example": "NOTE: Example only. — CER-2023-042, Rev C, Appendix B — Literature Search Protocol and Results"
+        }
+      }
+    },
+
+    "K_review_of_external_databases_and_registries": {
+      "section_id": "K",
+      "section_title": "Section K: Review of External Databases and Registries",
+      "purpose": "Documents the review of public adverse event databases and device registries to identify safety signals, recalls, and regulatory actions affecting the subject device or similar devices. This provides external validation of the device's safety profile.",
+      "fields": {
+        "registries_reviewed_summary": {
+          "field_description": "A narrative summarizing which databases and registries were reviewed, the search methodology, and the overall findings.",
+          "narrative_guidance": {
+            "description": "List all databases and registries reviewed (e.g., FDA MAUDE, EU Vigilance, MHRA database, BfArM, TGA DAEN, Health Canada recalls). State the search dates and search criteria used for each.",
+            "analysis": "Report total matches found in each database. Filter for relevant findings. Compare adverse events and recalls reported for similar devices to the subject device's own vigilance data. Identify any safety signals, failure modes, or hazardous situations reported for similar devices that are not captured in the subject device's Risk Management File.",
+            "conclusion": "State whether external database review identified any new risks or confirmed the existing risk profile.",
+            "benefit_risk_linkage": "Explicitly state the impact of external database findings on the benefit-risk assessment. Regulatory actions affecting similar devices may signal risks applicable to the subject device.",
+            "trends_and_actions": "If new risks were identified, describe any resulting updates to the Risk Management File."
+          },
+          "example": "NOTE: Example only. — External databases and registries were reviewed for the period January 2024 to December 2024 to identify adverse events, recalls, and regulatory actions related to the Fischer Cone Biopsy Excisor and similar electrosurgical cervical excision devices. The databases reviewed included the FDA MAUDE database (searched by product code GEI and brand name), the BfArM vigilance database (searched by GMDN code 35585), and the MHRA medical device alerts database (searched by device type 'electrosurgical excision'). The FDA MAUDE database returned 47 total reports for electrosurgical cervical excision devices during the review period, of which 12 were for CooperSurgical devices and 35 were for similar devices from other manufacturers. The most commonly reported device problems across all manufacturers were electrode breakage (18 reports, 38.3%), thermal injury (9 reports, 19.1%), and generator incompatibility (7 reports, 14.9%). These failure modes are consistent with the hazardous situations documented in the Risk Management File. No new failure modes, hazardous situations, or harms were identified from the external database review that are not already captured in the Risk Management File. One recall was identified affecting a competitor device due to inadequate sterilization packaging validation; this failure mode is addressed in the Fischer Cone Biopsy Excisor's design and manufacturing controls through validated sterilization packaging with routine integrity testing."
+        },
+        "table_10_adverse_events_and_recalls": {
+          "field_description": "A summary table of external database findings showing each registry reviewed, total matches, relevant findings, benchmarking versus similar devices, regulatory actions, and RMF update references.",
+          "table_columns": ["Database/Registry", "Total matches", "Relevant findings", "Benchmark vs similar devices", "Regulatory actions affecting similar devices", "RMF update reference"],
+          "example_table": {
+            "note": "NOTE: Example only.",
+            "rows": [
+              {
+                "database_or_registry": "FDA MAUDE",
+                "total_matches": 47,
+                "relevant_findings": "12 reports for CooperSurgical devices (consistent with company vigilance data); 35 reports for similar devices from other manufacturers. Most common: electrode breakage (38.3%), thermal injury (19.1%).",
+                "benchmark_vs_similar_devices": "CooperSurgical device malfunction rate (0.023%) is lower than industry average derived from MAUDE data (estimated 0.05-0.12%).",
+                "regulatory_actions_affecting_similar_devices": "One Class II recall for competitor device (sterilization packaging validation failure). Not applicable to Fischer Cone Biopsy Excisor.",
+                "rmf_update_reference": "No RMF update required — all identified failure modes already addressed."
+              },
+              {
+                "database_or_registry": "BfArM Vigilance Database",
+                "total_matches": 8,
+                "relevant_findings": "8 vigilance reports for electrosurgical cervical excision devices. 2 reports for CooperSurgical devices (already included in Section D). No new failure modes identified.",
+                "benchmark_vs_similar_devices": "Comparable incident rates across manufacturers.",
+                "regulatory_actions_affecting_similar_devices": "None identified.",
+                "rmf_update_reference": "No RMF update required."
+              },
+              {
+                "database_or_registry": "MHRA Medical Device Alerts",
+                "total_matches": 3,
+                "relevant_findings": "3 field safety notices for electrosurgical devices in general (not specific to cervical excision). Related to generator software updates. Not applicable to Fischer Cone Biopsy Excisor (passive device, no software).",
+                "benchmark_vs_similar_devices": "N/A — alerts related to generators, not excision accessories.",
+                "regulatory_actions_affecting_similar_devices": "None affecting similar cervical excision devices.",
+                "rmf_update_reference": "No RMF update required."
+              }
+            ]
+          }
+        }
+      }
+    },
+
+    "L_pmcf": {
+      "section_id": "L",
+      "section_title": "Section L: Post-Market Clinical Follow-Up (PMCF)",
+      "purpose": "Documents PMCF activities conducted during the reporting period, their findings, and their impact on the clinical evaluation and benefit-risk determination. If PMCF is justified as not required, this section must state the rationale.",
+      "fields": {
+        "summary_or_na_statement": {
+          "field_description": "A narrative summarizing PMCF activities or stating that PMCF is not required with justification.",
+          "narrative_guidance": {
+            "description": "Describe all PMCF activities undertaken during the reporting period. This may include PMCF studies, clinical experience surveys, analysis of electronic health records, review of publicly available databases (beyond what is covered in Section K), and monitoring of similar devices.",
+            "analysis": "Summarize key findings from each PMCF activity. Report any new performance or safety data collected. Identify any uses beyond those previously known (off-label use, misuse). Identify any new risks not previously assessed in the Risk Management File. Note any significant changes to the state of the art.",
+            "conclusion": "State how PMCF findings have been integrated into the clinical evaluation and whether they impacted the benefit-risk determination or led to updates in the CER or RMF.",
+            "benefit_risk_linkage": "Explicitly state the impact of PMCF findings on the benefit-risk profile. PMCF data either confirms the existing profile or identifies changes that must be addressed.",
+            "trends_and_actions": "Describe any actions taken as a result of PMCF findings."
+          },
+          "example_with_pmcf": "NOTE: Example only. — Post-Market Clinical Follow-Up activities during the current reporting period were conducted in accordance with the PMCF Plan (PMCF-2023-042, Rev B). The primary PMCF activity was a structured clinical experience survey distributed to 45 clinical sites across 6 countries, achieving a 71% response rate (32 sites). The survey collected data on device performance (excision specimen quality, procedure completion rates), safety outcomes (intraoperative and postoperative complications), and user satisfaction. Key findings from the PMCF survey showed a procedure completion rate of 99.2% (765 of 771 procedures surveyed), with the 6 incomplete procedures attributed to patient-related factors (3 cases of excessive bleeding requiring alternative hemostatic management, 2 cases of patient non-compliance with positioning, 1 case of anesthesia complication). The intraoperative complication rate observed in the PMCF survey was 3.1% (24 of 771 procedures), which is within the range of 2.1% to 4.8% reported in the published literature reviewed in Section J. No off-label uses were identified. No new risks beyond those already documented in the Risk Management File were observed. The PMCF findings have been incorporated into the Clinical Evaluation Report (CER-2023-042, Rev C, Section 7.3) and confirm the device's continued safety and performance in routine clinical practice. The PMCF data supports the favorable benefit-risk determination presented in Section M.",
+          "example_na": "NOTE: Example only. — N/A — PMCF in the form of a dedicated clinical study is not required per PMS Plan (PMS-2023-042, Section 8.2). The justification is based on the device's well-characterized risk profile, the availability of sufficient clinical data from the existing literature and complaint surveillance to confirm ongoing safety and performance, and the device's equivalence to predicate devices with extensive clinical history. Ongoing post-market surveillance activities documented in Sections D through K serve as the primary mechanism for confirming clinical safety and performance."
+        },
+        "table_11_pmcf_activities": {
+          "field_description": "A table documenting specific PMCF activities, their findings, and their impact. Remove this table if PMCF is not applicable.",
+          "table_columns": ["Specific PMCF Activities", "Key Findings", "Impact on safety/performance", "RMF/CER update?", "PMCF Evaluation Report reference"],
+          "example_table": {
+            "note": "NOTE: Example only.",
+            "rows": [
+              {
+                "specific_pmcf_activities": "Structured clinical experience survey across 32 clinical sites (6 countries, 771 procedures)",
+                "key_findings": "99.2% procedure completion rate. 3.1% intraoperative complication rate (within published range of 2.1-4.8%). No off-label use or new risks identified.",
+                "impact_on_safety_performance": "Confirms device safety and performance profile. Complication rate consistent with literature and previous PMCF cycle.",
+                "rmf_or_cer_update": "CER updated to Rev C to include PMCF survey results. No RMF update required.",
+                "pmcf_evaluation_report_reference": "PMCF-ER-2024-042, Rev A"
+              }
+            ]
+          }
+        }
+      }
+    },
+
+    "M_findings_and_conclusions": {
+      "section_id": "M",
+      "section_title": "Section M: Findings and Conclusions",
+      "purpose": "The synthesis section that draws together all findings from Sections A through L into final conclusions and a definitive benefit-risk determination. This is the most heavily scrutinized section by Notified Body reviewers and competent authorities. Every statement must be directly traceable to data presented in earlier sections.",
+      "fields": {
+        "benefit_risk_profile_conclusion": {
+          "field_description": "Sub-section (a): The definitive conclusion on whether the benefit-risk profile has been adversely impacted. This must be a comprehensive paragraph that references all data sources analyzed and provides an explicit, bold determination.",
+          "narrative_guidance": {
+            "description": "Open with a summary of the data sources analyzed during the reporting period: total sales volume, total complaints and complaint rate, total serious incidents and incident rate, number of literature articles reviewed, external databases reviewed, CAPAs, FSCAs, and PMCF findings. This demonstrates the comprehensiveness of the surveillance.",
+            "analysis": "Synthesize the key findings from each section. Highlight that complaint rates remained within RACT thresholds (or describe exceedances and their resolution). Highlight that serious incident rates were within expected ranges. Highlight that literature and external database review confirmed the known risk profile. Highlight that PMCF data confirmed safety and performance.",
+            "conclusion": "Make the definitive determination: the benefit-risk profile has NOT been adversely impacted and remains UNCHANGED, or the benefit-risk profile HAS been adversely impacted (with specific description of the impact and corrective actions).",
+            "benefit_risk_linkage": "This IS the benefit-risk conclusion — it must be self-contained and complete.",
+            "trends_and_actions": "If any trends required action, summarize them here with reference to the relevant sections."
+          },
+          "example": "NOTE: Example only. — Based on the comprehensive analysis of all surveillance data collected during the 12-month reporting period from January 2024 to December 2024, including 8,547 units sold worldwide, 31 complaints received (overall complaint rate 0.36%), 2 serious incidents reported (incident rate 0.023%), review of 8 relevant clinical publications, monitoring of 3 external databases and registries, evaluation of 1 CAPA (CAPA-2024-011, corrective action verified effective), review of 1 completed FSCA (FSCA-2024-003, implemented with 100% return rate), and analysis of PMCF survey data covering 771 procedures across 32 clinical sites, it is concluded that the benefit-risk profile of the Fischer Cone Biopsy Excisor family has NOT been adversely impacted and remains UNCHANGED. All complaint rates remained within the maximum expected rates of occurrence established in the Risk Assessment and Control Table. Statistical trend analysis using Upper Control Limit methodology confirmed that no statistically significant adverse trends were present. The serious incident rate of 0.023% was below the RACT threshold and both incidents resulted in no patient harm. Literature review and external database monitoring confirmed that the device's risk profile is consistent with similar devices and the published state of the art. PMCF data demonstrated continued clinical effectiveness with a procedure completion rate of 99.2% and a complication rate consistent with published benchmarks. The device continues to deliver its intended clinical benefits of tissue-sparing cervical excision with consistent specimen quality, and the residual risks remain acceptable and well-controlled."
+        },
+        "intended_benefits_achieved": {
+          "field_description": "Sub-section (b): Confirmation of whether all intended benefits outlined in the device's intended use statement have been achieved during the reporting period.",
+          "narrative_guidance": {
+            "description": "List each intended benefit of the device as defined in the CER and IFU.",
+            "analysis": "For each benefit, cite the evidence from the reporting period that confirms it is being achieved: PMCF data, customer feedback, clinical literature, complaint data (low rate = performance meeting expectations).",
+            "conclusion": "State whether all intended benefits were fully achieved, partially achieved, or not achieved. If any benefits were not fully achieved, explain why and what actions are planned."
+          },
+          "example": "NOTE: Example only. — All intended benefits outlined in the device's intended purpose statement have been achieved during the reporting period. The device's primary intended benefit of enabling precise, tissue-sparing electrosurgical excision of cervical tissue for diagnostic and therapeutic purposes was confirmed through PMCF survey data showing a 99.2% procedure completion rate and consistent specimen quality ratings from clinicians. The secondary benefit of reduced intraoperative blood loss compared to cold-knife conization was supported by the literature review findings, which confirmed that electrosurgical excision techniques continue to demonstrate lower complication rates than alternative approaches. The low complaint rate of 0.36% and the absence of serious patient injuries further support the conclusion that the device is performing as intended and delivering its clinical benefits to the target patient population."
+        },
+        "limitations_of_data_and_conclusion": {
+          "field_description": "Sub-section (c): Identification of any limitations to the surveillance data used for the analysis and an assessment of the impact on the conclusions.",
+          "narrative_guidance": {
+            "description": "Identify any data limitations: incomplete reporting, time lags, small sample sizes in certain regions, reliance on estimates for population exposure, any data gaps.",
+            "analysis": "Assess the impact of each limitation on the validity and reliability of the conclusions. Determine whether the limitations introduce significant uncertainty.",
+            "conclusion": "State whether the data, despite its limitations, was adequate for robust benefit-risk assessment."
+          },
+          "example": "NOTE: Example only. — Two limitations to the surveillance data have been identified. First, the device was launched in Australia and Japan during the reporting period, and the complaint surveillance data from these new markets covers only a partial year (5 months for Australia, 2 months for Japan), which provides limited data for trend establishment in these regions. However, combined global data across all markets was sufficient for robust analysis. Second, the population exposure estimate is based on units sold rather than units used, which may overstate the denominator by including devices in distributor inventory that have not yet been used. This would have a conservative effect on complaint rate calculations (i.e., actual rates may be slightly higher than reported). Despite these limitations, the data set of 8,547 units sold and 31 complaints across 12 markets over a full 12-month period is considered adequate for meaningful benefit-risk assessment."
+        },
+        "new_or_emerging_risks_or_new_benefits": {
+          "field_description": "Sub-section (d): Statement on whether any new or emerging risks were identified, or any new benefits were observed, during the reporting period.",
+          "narrative_guidance": {
+            "description": "State definitively whether new risks or benefits were identified. If new risks exist, describe them fully (source, frequency, severity, affected population).",
+            "analysis": "For new risks: describe how they were identified, whether they have been incorporated into the RMF, and what risk controls have been implemented. For new benefits: describe the evidence and how it affects the benefit side of the determination.",
+            "conclusion": "State the impact on the overall risk profile and benefit-risk determination."
+          },
+          "example": "NOTE: Example only. — No new or emerging risks were identified during the current reporting period. All observed adverse events and complaints were associated with hazardous situations previously documented in the Risk Management File. No new benefits beyond those documented in the Clinical Evaluation Report were identified. The risk profile remains consistent with the established characterization."
+        },
+        "actions_taken_or_planned": {
+          "field_description": "Sub-section (e): Documentation of all actions taken or planned by the manufacturer in response to the surveillance data. Includes specific boolean flags for each category of action and a narrative description of each action.",
+          "sub_fields": {
+            "benefit_risk_assessment_update": {
+              "field_description": "Whether the benefit-risk assessment was updated as a result of this PSUR cycle.",
+              "type": "boolean"
+            },
+            "risk_management_file_update": {
+              "field_description": "Whether the Risk Management File was updated.",
+              "type": "boolean"
+            },
+            "product_design_update": {
+              "field_description": "Whether any product design changes were implemented.",
+              "type": "boolean"
+            },
+            "manufacturing_process_update": {
+              "field_description": "Whether any manufacturing process changes were implemented.",
+              "type": "boolean"
+            },
+            "ifu_or_labeling_update": {
+              "field_description": "Whether the Instructions for Use or labeling were updated.",
+              "type": "boolean"
+            },
+            "clinical_evaluation_report_update": {
+              "field_description": "Whether the Clinical Evaluation Report was updated.",
+              "type": "boolean"
+            },
+            "sscp_update_if_applicable": {
+              "field_description": "Whether the Summary of Safety and Clinical Performance was updated. Applicable only to Class III and implantable devices.",
+              "type": "boolean"
+            },
+            "capa_initiated": {
+              "field_description": "Whether any CAPAs were initiated during or as a result of this PSUR cycle.",
+              "type": "boolean"
+            },
+            "fsca_initiated": {
+              "field_description": "Whether any FSCAs were initiated during or as a result of this PSUR cycle.",
+              "type": "boolean"
+            },
+            "action_details_and_follow_up": {
+              "field_description": "A narrative describing each action taken, the rationale, the implementation status, and the means of follow-up verification.",
+              "narrative_guidance": {
+                "description": "For each boolean flag set to true, describe the specific action taken.",
+                "analysis": "Explain the rationale — what data from the PSUR analysis drove the action.",
+                "conclusion": "State the implementation status and any follow-up activities planned for the next PSUR cycle.",
+                "benefit_risk_linkage": "Explain how each action contributes to maintaining or restoring the acceptable benefit-risk profile."
+              },
+              "example": "NOTE: Example only. — During the current reporting period, the following actions were taken in response to post-market surveillance data. The Risk Management File was updated to Rev E (completed July 2024) to incorporate the revised probability assessment for the electrode wire fracture hazardous situation based on complaint data analysis. The Clinical Evaluation Report was updated to Rev C (completed September 2024) to incorporate PMCF survey results and the updated literature review. CAPA-2024-011 was initiated (July 2024) to address the root cause of elevated electrode wire fracture rates identified in manufacturing lot W2024-07, with corrective action implemented and verified effective. FSCA-2024-003 was initiated (June 2024) to address the affected lot through customer notification and device replacement, completed with 100% implementation. No product design changes, manufacturing process changes, IFU updates, or SSCP updates were required. Follow-up for the next PSUR cycle will include continued monitoring of electrode wire fracture complaint rates to confirm sustained effectiveness of CAPA-2024-011 and completion of the alternative supplier qualification activity."
+            }
+          }
+        },
+        "overall_performance_conclusion": {
+          "field_description": "Sub-section (f): The final performance conclusion for the PSUR. This is the closing statement of the entire document and must affirm or deny that the device continues to perform as intended.",
+          "narrative_guidance": {
+            "description": "State that the device continues to perform as intended for its specified use. Reference the application area, the target population, and the key performance characteristics.",
+            "analysis": "Summarize the evidence supporting this conclusion from across the PSUR: sales stability/growth indicating continued market acceptance, low complaint rates indicating consistent quality, PMCF data confirming clinical performance, literature confirming state-of-the-art alignment.",
+            "conclusion": "State that the device remains suitable for its intended purpose and target population. Confirm that continued post-market surveillance will be conducted per the PMS Plan, and state when the next PSUR update is scheduled.",
+            "benefit_risk_linkage": "Final affirmation that the benefit-risk profile remains acceptable."
+          },
+          "example": "NOTE: Example only. — The Fischer Cone Biopsy Excisor family continues to perform as intended for its specified use in diagnostic and therapeutic electrosurgical excision of cervical tissue. Clinical performance, as evidenced by the PMCF survey data, the low complaint rate, and the absence of serious patient injuries during the reporting period, meets all specifications outlined in the technical documentation. The device remains suitable for its intended purpose and target population of women presenting with cervical intraepithelial neoplasia requiring excisional management. The benefit-risk profile remains acceptable, with clinical benefits of precise tissue-sparing excision substantially outweighing the well-controlled residual risks. Continued post-market surveillance will be conducted in accordance with the PMS Plan (PMS-2023-042, Rev B), with the next PSUR update covering the period January 2025 to December 2025 and scheduled for completion by March 2026."
+        }
+      }
+    }
+  }
+}

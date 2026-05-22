@@ -1,0 +1,28 @@
+{
+  "framework": "RACT",
+  "source_document": "Risk Acceptability Criteria Table — derived from ISO 14971 occurrence categories",
+  "version": "2024-01-01",
+  "rules": [
+    {
+      "id": "RACT.O1_O5_thresholds",
+      "framework": "RACT",
+      "citation": "RACT occurrence codes O1-O5",
+      "version": "2024-01-01",
+      "criticality": "CRITICAL",
+      "applies_to": {"sections": ["F"]},
+      "obligation": "Map raw complaint rates to RACT occurrence codes: O1 Improbable (≤0.0001), O2 Remote (≤0.001), O3 Occasional (≤0.01), O4 Probable (≤0.10), O5 Frequent (≤1.0). Compare actual against max expected per hazard.",
+      "agent_instruction": "Use the pre-computed RACT comparison from statistics. Do NOT recompute the occurrence band — the deterministic mapping is the source of truth."
+    },
+    {
+      "id": "RACT.threshold_breach_action",
+      "framework": "RACT",
+      "citation": "RACT — risk-acceptability gate",
+      "version": "2024-01-01",
+      "criticality": "CRITICAL",
+      "applies_to": {"sections": ["F", "I", "M"]},
+      "triggers": {"findings": ["ract_breach"]},
+      "obligation": "When actual rate exceeds the max expected rate for a hazard, trigger CAPA assessment and document outcome.",
+      "agent_instruction": "If statistics.ract_breaches is non-empty, Section F must call out each breach, Section I must document the CAPA response, and Section M must reference both."
+    }
+  ]
+}

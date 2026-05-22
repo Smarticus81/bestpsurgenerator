@@ -1,0 +1,127 @@
+{
+  "framework": "REMEDIATION",
+  "version": "2026.05",
+  "source": "Audit findings F-001..F-013 (CooperSurgical internal PSUR audit, May 2026). Rules harden cross-section consistency, regulatory completeness, traceability, and normalization.",
+  "rules": [
+    {
+      "id": "REMEDIATION.F001.incident_count_cross_section",
+      "framework": "MDCG_2022_21",
+      "citation": "MDR Art. 86(1)(a); MDCG 2022-21 §6.2 — Serious incidents",
+      "version": "2026.05",
+      "criticality": "CRITICAL",
+      "obligation": "The number of serious incidents reported in Section D narrative MUST equal the sum of serious incidents in Tables 2, 3 and 4 and MUST equal the regional sum. Narrative totals, tabulated totals and regional breakdowns are a single source of truth.",
+      "agent_instruction": "When you state a serious-incident count anywhere in Section D, that integer MUST equal the row totals of Tables 2/3/4 and the sum across regional columns. Never write '13 serious incidents' if any table row totals to 0 or the regional split has not been populated. If the underlying data shows N incidents, every Section D table grand-total cell, every regional column total, and every narrative count MUST resolve to N.",
+      "applies_to": {"sections": ["D"], "device_classes": [], "markets": []},
+      "triggers": {"when": "has_serious_incidents", "findings": {}},
+      "validator_check": "incident_count_cross_section_consistency"
+    },
+    {
+      "id": "REMEDIATION.F002.capa_flag_matches_list",
+      "framework": "MDCG_2022_21",
+      "citation": "MDR Art. 83/86; MDCG 2022-21 §6.4 — CAPA",
+      "version": "2026.05",
+      "criticality": "CRITICAL",
+      "obligation": "Section I MUST NOT contain narrative phrases such as 'No CAPA initiated' or 'no corrective actions were required' when Table 9 (CAPA initiated) has one or more rows. The capa_initiated boolean (where present) MUST equal (len(table_9) > 0).",
+      "agent_instruction": "If Table 9 lists CAPAs, do not write that 'no CAPA was initiated'. Instead, describe the count, the trigger rationale, and the effectiveness status for each CAPA. If Table 9 is empty, justify why no CAPA was warranted. The narrative boolean and the table MUST agree.",
+      "applies_to": {"sections": ["I"], "device_classes": [], "markets": []},
+      "triggers": {"when": "True", "findings": {}},
+      "validator_check": "capa_flag_matches_list"
+    },
+    {
+      "id": "REMEDIATION.F003.pmcf_summary_or_justification",
+      "framework": "EU_MDR",
+      "citation": "MDR Art. 86(1)(c); Annex XIV Part B; MDCG 2022-21 §6.6 — PMCF",
+      "version": "2026.05",
+      "criticality": "CRITICAL",
+      "obligation": "Section L MUST contain either: (a) a summary of PMCF activities with population size, endpoints, key findings and impact on the benefit-risk profile; OR (b) an explicit justification for the absence of PMCF citing the criteria from Annex XIV Part B §1.2. Statements such as 'PMCF data maintained separately' are not acceptable.",
+      "agent_instruction": "Section L MUST include either a substantive PMCF summary (objective, population size, endpoints, key findings, impact on benefit-risk) or an explicit Annex XIV Part B §1.2 justification when PMCF is not required. Never write 'PMCF data maintained separately' or any phrase that defers content to an external document without summarising the relevant findings here.",
+      "applies_to": {"sections": ["L"], "device_classes": [], "markets": []},
+      "triggers": {"when": "True", "findings": {}},
+      "validator_check": "pmcf_summary_or_justification_present"
+    },
+    {
+      "id": "REMEDIATION.F004.pms_plan_execution_traceability",
+      "framework": "EU_MDR",
+      "citation": "MDR Annex III §1.1; MDCG 2022-21 §6.1 — PMS plan execution",
+      "version": "2026.05",
+      "criticality": "MAJOR",
+      "obligation": "When a PMS Plan document is referenced (e.g. PMS-1001R), the PSUR MUST report planned-vs-performed PMS activities with frequency, deviations and justifications for the reporting period.",
+      "agent_instruction": "If a PMS Plan identifier is cited anywhere in the PSUR, you MUST include an execution summary describing for each planned activity: planned frequency, executed frequency, deviations, and justification for any deviation. A bare reference to the PMS Plan is insufficient.",
+      "applies_to": {"sections": []},
+      "triggers": {"when": "True", "findings": {}},
+      "validator_check": "pms_plan_execution_traceability"
+    },
+    {
+      "id": "REMEDIATION.F005.fsca_effectiveness_metric",
+      "framework": "EU_MDR",
+      "citation": "MDR Art. 83(4); MDCG 2022-21 §6.5 — FSCA effectiveness",
+      "version": "2026.05",
+      "criticality": "MAJOR",
+      "obligation": "Each FSCA listed in Section H MUST report an effectiveness criterion (KPI), the measurement method, and the closure-acceptance definition. Status 'pending' is acceptable only when paired with a defined KPI and a baseline-vs-post comparison plan.",
+      "agent_instruction": "For every FSCA row in Table 8 you MUST state: the effectiveness KPI (e.g. complaint reduction %), the measurement method, the baseline value and the closure-acceptance threshold. A status of 'pending' alone is insufficient — pair it with these elements.",
+      "applies_to": {"sections": ["H"], "device_classes": [], "markets": []},
+      "triggers": {"when": "has_fsca", "findings": {}},
+      "validator_check": "fsca_effectiveness_metric_present"
+    },
+    {
+      "id": "REMEDIATION.F006.regional_normalized_rates",
+      "framework": "MDCG_2022_21",
+      "citation": "MDCG 2022-21 §7 — Data interpretation and normalization",
+      "version": "2026.05",
+      "criticality": "MAJOR",
+      "obligation": "Where sales-by-region are reported in Table 1, the corresponding event tables (incidents, complaints) MUST report counts per region and a normalised rate = events_region / units_region. Tables MUST NOT show '0' for every regional cell when sales are present in that region.",
+      "agent_instruction": "If Table 1 reports units distributed by region, your incident and complaint tables MUST report a per-region count and a per-region rate (events / units) for every region where units > 0. Do not emit '0' across an entire regional row without first confirming the underlying data is genuinely zero.",
+      "applies_to": {"sections": ["C", "D", "F"], "device_classes": [], "markets": []},
+      "triggers": {"when": "True", "findings": {}},
+      "validator_check": "regional_normalized_rates_present"
+    },
+    {
+      "id": "REMEDIATION.F007.device_lifetime_pms_period_defined",
+      "framework": "EU_MDR",
+      "citation": "MDR Annex III; MDCG 2022-21 — Device lifetime / PMS horizon",
+      "version": "2026.05",
+      "criticality": "MAJOR",
+      "obligation": "The PSUR MUST define the device shelf life, usage lifecycle, and PMS horizon. Blank lifetime / PMS-period fields are not acceptable.",
+      "agent_instruction": "Section B (or device_context section) MUST state the device shelf life, the usage lifecycle (single-use vs reusable + number of reuses), and the PMS horizon (years over which PMS data is collected). Use 'N/A' only when explicitly justified, never leave blank.",
+      "applies_to": {"sections": ["B"], "device_classes": [], "markets": []},
+      "triggers": {"when": "True", "findings": {}},
+      "validator_check": "device_lifetime_defined"
+    },
+    {
+      "id": "REMEDIATION.F008.regulatory_metadata_complete",
+      "framework": "EU_MDR",
+      "citation": "MDR Annex III — Regulatory metadata",
+      "version": "2026.05",
+      "criticality": "MAJOR",
+      "obligation": "Cover-page metadata MUST include: NB certificate number and issuing NB (for Class IIa/IIb/III/Implantable), manufacturer SRN, and (for GB market) MHRA reporting references. Class I self-certified devices MUST state 'Self-certified — no NB'.",
+      "agent_instruction": "On the PSUR cover page, populate the NB certificate number and issuing-NB name. For Class I self-certified devices write 'Self-certified — no Notified Body'. If the device is on the GB market, populate MHRA reporting references. Never leave these fields blank.",
+      "applies_to": {"sections": []},
+      "triggers": {"when": "True", "findings": {}},
+      "validator_check": "regulatory_metadata_complete"
+    },
+    {
+      "id": "REMEDIATION.F009.rmf_traceability_mapping",
+      "framework": "ISO_14971",
+      "citation": "MDR Annex I, Annex III; ISO 14971:2019 §10 — RMF traceability",
+      "version": "2026.05",
+      "criticality": "MAJOR",
+      "obligation": "When the Risk Management File (RMF) is referenced, the PSUR MUST provide a mapping table linking observed complaints to hazard IDs, risk controls and RMF references. A bare reference to the RMF document is insufficient.",
+      "agent_instruction": "If the RMF is referenced anywhere in the PSUR you MUST include a traceability row linking each complaint category (or representative complaint) to: the hazard ID it surfaces, the risk control(s) intended to mitigate it, and the RMF section reference. Do not cite the RMF without this mapping.",
+      "applies_to": {"sections": ["F", "G", "M"], "device_classes": [], "markets": []},
+      "triggers": {"when": "True", "findings": {}},
+      "validator_check": "rmf_traceability_mapping"
+    },
+    {
+      "id": "REMEDIATION.F013.uk_classification_complete",
+      "framework": "UK_MDR_2024",
+      "citation": "SI 2024/1368 Part 4A — UK classification metadata",
+      "version": "2026.05",
+      "criticality": "MAJOR",
+      "obligation": "When UK market sales are detected, all UK-specific classification fields (uk_mdr_classification_and_rule, UK Responsible Person, MHRA references) MUST be populated. Empty UK classification fields with UK sales present is non-compliant.",
+      "agent_instruction": "If UK sales are present (uk_market_detected=True) every UK-specific field on the cover page and in the device context MUST be populated: UK classification + rule citation, UK Responsible Person name and address, MHRA reporting reference(s). Never leave these blank when UK units > 0.",
+      "applies_to": {"sections": []},
+      "triggers": {"when": "uk_market_detected", "findings": {"uk_market_detected": true}},
+      "validator_check": "uk_classification_complete"
+    }
+  ]
+}

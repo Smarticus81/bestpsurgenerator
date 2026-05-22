@@ -1,0 +1,34 @@
+{
+  "device": {
+    "model": "HUG2000",
+    "udi": "UDI-HUG2000",
+    "name": "Huggler 2000"
+  },
+  "manufacturer": "Mastropietro Company",
+  "plan_effective_period": {
+    "start_date": "2023-01-01",
+    "end_date": "2023-12-31"
+  },
+  "planned_activities": [
+    {
+      "name": "Complaint analysis",
+      "frequency": "quarterly"
+    },
+    {
+      "name": "Trend analysis for pressure, alarm, and textile events",
+      "frequency": "quarterly"
+    },
+    {
+      "name": "PMCF review of supervised comfort-use observations",
+      "frequency": "annual"
+    },
+    {
+      "name": "External vigilance search for infant positioning and comfort devices",
+      "frequency": "semiannual"
+    },
+    {
+      "name": "Risk management file update",
+      "frequency": "annual"
+    }
+  ]
+}

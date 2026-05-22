@@ -1,0 +1,101 @@
+{
+  "framework": "EU_MDR",
+  "source_document": "Regulation (EU) 2017/745, Articles 83-86, Annex III",
+  "version": "2017-04-05",
+  "rules": [
+    {
+      "id": "EU_MDR.83.pms_system",
+      "framework": "EU_MDR",
+      "citation": "Reg (EU) 2017/745 Article 83",
+      "version": "2017-04-05",
+      "criticality": "CRITICAL",
+      "applies_to": {"sections": ["A", "B", "M"]},
+      "obligation": "Manufacturer must plan, establish, document, implement, maintain and update a post-market surveillance system proportionate to risk class and appropriate to device type.",
+      "agent_instruction": "Reflect that PMS findings derive from a documented system proportionate to device risk. Do not narrate the system's existence — present its outputs."
+    },
+    {
+      "id": "EU_MDR.85.pms_report",
+      "framework": "EU_MDR",
+      "citation": "Reg (EU) 2017/745 Article 85",
+      "version": "2017-04-05",
+      "criticality": "MAJOR",
+      "applies_to": {"sections": ["A"], "device_classes": ["I"]},
+      "triggers": {"findings": ["class_i_no_nb"]},
+      "obligation": "Class I manufacturers prepare a Post-Market Surveillance Report (PMSR), updated when necessary and made available to the competent authority on request.",
+      "agent_instruction": "For Class I devices, state explicitly that the regulatory obligation is a PMSR (Article 85) and this PSUR-format document is prepared voluntarily for internal governance."
+    },
+    {
+      "id": "EU_MDR.86.psur_required",
+      "framework": "EU_MDR",
+      "citation": "Reg (EU) 2017/745 Article 86",
+      "version": "2017-04-05",
+      "criticality": "CRITICAL",
+      "applies_to": {"sections": ["A"], "device_classes": ["IIa", "IIb", "III", "implantable"]},
+      "obligation": "Class IIa, IIb and III manufacturers prepare a PSUR summarising results and conclusions of PMS data analysis, including PMCF rationale and CAPA. Class IIb/III/implantable: annual cadence. Class IIa: at least every two years.",
+      "agent_instruction": "Confirm the device's PSUR cadence matches the EU MDR class. Do not cite the article number in narrative."
+    },
+    {
+      "id": "EU_MDR.86.benefit_risk_conclusion",
+      "framework": "EU_MDR",
+      "citation": "Reg (EU) 2017/745 Article 86(1)(a)",
+      "version": "2017-04-05",
+      "criticality": "CRITICAL",
+      "applies_to": {"sections": ["A", "M"]},
+      "validator_check": "benefit_risk_conclusion_present",
+      "obligation": "PSUR must contain a clear statement on whether the benefit-risk profile has been adversely impacted, has improved, or remains unchanged.",
+      "agent_instruction": "Section A and Section M must each contain an explicit benefit-risk conclusion using the exact schema enum value (e.g. NOT_ADVERSELY_IMPACTED_UNCHANGED, ADVERSELY_IMPACTED). Do not hedge or use speculative language."
+    },
+    {
+      "id": "EU_MDR.86.main_findings_pms",
+      "framework": "EU_MDR",
+      "citation": "Reg (EU) 2017/745 Article 86(1)(b)",
+      "version": "2017-04-05",
+      "criticality": "CRITICAL",
+      "applies_to": {"sections": ["F", "G", "M"]},
+      "obligation": "PSUR must summarise the main findings of the PMCF and PMS data, including incident, complaint and trend analyses.",
+      "agent_instruction": "Section F owns complaint counts and rates. Section G owns trend analysis. Section M references both without restating the underlying numbers."
+    },
+    {
+      "id": "EU_MDR.86.sales_volume_population",
+      "framework": "EU_MDR",
+      "citation": "Reg (EU) 2017/745 Article 86(1)(c)",
+      "version": "2017-04-05",
+      "criticality": "CRITICAL",
+      "applies_to": {"sections": ["C"]},
+      "obligation": "PSUR must report sales volume and an estimate of the size and other characteristics of the population using the device, with frequency of use where practicable.",
+      "agent_instruction": "Section C must include the counting method (units distributed, units implanted, episodes of use), the same denominator used for rates in Section F, and a population-exposure estimate independent of sales when applicable."
+    },
+    {
+      "id": "EU_MDR.87.serious_incident_reporting",
+      "framework": "EU_MDR",
+      "citation": "Reg (EU) 2017/745 Article 87",
+      "version": "2017-04-05",
+      "criticality": "CRITICAL",
+      "applies_to": {"sections": ["D"]},
+      "obligation": "Serious incidents and field safety corrective actions must be reported to competent authorities; serious public-health threats within 2 days, deaths within 10 days, other serious incidents within 15 days.",
+      "agent_instruction": "Section D must list every serious incident with IMDRF Annex A device-problem term, Annex F harm term, region, and the actual complaint reference number. Do not invent reference numbers."
+    },
+    {
+      "id": "EU_MDR.84.pms_plan",
+      "framework": "EU_MDR",
+      "citation": "Reg (EU) 2017/745 Article 84, Annex III",
+      "version": "2017-04-05",
+      "criticality": "MAJOR",
+      "applies_to": {"sections": ["B", "G"]},
+      "obligation": "PMS plan must define methods, indicators, threshold values for benefit-risk reassessment, and trend reporting methodology.",
+      "agent_instruction": "Reference the PMS plan when describing the trend methodology (UCL definition, Western Electric rules, action thresholds)."
+    },
+    {
+      "id": "EU_MDR.classI.no_nb",
+      "framework": "EU_MDR",
+      "citation": "Reg (EU) 2017/745 Annex IX (self-certification path)",
+      "version": "2017-04-05",
+      "criticality": "MAJOR",
+      "applies_to": {"device_classes": ["I"], "sterility": ["non-sterile"]},
+      "triggers": {"findings": ["class_i_no_nb"]},
+      "validator_check": "no_notified_body_references_class_i",
+      "obligation": "Class I non-sterile, non-measuring devices are self-certified via Declaration of Conformity. There is no Notified Body involvement.",
+      "agent_instruction": "Do NOT reference Notified Body reviews, certificates, opinions, audit findings or actions. Do NOT state that the report will be 'submitted to' or 'reviewed by' a Notified Body. Cover-page NB fields are administrative only."
+    }
+  ]
+}

@@ -1,0 +1,11 @@
+{
+  "name": "psur-imdrf-classify",
+  "version": "1.0.0",
+  "description": "Classify complaints into IMDRF Annex A (Medical Device Problem) and Annex F (Harm) terms. Required before Section F Table 7 construction.",
+  "when_to_use": "bool(complaints)",
+  "inputs": ["complaints"],
+  "outputs": ["complaints", "imdrf_coded_count"],
+  "impl": "psur-imdrf-classify",
+  "docs": "files/psur-imdrf-classify/SKILL.md",
+  "enabled": true
+}

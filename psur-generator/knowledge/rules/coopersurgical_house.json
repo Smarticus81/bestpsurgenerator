@@ -1,0 +1,110 @@
+{
+  "framework": "HOUSE",
+  "source_document": "CooperSurgical PSUR house rules — drafting and fabrication-prevention conventions",
+  "version": "2026-05-01",
+  "rules": [
+    {
+      "id": "HOUSE.voice.third_person",
+      "framework": "HOUSE",
+      "citation": "House style — voice",
+      "version": "2026-05-01",
+      "criticality": "MAJOR",
+      "applies_to": {},
+      "validator_check": "no_first_person_pronouns",
+      "obligation": "Refer to the manufacturer by name; never use first-person pronouns ('we', 'our', 'us', 'I').",
+      "agent_instruction": "Use the manufacturer's company name throughout. Past tense for completed actions, present tense for standing conclusions."
+    },
+    {
+      "id": "HOUSE.no_marketing_language",
+      "framework": "HOUSE",
+      "citation": "House style — neutrality",
+      "version": "2026-05-01",
+      "criticality": "MAJOR",
+      "applies_to": {},
+      "validator_check": "no_marketing_language",
+      "obligation": "Avoid promotional adjectives: superior performance, best-in-class, market-leading, world-class, cutting-edge, gold standard, compares favorably, industry-leading, outstanding.",
+      "agent_instruction": "Present facts neutrally. PSURs are regulatory documents, not marketing materials."
+    },
+    {
+      "id": "HOUSE.no_meta_narration",
+      "framework": "HOUSE",
+      "citation": "House style — content focus",
+      "version": "2026-05-01",
+      "criticality": "MAJOR",
+      "applies_to": {},
+      "obligation": "Never explain what a PSUR is or how this report was prepared. Every sentence must answer 'what do the data show?', not 'why does this document exist?'.",
+      "agent_instruction": "Banned openings: 'This PSUR is prepared as a stand-alone…', 'This reporting period establishes the baseline for…', 'This section provides/presents/describes…'. Open with findings."
+    },
+    {
+      "id": "HOUSE.proportionality",
+      "framework": "HOUSE",
+      "citation": "House style — proportionality",
+      "version": "2026-05-01",
+      "criticality": "MAJOR",
+      "applies_to": {},
+      "obligation": "Length of analysis must be proportional to risk signal: routine/null findings get 1-3 sentences, notable findings get one paragraph, significant safety signals get full multi-paragraph analysis with root cause, CAPA, and outcome.",
+      "agent_instruction": "Do not pad null findings into paragraphs. State each fact once, interpret once, move on."
+    },
+    {
+      "id": "HOUSE.no_fabrication_identifiers",
+      "framework": "HOUSE",
+      "citation": "House — fabrication prohibition",
+      "version": "2026-05-01",
+      "criticality": "CRITICAL",
+      "applies_to": {},
+      "validator_check": "no_fabricated_identifiers",
+      "obligation": "Never invent UDI-DIs, certificate numbers, technical-documentation numbers, FDA clearance numbers, EMDN codes, or document references. Use only values from device_context.known_identifiers; if missing, write 'N/A'.",
+      "agent_instruction": "Identifier fields use the source value verbatim or 'N/A'. Never invent alphanumeric patterns like 'PMS-TD103' or 'TR-2024-007'."
+    },
+    {
+      "id": "HOUSE.no_fabrication_dates",
+      "framework": "HOUSE",
+      "citation": "House — fabrication prohibition (dates)",
+      "version": "2026-05-01",
+      "criticality": "CRITICAL",
+      "applies_to": {},
+      "obligation": "Never invent first-CE-marking dates, acquisition dates, certificate dates, or clearance dates.",
+      "agent_instruction": "Use only dates present in device_context. Missing → 'N/A'."
+    },
+    {
+      "id": "HOUSE.no_fabrication_external_data",
+      "framework": "HOUSE",
+      "citation": "House — fabrication prohibition (external data)",
+      "version": "2026-05-01",
+      "criticality": "CRITICAL",
+      "applies_to": {"sections": ["J", "K", "L"]},
+      "obligation": "Do not invent literature citations, MAUDE/EUDAMED/MHRA results, registry enrollment counts, PMCF outcomes, or industry-average benchmarks.",
+      "agent_instruction": "If external data is absent for J/K/L, state the absence explicitly and stop. Do not back-fill with plausible-sounding content."
+    },
+    {
+      "id": "HOUSE.cross_section_data_scope",
+      "framework": "HOUSE",
+      "citation": "House — section ownership",
+      "version": "2026-05-01",
+      "criticality": "MAJOR",
+      "applies_to": {},
+      "obligation": "Each section owns specific data: C=sales, D=serious incidents, E=feedback, F=complaint counts/rates, G=trend/UCL, H=FSCA, I=CAPA, J=literature, K=external DBs, L=PMCF, M=synthesis.",
+      "agent_instruction": "Do not restate statistics owned by another section. Reference by letter ('as detailed in Section F') instead of re-deriving."
+    },
+    {
+      "id": "HOUSE.terminology",
+      "framework": "HOUSE",
+      "citation": "House — terminology",
+      "version": "2026-05-01",
+      "criticality": "MINOR",
+      "applies_to": {},
+      "obligation": "Always 'complaint rate' (never 'failure rate' or 'event rate'), 'Upper Control Limit' on first use then 'UCL', 'IMDRF' (never 'GHTF'), 'corrective and preventive action' on first use then 'CAPA', 'post-market surveillance' on first use then 'PMS'.",
+      "agent_instruction": "Use the controlled vocabulary consistently across all sections."
+    },
+    {
+      "id": "HOUSE.prefilled_immutable",
+      "framework": "HOUSE",
+      "citation": "House — prefilled values",
+      "version": "2026-05-01",
+      "criticality": "CRITICAL",
+      "applies_to": {},
+      "obligation": "Values in _prefilled are pre-computed verified facts. Use them exactly — do not round, paraphrase or recalculate.",
+      "agent_instruction": "If a number is in _prefilled, copy it verbatim including comma formatting and decimal precision."
+    }
+  ]
+}

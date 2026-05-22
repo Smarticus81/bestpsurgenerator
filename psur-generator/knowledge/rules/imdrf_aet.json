@@ -1,0 +1,27 @@
+{
+  "framework": "IMDRF",
+  "source_document": "IMDRF Adverse Event Terminology — Annex A (Medical Device Problem), Annex E (Health Effects), Annex F (Health Impact)",
+  "version": "2020-04-01",
+  "rules": [
+    {
+      "id": "IMDRF.coding.required_for_complaints",
+      "framework": "IMDRF",
+      "citation": "IMDRF AET Annex A & F",
+      "version": "2020-04-01",
+      "criticality": "MAJOR",
+      "applies_to": {"sections": ["D", "F"]},
+      "obligation": "Each complaint must be coded with an Annex A device-problem term and an Annex F harm term.",
+      "agent_instruction": "Use the harm_by_imdrf cross-tabulation verbatim. Each complaint appears under exactly one Annex A and one Annex F term. Do not double-count."
+    },
+    {
+      "id": "IMDRF.level2_grouping",
+      "framework": "IMDRF",
+      "citation": "IMDRF AET — Annex A grouping",
+      "version": "2020-04-01",
+      "criticality": "MINOR",
+      "applies_to": {"sections": ["D"]},
+      "obligation": "Level 2 IMDRF terms are sufficient for grouping in PSUR tables.",
+      "agent_instruction": "Group serious incidents at IMDRF Annex A Level 2 unless deeper detail is needed."
+    }
+  ]
+}

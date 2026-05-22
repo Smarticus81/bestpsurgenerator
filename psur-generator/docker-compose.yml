@@ -1,0 +1,51 @@
+version: '3.8'
+
+services:
+  agent-os:
+    build: .
+    ports:
+      - "8000:8000"
+    env_file:
+      - .env
+    environment:
+      - DATABASE_URL=postgresql://psur_user:psur_pass@db:5432/psur_db
+      - LANGFUSE_HOST=http://langfuse:3000
+    depends_on:
+      db:
+        condition: service_healthy
+    volumes:
+      - ./data:/app/data
+      - ./constraints:/app/constraints
+
+  db:
+    image: postgres:15
+    environment:
+      POSTGRES_USER: psur_user
+      POSTGRES_PASSWORD: psur_pass
+      POSTGRES_DB: psur_db
+    ports:
+      - "5432:5432"
+    volumes:
+      - postgres_data:/var/lib/postgresql/data
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U psur_user -d psur_db"]
+      interval: 5s
+      timeout: 5s
+      retries: 5
+
+  # Langfuse Self-Hosted setup for Local Observability
+  langfuse:
+    image: langfuse/langfuse:latest
+    depends_on:
+      db:
+        condition: service_healthy
+    ports:
+      - "3000:3000"
+    environment:
+      - DATABASE_URL=postgresql://psur_user:psur_pass@db:5432/psur_db
+      - NEXTAUTH_URL=http://localhost:3000
+      - NEXTAUTH_SECRET=my_super_secret_key
+      - SALT=my_salt
+
+volumes:
+  postgres_data:

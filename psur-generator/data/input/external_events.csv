@@ -1,0 +1,11 @@
+event_id,date,device_model,device_name,external_source,description,narrative,event_type,serious,outcome
+E001,2023-01-18,HUG2000,Huggler 2000,MAUDE,Pressure alarm during infant positioning,Reported alarm and automatic release; no injury described,Malfunction,0,No Harm
+E002,2023-02-09,Competitor-InfantWrap,Competitor Infant Comfort Wrap,MAUDE,Skin redness under infant wrap,Competitor report described transient redness after prolonged use,Adverse Event,0,Skin Irritation
+E003,2023-03-22,HUG2000,Huggler 2000,EUDAMED,Quick-release tab detached before use,Device removed before patient contact,Malfunction,0,No Harm
+E004,2023-04-11,Competitor-CuddlePad,Competitor CuddlePad,MHRA,Temperature alarm in warming area,External warmer contributed to alarm condition,Malfunction,0,No Harm
+E005,2023-05-19,HUG2000,Huggler 2000,MHRA,Delayed alarm after tubing occlusion,No injury reported; software update referenced,Malfunction,1,Near Miss
+E006,2023-06-30,Competitor-InfantWrap,Competitor Infant Comfort Wrap,BfArM,Pressure mark after wrong size selected,Use error and sizing mismatch noted,Adverse Event,0,Skin/Subcutaneous Injury (Pressure Mark)
+E007,2023-08-07,HUG2000,Huggler 2000,TGA,Sensor calibration warning,Device passed service check after recalibration,Malfunction,0,No Harm
+E008,2023-09-14,Competitor-CuddlePad,Competitor CuddlePad,MAUDE,Loose textile fastener,No patient contact occurred,Malfunction,0,No Harm
+E009,2023-10-20,HUG2000,Huggler 2000,EUDAMED,Transient skin redness after comfort cycle,No permanent injury reported,Adverse Event,0,Skin Irritation
+E010,2023-11-08,Competitor-InfantWrap,Competitor Infant Comfort Wrap,MHRA,Alarm audibility complaint,Staff reported low alarm volume in noisy ward,Malfunction,0,No Harm

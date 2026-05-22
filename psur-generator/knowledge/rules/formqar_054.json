@@ -1,0 +1,60 @@
+{
+  "framework": "FORMQAR_054",
+  "source_document": "FormQAR-054 Rev C — CooperSurgical PSUR template",
+  "version": "2024-06-01",
+  "rules": [
+    {
+      "id": "FORMQAR_054.table1_select_one_variant",
+      "framework": "FORMQAR_054",
+      "citation": "FormQAR-054 Rev C — Table 1",
+      "version": "2024-06-01",
+      "criticality": "MAJOR",
+      "applies_to": {"sections": ["C"]},
+      "obligation": "Render only the cadence-matching variant (annual 4×12mo OR biennial 2×24mo) of Table 1; delete the other.",
+      "agent_instruction": "Use _prefilled.table1_ready_rows verbatim. The pipeline already selected the correct variant for this device class."
+    },
+    {
+      "id": "FORMQAR_054.table7_grand_total_from_integers",
+      "framework": "FORMQAR_054",
+      "citation": "FormQAR-054 Rev C — Table 7",
+      "version": "2024-06-01",
+      "criticality": "CRITICAL",
+      "applies_to": {"sections": ["F"]},
+      "validator_check": "table7_grand_total_consistent",
+      "obligation": "Table 7 grand total rate must equal total_complaints / total_units_sold × 100, computed from raw integers — never by summing rounded sub-category rates.",
+      "agent_instruction": "Use _prefilled.exact_grand_total_rate. Do not recompute."
+    },
+    {
+      "id": "FORMQAR_054.fill_every_cell",
+      "framework": "FORMQAR_054",
+      "citation": "FormQAR-054 Rev C — Cell completion",
+      "version": "2024-06-01",
+      "criticality": "MAJOR",
+      "applies_to": {},
+      "validator_check": "no_empty_table_cells",
+      "obligation": "Every table cell must be populated. Use 'N/A' for text, 0 for counts, 0.00 for rates.",
+      "agent_instruction": "No blank cells. No bare dashes."
+    },
+    {
+      "id": "FORMQAR_054.numeric_formatting",
+      "framework": "FORMQAR_054",
+      "citation": "FormQAR-054 Rev C — Numeric formatting",
+      "version": "2024-06-01",
+      "criticality": "MINOR",
+      "applies_to": {},
+      "obligation": "Integers ≥1,000 use comma separators. Complaint rates in tables: 4 decimal places, percentage. Sales percentages: 1 decimal place.",
+      "agent_instruction": "Match the template's numeric formatting exactly."
+    },
+    {
+      "id": "FORMQAR_054.strip_template_debris",
+      "framework": "FORMQAR_054",
+      "citation": "FormQAR-054 Rev C — Template debris",
+      "version": "2024-06-01",
+      "criticality": "MINOR",
+      "applies_to": {},
+      "validator_check": "no_template_debris",
+      "obligation": "Remove all bracketed instructions, '(Remove if not applicable)' annotations, and 'Add or delete rows as needed' footers.",
+      "agent_instruction": "Do not echo template debris. Replace placeholder rows with actual data or remove."
+    }
+  ]
+}

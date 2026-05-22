@@ -1,0 +1,194 @@
+{
+  "framework": "MDCG_2022_21",
+  "source_document": "MDCG 2022-21: Guidance on Periodic Safety Update Report (PSUR) according to Regulation (EU) 2017/745",
+  "version": "2022-12-01",
+  "rules": [
+    {
+      "id": "MDCG.A.executive_summary_required",
+      "framework": "MDCG_2022_21",
+      "citation": "MDCG 2022-21 Annex I — Executive Summary",
+      "version": "2022-12-01",
+      "criticality": "CRITICAL",
+      "applies_to": {"sections": ["A"]},
+      "validator_check": "executive_summary_present",
+      "obligation": "Executive summary must include: status of actions from previous PSUR, status of actions taken by the Notified Body, justification if data collection period changed, and main results plus a clear benefit-risk impact statement.",
+      "agent_instruction": "Section A must answer four questions: (1) status of prior PSUR actions, (2) NB actions on prior PSUR, (3) any change in data-collection period with justification, (4) overall benefit-risk conclusion with quantitative highlights."
+    },
+    {
+      "id": "MDCG.B.scope_grouping",
+      "framework": "MDCG_2022_21",
+      "citation": "MDCG 2022-21 Annex I — Description of devices and grouping",
+      "version": "2022-12-01",
+      "criticality": "MAJOR",
+      "applies_to": {"sections": ["B"]},
+      "obligation": "Identify each device by Basic UDI-DI (or device family for legacy), trade names, EMDN code, classification rule, status (on market / no longer / recalled / FSCA), date of first declaration of conformity / first CE mark / first placed on market, intended purpose, indications, contra-indications, target populations. If grouped, justify grouping and define the leading device.",
+      "agent_instruction": "Section B must list every device covered with UDI-DI, trade name(s), EMDN. The leading_device field must be the device NAME, never a technical-documentation number. Use only identifiers from device_context.known_identifiers."
+    },
+    {
+      "id": "MDCG.C.consistent_denominator",
+      "framework": "MDCG_2022_21",
+      "citation": "MDCG 2022-21 Annex I — Volume of Sales",
+      "version": "2022-12-01",
+      "criticality": "CRITICAL",
+      "applies_to": {"sections": ["C", "F", "G"]},
+      "validator_check": "consistent_denominator_across_sections",
+      "obligation": "The counting method (units placed on market, units implanted, episodes of use, etc.) must be stated and used CONSISTENTLY across all sections to allow comparison.",
+      "agent_instruction": "Section C declares the counting method. Sections F and G must use the SAME denominator from statistics. Do not recompute or substitute."
+    },
+    {
+      "id": "MDCG.C.regional_split",
+      "framework": "MDCG_2022_21",
+      "citation": "MDCG 2022-21 Annex II Table 1, Annex III §1",
+      "version": "2022-12-01",
+      "criticality": "MAJOR",
+      "applies_to": {"sections": ["C"]},
+      "obligation": "Volume-of-sales data must be split by region (EEA+TR+XI vs Worldwide). Worldwide includes EEA, TR and XI.",
+      "agent_instruction": "Use the pre-computed _prefilled.table1_ready_rows verbatim. Do NOT merge UK with EEA — the UK row is computed separately when present."
+    },
+    {
+      "id": "MDCG.C.year_over_year_breakdown",
+      "framework": "MDCG_2022_21",
+      "citation": "MDCG 2022-21 Annex III §1 (Class III/IIb 4×12mo, Class IIa 2×24mo)",
+      "version": "2022-12-01",
+      "criticality": "MAJOR",
+      "applies_to": {"sections": ["C"]},
+      "obligation": "Class III/IIb: report 4 × 12-month periods (N, N-12, N-24, N-36). Class IIa: report 2 × 24-month periods.",
+      "agent_instruction": "Period column structure must match the device's PSUR cadence. Use only the variant matching the cadence; delete the other from output."
+    },
+    {
+      "id": "MDCG.D.three_perspectives",
+      "framework": "MDCG_2022_21",
+      "citation": "MDCG 2022-21 Annex I — Serious Incidents",
+      "version": "2022-12-01",
+      "criticality": "CRITICAL",
+      "applies_to": {"sections": ["D"]},
+      "obligation": "Serious incidents must be characterised from three perspectives: device problem (IMDRF Annex A), root cause / investigation findings (IMDRF Annex C), and health effects (IMDRF Annex E/F). Report both absolute counts and rates by region and time.",
+      "agent_instruction": "Section D Tables 2-4 must split each serious incident by IMDRF Annex A, C, E/F. Use IMDRF descriptive terms in narrative — never alphanumeric codes."
+    },
+    {
+      "id": "MDCG.E.feedback_sources",
+      "framework": "MDCG_2022_21",
+      "citation": "MDCG 2022-21 Annex I — Customer Feedback",
+      "version": "2022-12-01",
+      "criticality": "MINOR",
+      "applies_to": {"sections": ["E"]},
+      "obligation": "Customer feedback collected outside the formal complaint system must be summarised, including its source and how it was incorporated into PMS.",
+      "agent_instruction": "If no separate feedback channels exist beyond complaints, state so concisely. Do not pad with hypothetical descriptions of what feedback could exist."
+    },
+    {
+      "id": "MDCG.F.show_your_math",
+      "framework": "MDCG_2022_21",
+      "citation": "MDCG 2022-21 Annex II Table 7",
+      "version": "2022-12-01",
+      "criticality": "CRITICAL",
+      "applies_to": {"sections": ["F"]},
+      "validator_check": "rate_formula_disclosed",
+      "obligation": "Every complaint rate must show or reference its formula: numerator / denominator = rate.",
+      "agent_instruction": "Disclose the exact denominator and formula used in Section F. Use the pre-computed exact_grand_total_rate; do NOT recalculate by summing rounded sub-category rates."
+    },
+    {
+      "id": "MDCG.G.trend_methodology",
+      "framework": "MDCG_2022_21",
+      "citation": "MDCG 2022-21 Annex I — Trend Reporting",
+      "version": "2022-12-01",
+      "criticality": "CRITICAL",
+      "applies_to": {"sections": ["G"]},
+      "obligation": "Describe trend methodology, define the upper control limit, and report any breaches with corresponding investigation and CAPA outcomes.",
+      "agent_instruction": "Section G owns the UCL definition and monthly rate breakdown. Use the pre-computed UCL value verbatim. If no breaches occurred, state so in 1-2 sentences."
+    },
+    {
+      "id": "MDCG.H.fsca_inventory",
+      "framework": "MDCG_2022_21",
+      "citation": "MDCG 2022-21 Annex I — FSCA",
+      "version": "2022-12-01",
+      "criticality": "MAJOR",
+      "applies_to": {"sections": ["H"]},
+      "obligation": "All FSCAs in the reporting period must be summarised with reference number, scope, root cause, action taken, and effectiveness evidence.",
+      "agent_instruction": "If no FSCAs occurred, state explicitly. Do not invent FSCA reference numbers."
+    },
+    {
+      "id": "MDCG.I.capa_summary",
+      "framework": "MDCG_2022_21",
+      "citation": "MDCG 2022-21 Annex I — CAPA",
+      "version": "2022-12-01",
+      "criticality": "MAJOR",
+      "applies_to": {"sections": ["I"]},
+      "obligation": "Summarise CAPAs related to the device, including corrections to product/safety/performance/quality and any voluntary non-temporary suspension of marketing.",
+      "agent_instruction": "Section I must reference CAPAs by their actual reference numbers from the input data; if none, state so."
+    },
+    {
+      "id": "MDCG.J.literature_methodology",
+      "framework": "MDCG_2022_21",
+      "citation": "MDCG 2022-21 Annex I — Scientific Literature",
+      "version": "2022-12-01",
+      "criticality": "MAJOR",
+      "applies_to": {"sections": ["J"]},
+      "validator_check": "no_fabricated_literature",
+      "obligation": "Describe the literature search methodology, sources, search terms, and time window; summarise any new safety/performance findings relevant to the device or comparable devices.",
+      "agent_instruction": "Do NOT invent article counts, author names, or journal references. If no literature search was conducted, state so explicitly."
+    },
+    {
+      "id": "MDCG.K.external_databases",
+      "framework": "MDCG_2022_21",
+      "citation": "MDCG 2022-21 Annex I — External Databases and Registries",
+      "version": "2022-12-01",
+      "criticality": "MAJOR",
+      "applies_to": {"sections": ["K"]},
+      "validator_check": "no_fabricated_external_db",
+      "obligation": "Review of relevant external databases (MAUDE, EUDAMED, MHRA, BfArM, TGA, Health Canada) and registries with summary of findings.",
+      "agent_instruction": "Do NOT invent MAUDE counts, EU Vigilance numbers, MHRA alerts, or registry findings. If no external DB review was performed, state so."
+    },
+    {
+      "id": "MDCG.L.pmcf_status",
+      "framework": "MDCG_2022_21",
+      "citation": "MDCG 2022-21 Annex I — PMCF",
+      "version": "2022-12-01",
+      "criticality": "MAJOR",
+      "applies_to": {"sections": ["L"]},
+      "obligation": "Summarise PMCF activities, results, and conclusions OR justify the absence of PMCF.",
+      "agent_instruction": "If PMCF was not conducted, document the justification (e.g. well-established Class I device). Do NOT invent enrollment numbers, sites, or outcomes."
+    },
+    {
+      "id": "MDCG.M.synthesise_all",
+      "framework": "MDCG_2022_21",
+      "citation": "MDCG 2022-21 Annex I — Findings and Conclusions",
+      "version": "2022-12-01",
+      "criticality": "CRITICAL",
+      "applies_to": {"sections": ["M"]},
+      "obligation": "Synthesise findings from all sections, identify any new or emerging risks, address data gaps and their impact, and render an overall benefit-risk conclusion.",
+      "agent_instruction": "Section M references each prior section by letter and addresses ALL boolean action flags with concise justification. Do NOT re-derive statistics already reported in other sections."
+    },
+    {
+      "id": "MDCG.global.no_regulation_citations",
+      "framework": "MDCG_2022_21",
+      "citation": "MDCG 2022-21 — drafting conventions",
+      "version": "2022-12-01",
+      "criticality": "MAJOR",
+      "applies_to": {},
+      "validator_check": "no_regulation_citations_in_narrative",
+      "obligation": "Apply regulatory guidance silently. Do not cite article numbers, MDCG section numbers, or regulation references in narrative text.",
+      "agent_instruction": "Never write 'MDCG 2022-21', 'EU MDR', 'Article 86', 'Regulation (EU) 2017/745' or similar in narrative. Internal document references (ISO 14971, IEC 62366) remain permitted when present in source data."
+    },
+    {
+      "id": "MDCG.global.imdrf_descriptive_terms",
+      "framework": "MDCG_2022_21",
+      "citation": "MDCG 2022-21 — IMDRF use",
+      "version": "2022-12-01",
+      "criticality": "MAJOR",
+      "applies_to": {},
+      "validator_check": "no_imdrf_codes_in_narrative",
+      "obligation": "Use IMDRF Annex A/F/E descriptive terms throughout, never alphanumeric codes (A0701, F0101).",
+      "agent_instruction": "Always render IMDRF terms by their full descriptive text. Codes belong in source data only."
+    },
+    {
+      "id": "MDCG.global.absent_data_justification",
+      "framework": "MDCG_2022_21",
+      "citation": "MDCG 2022-21 — Stand-alone document principle",
+      "version": "2022-12-01",
+      "criticality": "MAJOR",
+      "applies_to": {},
+      "obligation": "If a dataset is not used or not required, the manufacturer must justify the absence.",
+      "agent_instruction": "When data is absent for a section, explicitly state the absence and the reason. Never silently omit."
+    }
+  ]
+}

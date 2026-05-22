@@ -1,0 +1,11 @@
+{
+  "name": "psur-sales-aggregate",
+  "version": "1.0.0",
+  "description": "Aggregate ERP sales data into FormQAR-054 Table 1 regions and 12-month periods. Computes the denominator used by complaint-rate calculations.",
+  "when_to_use": "bool(sales_data)",
+  "inputs": ["sales_data", "reporting_period_start", "reporting_period_end"],
+  "outputs": ["sales_periods", "sales_region_percentages"],
+  "impl": "psur-sales-aggregate",
+  "docs": "files/psur-sales-aggregate/SKILL.md",
+  "enabled": true
+}

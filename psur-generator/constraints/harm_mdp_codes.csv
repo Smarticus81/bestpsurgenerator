@@ -1,0 +1,137 @@
+type,code,parent_code,term,category,description
+MDP,A01,,Breach of device sterility / Biocontamination,Device Problem,Top-level category for sterility and contamination issues
+MDP,A0101,A01,Breach of device sterility,Device Problem,Sterility barrier or packaging breach
+MDP,A0102,A01,Biocontamination (non-sterile devices),Device Problem,Contamination of non-sterile device
+MDP,A010201,A0102,Endotoxin contamination,Device Problem,Endotoxin presence on device
+MDP,A010202,A0102,Particulate contamination,Device Problem,Particle contamination found
+MDP,A010203,A0102,Microbial contamination of non-sterile device,Device Problem,Microbial growth on non-sterile device
+MDP,A02,,Device operates differently than expected,Device Problem,Top-level category for unexpected device behavior
+MDP,A0201,A02,Device operates differently than expected,Device Problem,General unexpected operation
+MDP,A020101,A0201,Failure to operate as intended,Device Problem,Device does not perform its intended function
+MDP,A020102,A0201,Intermittent operation,Device Problem,Device operates intermittently
+MDP,A020103,A0201,Delayed operation,Device Problem,Device response is delayed
+MDP,A020104,A0201,Premature operation,Device Problem,Device activates prematurely
+MDP,A0202,A02,Unexpected therapeutic effect or inability to provide intended treatment,Device Problem,Therapeutic outcome differs from expected
+MDP,A0203,A02,Inadequate device performance in analytical / diagnostic testing,Device Problem,Analytical or diagnostic performance issues
+MDP,A020301,A0203,False positive result,Device Problem,Incorrect positive test result
+MDP,A020302,A0203,False negative result,Device Problem,Incorrect negative test result
+MDP,A020303,A0203,Incorrect measurement / inaccurate result,Device Problem,Measurement or result inaccuracy
+MDP,A020304,A0203,Failure to detect analyte,Device Problem,Analyte not detected
+MDP,A03,,Device deficiency,Device Problem,Top-level category for device deficiencies
+MDP,A0301,A03,"Device deficiency, no consequences or impact to patient or user",Device Problem,Deficiency with no clinical impact
+MDP,A030101,A0301,Cosmetic / aesthetic issue only,Device Problem,Visual defect only
+MDP,A0302,A03,"Device issues, consequence or impact to patient or user unknown",Device Problem,Deficiency with unknown clinical impact
+MDP,A04,,Material issue,Device Problem,Top-level category for material problems
+MDP,A0401,A04,Device material issue,Device Problem,General material defect
+MDP,A040101,A0401,Material deformation,Device Problem,Material is deformed
+MDP,A040102,A0401,Material degradation / discoloration,Device Problem,Material shows degradation or color change
+MDP,A040103,A0401,Material erosion / corrosion,Device Problem,Material erosion or corrosion
+MDP,A040104,A0401,Material cracking / fracture,Device Problem,Material has cracked or fractured
+MDP,A040105,A0401,Biocompatibility concern,Device Problem,Potential biocompatibility issue
+MDP,A05,,Inadequate instructions,Device Problem,Top-level category for instruction issues
+MDP,A0501,A05,Incorrect or incomplete instructions for use,Device Problem,IFU errors or omissions
+MDP,A050101,A0501,Missing IFU,Device Problem,Instructions for use not included
+MDP,A050102,A0501,Incorrect IFU language,Device Problem,IFU in wrong language
+MDP,A050103,A0501,Outdated IFU,Device Problem,IFU version is outdated
+MDP,A06,,Packaging,Device Problem,Top-level category for packaging issues
+MDP,A0601,A06,Packaging problem,Device Problem,General packaging defect
+MDP,A060101,A0601,Packaging seal failure,Device Problem,Seal integrity compromised
+MDP,A060102,A0601,Packaging damage / compromised,Device Problem,Packaging physically damaged
+MDP,A060103,A0601,Packaging labeling error,Device Problem,Label on packaging is incorrect
+MDP,A060104,A0601,Missing components / accessories,Device Problem,Components or accessories not included
+MDP,A07,,Breakage / deterioration,Device Problem,Top-level category for physical damage
+MDP,A0701,A07,Device breakage or deterioration,Device Problem,General breakage or deterioration
+MDP,A070101,A0701,Fracture / break of device,Device Problem,Device has fractured or broken
+MDP,A070102,A0701,Detachment of device component,Device Problem,Component has detached
+MDP,A070103,A0701,Delamination,Device Problem,Layer separation in device material
+MDP,A070104,A0701,Wear / erosion of device,Device Problem,Device shows wear or erosion
+MDP,A070105,A0701,Loss of structural integrity,Device Problem,Structural integrity compromised
+MDP,A08,,Electrical / electronic,Device Problem,Top-level category for electrical issues
+MDP,A0801,A08,Electrical / Electronic issue,Device Problem,General electrical problem
+MDP,A080101,A0801,Short circuit,Device Problem,Electrical short circuit
+MDP,A080102,A0801,Open circuit,Device Problem,Electrical open circuit
+MDP,A080103,A0801,Overheating (electrical),Device Problem,Device overheats due to electrical issue
+MDP,A080104,A0801,Battery failure,Device Problem,Battery malfunction or failure
+MDP,A080105,A0801,Power supply issue,Device Problem,Power supply malfunction
+MDP,A080106,A0801,Electromagnetic interference,Device Problem,EMI affecting device operation
+MDP,A09,,Radiation,Device Problem,Top-level category for radiation issues
+MDP,A0901,A09,Radiation issue,Device Problem,General radiation problem
+MDP,A090101,A0901,Excessive radiation output,Device Problem,Radiation output exceeds specification
+MDP,A090102,A0901,Insufficient radiation output,Device Problem,Radiation output below specification
+MDP,A090103,A0901,Radiation leak / unintended exposure,Device Problem,Unintended radiation exposure
+MDP,A10,,Mechanical,Device Problem,Top-level category for mechanical issues
+MDP,A1001,A10,Mechanical issue / failure,Device Problem,General mechanical failure
+MDP,A100101,A1001,Obstruction / blockage,Device Problem,Flow or passage blocked
+MDP,A100102,A1001,Leak / flow issue,Device Problem,Unintended leak or flow problem
+MDP,A100103,A1001,Valve failure,Device Problem,Valve malfunction
+MDP,A100104,A1001,Mechanical wear,Device Problem,Mechanical wear observed
+MDP,A100105,A1001,Fitting / connector failure,Device Problem,Fitting or connector malfunction
+MDP,A100106,A1001,Difficult to insert / remove,Device Problem,Insertion or removal difficulty
+MDP,A11,,Calibration / measurement,Device Problem,Top-level category for calibration issues
+MDP,A1101,A11,Calibration / measurement issue,Device Problem,General calibration problem
+MDP,A110101,A1101,Drift / loss of calibration,Device Problem,Calibration drift detected
+MDP,A110102,A1101,Measurement error,Device Problem,Measurement inaccuracy
+MDP,A110103,A1101,Sensor failure,Device Problem,Sensor malfunction
+MDP,A12,,Use error,Device Problem,Top-level category for use errors
+MDP,A1201,A12,Use error / human factors issue,Device Problem,General use error
+MDP,A120101,A1201,Incorrect device selection,Device Problem,Wrong device selected for procedure
+MDP,A120102,A1201,Incorrect procedure or technique,Device Problem,Procedure performed incorrectly
+MDP,A120103,A1201,Training / competency issue,Device Problem,User training or competency gap
+MDP,A120104,A1201,Patient non-compliance,Device Problem,Patient did not follow instructions
+MDP,A13,,Software,Device Problem,Top-level category for software issues
+MDP,A1301,A13,Software problem,Device Problem,General software issue
+MDP,A130101,A1301,Software crash / freeze,Device Problem,Software crashes or becomes unresponsive
+MDP,A130102,A1301,Data loss / corruption,Device Problem,Data lost or corrupted
+MDP,A130103,A1301,Software algorithm error,Device Problem,Algorithm produces incorrect results
+MDP,A130104,A1301,Cybersecurity vulnerability,Device Problem,Security vulnerability identified
+MDP,A130105,A1301,Interface / display error,Device Problem,Display or interface malfunction
+MDP,A14,,Connection / compatibility,Device Problem,Top-level category for compatibility issues
+MDP,A1401,A14,Connection / compatibility issue,Device Problem,General compatibility problem
+MDP,A140101,A1401,Incompatibility with other devices,Device Problem,Device incompatible with other equipment
+MDP,A140102,A1401,Incompatibility with medications / substances,Device Problem,Device incompatible with medications
+MDP,A140103,A1401,Interoperability failure,Device Problem,Systems fail to interoperate
+MDP,A15,,Labeling / documentation,Device Problem,Top-level category for labeling issues
+MDP,A1501,A15,Labeling / documentation issue,Device Problem,General labeling problem
+MDP,A150101,A1501,Missing / incorrect label,Device Problem,Label missing or incorrect
+MDP,A150102,A1501,Missing / incorrect expiration date,Device Problem,Expiration date error
+MDP,A150103,A1501,Missing / incorrect lot / batch number,Device Problem,Lot or batch number error
+MDP,A150104,A1501,Wrong UDI,Device Problem,Incorrect UDI on device
+HARM,E01,,No clinical signs or symptoms or condition,Health Impact,No clinical impact observed
+HARM,E0101,E01,No Harm,Health Impact,No harm occurred
+HARM,E0102,E01,No Harm - Near Miss,Health Impact,Near miss with no harm
+HARM,E02,,Minor Injury,Health Impact,Top-level category for minor injuries
+HARM,E0201,E02,Minor Injury,Health Impact,General minor injury
+HARM,E020101,E0201,Temporary pain / discomfort,Health Impact,Temporary pain or discomfort
+HARM,E020102,E0201,Minor skin irritation / rash,Health Impact,Minor skin reaction
+HARM,E020103,E0201,Minor bruising / swelling,Health Impact,Minor bruise or swelling
+HARM,E0202,E02,Minor Injury - temporary,Health Impact,Temporary minor injury
+HARM,E03,,Moderate Injury,Health Impact,Top-level category for moderate injuries
+HARM,E0301,E03,Moderate Injury,Health Impact,General moderate injury
+HARM,E030101,E0301,Infection - localized,Health Impact,Localized infection
+HARM,E030102,E0301,Tissue damage - reversible,Health Impact,Reversible tissue damage
+HARM,E030103,E0301,Burns - second degree,Health Impact,Second degree burns
+HARM,E030104,E0301,Allergic reaction - moderate,Health Impact,Moderate allergic reaction
+HARM,E0302,E03,Moderate Injury - temporary,Health Impact,Temporary moderate injury
+HARM,E04,,Serious Injury,Health Impact,Top-level category for serious injuries
+HARM,E0401,E04,Serious Injury,Health Impact,General serious injury
+HARM,E040101,E0401,Hospitalization required,Health Impact,Required hospital admission
+HARM,E040102,E0401,Surgical intervention required,Health Impact,Required surgical intervention
+HARM,E040103,E0401,Life-threatening condition,Health Impact,Life-threatening clinical condition
+HARM,E040104,E0401,Permanent tissue damage,Health Impact,Permanent tissue damage
+HARM,E040105,E0401,Disability / incapacity,Health Impact,Disability or functional incapacity
+HARM,E040106,E0401,Fetal / neonatal serious injury,Health Impact,Serious injury to fetus or neonate
+HARM,E0402,E04,Serious Injury - permanent impairment,Health Impact,Permanent impairment from serious injury
+HARM,E05,,Death,Health Impact,Top-level category for death
+HARM,E0501,E05,Death,Health Impact,Patient death
+HARM,E06,,Unknown,Health Impact,Top-level category for unknown harm
+HARM,E0601,E06,Unknown / Not yet determined,Health Impact,Harm status unknown or under investigation
+SYMPTOM_MAP,SM001,,Pain at procedure site,Symptom Mapping,Maps to: Temporary pain / discomfort (E020101) | MDP: Device operates differently than expected (A0201)
+SYMPTOM_MAP,SM002,,Skin irritation,Symptom Mapping,Maps to: Minor skin irritation / rash (E020102) | MDP: Biocompatibility concern (A040105)
+SYMPTOM_MAP,SM003,,Bleeding,Symptom Mapping,Maps to: Minor Injury (E0201) | MDP: Device breakage or deterioration (A0701)
+SYMPTOM_MAP,SM004,,Infection,Symptom Mapping,Maps to: Infection - localized (E030101) | MDP: Breach of device sterility (A0101)
+SYMPTOM_MAP,SM005,,Burns,Symptom Mapping,Maps to: Burns - second degree (E030103) | MDP: Overheating (electrical) (A080103)
+SYMPTOM_MAP,SM006,,Device fragment retained,Symptom Mapping,Maps to: Surgical intervention required (E040102) | MDP: Fracture / break of device (A070101)
+SYMPTOM_MAP,SM007,,Allergic reaction,Symptom Mapping,Maps to: Allergic reaction - moderate (E030104) | MDP: Biocompatibility concern (A040105)
+SYMPTOM_MAP,SM008,,No adverse event,Symptom Mapping,Maps to: No Harm (E0101) | MDP: Device deficiency no consequences (A0301)
+SYMPTOM_MAP,SM009,,Near miss,Symptom Mapping,Maps to: No Harm - Near Miss (E0102) | MDP: Device operates differently than expected (A0201)
+SYMPTOM_MAP,SM010,,Death,Symptom Mapping,Maps to: Death (E0501) | MDP: Device operates differently than expected (A0201)

@@ -1,0 +1,27 @@
+{
+  "framework": "ISO_14971",
+  "source_document": "ISO 14971:2019 — Application of risk management to medical devices",
+  "version": "2019-12-01",
+  "rules": [
+    {
+      "id": "ISO_14971.risk_benefit_evaluation",
+      "framework": "ISO_14971",
+      "citation": "ISO 14971:2019 §8",
+      "version": "2019-12-01",
+      "criticality": "MAJOR",
+      "applies_to": {"sections": ["M"]},
+      "obligation": "Overall residual risk must be evaluated against benefit; the conclusion must be supported by PMS data.",
+      "agent_instruction": "Section M benefit-risk synthesis must reference how the residual risk evaluation was informed by this period's PMS data."
+    },
+    {
+      "id": "ISO_14971.production_post_production",
+      "framework": "ISO_14971",
+      "citation": "ISO 14971:2019 §10",
+      "version": "2019-12-01",
+      "criticality": "MAJOR",
+      "applies_to": {"sections": ["G", "I"]},
+      "obligation": "Manufacturer must establish a system to collect and review information about the device in the production and post-production phases, including incidents, complaints and trend data, and feed it back into the risk management file.",
+      "agent_instruction": "Reference the risk management file when CAPA or trend findings update risk acceptability."
+    }
+  ]
+}

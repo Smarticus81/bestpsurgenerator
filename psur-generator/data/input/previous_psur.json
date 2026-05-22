@@ -1,0 +1,31 @@
+{
+  "psur_id": "PSUR-HUG2000-2022",
+  "reporting_period_start": "2022-01-01",
+  "reporting_period_end": "2022-12-31",
+  "baseline_incident_rates": {
+    "Excessive compression": 0.012,
+    "Skin irritation or pressure mark": 0.035,
+    "Alarm or release delay": 0.009,
+    "Temperature discomfort": 0.018
+  },
+  "open_signals": [
+    "Low-frequency pressure-mark complaints associated with incomplete fit checks"
+  ],
+  "author": "Quality Manager",
+  "date_submitted": "2023-03-31",
+  "benefit_risk_evaluation": {
+    "verdict": "favorable",
+    "comments": "Benefit-risk profile remained favorable based on low complaint rates, no confirmed permanent injuries, and completion of user-training updates."
+  },
+  "previous_actions": [
+    "CAPA-HUG-2022-01"
+  ],
+  "summary": {
+    "total_complaints": 14,
+    "serious_incidents": 1,
+    "units_distributed": 10550
+  },
+  "device_model": "HUG2000",
+  "device_name": "Huggler 2000",
+  "manufacturer": "Mastropietro Company"
+}

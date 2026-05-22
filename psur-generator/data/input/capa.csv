@@ -1,0 +1,6 @@
+capa_id,complaint_id,device_model,device_name,trigger,root_cause,actions_taken,effectiveness
+CAPA01,C004,HUG2000,Huggler 2000,Complaint,Sensor calibration drift,Revised pressure sensor calibration verification and added lot-level release testing,Effective
+CAPA02,C015,HUG2000,Huggler 2000,Trend,Alarm threshold logic,Updated alarm-delay software threshold and added verification tests,Pending
+CAPA03,C018,HUG2000,Huggler 2000,Complaint,Adhesive bond weakness,Implemented quick-release tab bond-strength inspection,Effective
+CAPA04,C007,HUG2000,Huggler 2000,Audit,Use beyond labeled duration,Updated IFU fit-check and maximum-cycle training aid,Pending
+CAPA05,C005,HUG2000,Huggler 2000,Supplier Quality,Supplier textile variation,Opened supplier corrective action and tightened incoming textile acceptance criteria,Pending

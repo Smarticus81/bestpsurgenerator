@@ -1,0 +1,6 @@
+capa_number,title,status,open_date,close_date,root_cause,type
+CAPA-2024-001,Packaging seal integrity failure investigation,Closed,2024-03-15,2024-09-20,Sealing machine temperature drift outside validated range,Corrective
+CAPA-2024-002,Labeling discrepancy on secondary packaging,Closed,2024-06-01,2024-11-30,Artwork revision not propagated to all label variants,Corrective
+CAPA-2025-001,Device tip bending during clinical use,Open,2025-02-20,,Material lot variability in raw stock exceeding specification,Corrective
+CAPA-2025-002,Proactive update to IFU based on usability feedback,Open,2025-04-10,,User feedback indicated ambiguity in step 3 of instructions,Preventive
+CAPA-2025-003,Supplier qualification audit nonconformance,In Progress,2025-05-01,,Supplier process change not communicated per quality agreement,Corrective

@@ -1,0 +1,172 @@
+{
+  "SectionA_Scope": {
+    "ProductName": "Your Device Product Family Name",
+    "DeviceDescription": {
+      "Name": "YOUR DEVICE NAME",
+      "IntendedUse": "Replace with the intended use statement from your prior PSUR. Example: The [Device Name] is intended to [function] during [procedure type]. It is intended for use by [user type] in [use environment].",
+      "DeviceType": "Replace with device type (e.g., 'Implantable', 'Non-patient contacting', 'Reusable surgical instrument')",
+      "PhysicalDescription": "Replace with a brief physical description of the device",
+      "Components": [
+        "Component 1 description",
+        "Component 2 description",
+        "Component 3 description"
+      ],
+      "Accessories": "Replace with description of accessories or 'None'"
+    },
+    "DeviceVersions": {
+      "IncludedInThisPSUR": ["MODEL-001", "MODEL-002"],
+      "ExcludedFutureUpdate": ["MODEL-003"]
+    },
+    "RegulatoryInformation": {
+      "EU_MDR_Classification": "Class [I/IIa/IIb/III]",
+      "EU_TechnicalDocumentationNumber": "TDXXX",
+      "US_FDA_Classification": "Class [I/II/III]",
+      "US_PremarketSubmissionNumber": "K######",
+      "Basic_UDI_DI": "YOUR-UDI-DI-HERE",
+      "RiskManagementFileNumber": "RMFXXXX"
+    },
+    "SurveillancePeriod": {
+      "StartDate": "YYYY-01-01",
+      "EndDate": "YYYY-12-31"
+    },
+    "AssociatedDocuments": [
+      {
+        "DocumentNumber": "PMXXXP",
+        "Title": "Post-Market Surveillance Plan for [Your Device Product Family]"
+      },
+      {
+        "DocumentNumber": "CEXXXR",
+        "Title": "Clinical Evaluation Report for [Your Device Name]"
+      }
+    ],
+    "ModelCatalogNumbers": [
+      "MODEL-001",
+      "MODEL-002",
+      "ACCESSORY-001",
+      "ACCESSORY-002"
+    ]
+  },
+
+  "SectionB_SummaryOfCommercialUse": {
+    "InitialApproval": "Month YYYY",
+    "Usage": "Replace with a description of how the device is used clinically",
+    "UnitsShippedByRegionAndYear": {
+      "Africa": { "YYYY": 0, "YYYY": 0 },
+      "AsianPacific": { "YYYY": 0, "YYYY": 0 },
+      "Europe": { "YYYY": 0, "YYYY": 0 },
+      "LatinAmericaAndCaribbean": { "YYYY": 0, "YYYY": 0 },
+      "NorthAmerica": { "YYYY": 0, "YYYY": 0 },
+      "Oceania": { "YYYY": 0, "YYYY": 0 }
+    },
+    "Totals": {
+      "UnitsShippedWorldwide": 0,
+      "UnitsShippedUSA": 0,
+      "DisposableDevicesSold": 0,
+      "AverageUsesPerDevice": 0,
+      "NormalizedSalesNumber": 0
+    }
+  },
+
+  "SectionC_CustomerFeedback": {
+    "DataSources": [
+      "Users",
+      "Distributors",
+      "Importers",
+      "Postmarket Surveillance",
+      "Complaint Handling",
+      "Clinical Evaluation Reports",
+      "Published Literature"
+    ],
+    "ProceduresReferenced": [
+      "YOUR-PROC-001",
+      "YOUR-PROC-002"
+    ],
+    "Conclusion": "Replace with the customer feedback conclusion from the prior PSUR"
+  },
+
+  "SectionD_ProductComplaints": {
+    "TotalSales": 0,
+    "TotalComplaints": 0,
+    "ComplaintRatePercent": 0.00,
+    "TrendAnalysis": {
+      "Observation": "Replace with trend observation from prior PSUR",
+      "OverallTrend": "Replace with overall trend description",
+      "PrimaryComplaintSource": "Replace with primary complaint source"
+    }
+  },
+
+  "SectionE_ComplaintTrending": {
+    "TrendReportsSubmitted": false,
+    "Conclusion": "Replace with complaint trending conclusion from prior PSUR"
+  },
+
+  "SectionF_AdverseEvents": {
+    "TotalReported": 0,
+    "Events": [
+      "Replace with description of each adverse event from prior period, or remove array entries if none"
+    ]
+  },
+
+  "SectionG_FSCA": {
+    "CurrentPeriodFSCA": false,
+    "HistoricalFSCA": [
+      {
+        "Date": "YYYY-MM-DD",
+        "Issue": "Replace with FSCA issue description",
+        "Action": "Replace with action taken",
+        "Outcome": "Replace with outcome"
+      }
+    ],
+    "RiskStatus": {
+      "RiskManagementFile": "RMFXXXX-RA",
+      "OccurrenceLevel": 1,
+      "ThresholdBreaches": false
+    }
+  },
+
+  "SectionH_ClinicalLiterature": {
+    "ReferenceDocument": "CEXXXR Rev X",
+    "Findings": "Replace with clinical literature review findings from prior PSUR"
+  },
+
+  "SectionI_ExternalDatabases": {
+    "SearchPeriod": "YYYY-MM-DD to YYYY-MM-DD",
+    "Results": {
+      "MHRA": "Replace with MHRA search results or 'None'",
+      "FDA_MAUDE": "Replace with FDA MAUDE search results or 'None'",
+      "SARA_DAEN": "Replace with SARA/DAEN search results or 'None'"
+    }
+  },
+
+  "SectionJ_ProductionFeedback": {
+    "NCMRs": "Replace with NCMR summary or 'None identified'",
+    "Trends": "Replace with production trend summary or 'None identified'"
+  },
+
+  "SectionK_CAPA": {
+    "NewCAPAs": "Replace with CAPA summary or 'None initiated during surveillance period'"
+  },
+
+  "SectionL_PMCF": {
+    "PMCFPerformed": false,
+    "Rationale": [
+      "Replace with rationale for PMCF decision",
+      "Add additional rationale points as needed"
+    ]
+  },
+
+  "SectionM_BenefitRiskAssessment": {
+    "ClinicalBenefits": [
+      "Replace with clinical benefit 1",
+      "Replace with clinical benefit 2",
+      "Add additional benefits as needed"
+    ],
+    "Conclusion": "Replace with benefit-risk conclusion from prior PSUR"
+  },
+
+  "SectionN_Conclusion": {
+    "OverallConclusion": "Replace with overall conclusion from prior PSUR",
+    "ComplaintRate": "X.XX%",
+    "BenefitRiskOutcome": "Replace with benefit-risk outcome statement"
+  }
+}

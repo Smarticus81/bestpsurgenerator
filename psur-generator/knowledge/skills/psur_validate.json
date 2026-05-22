@@ -1,0 +1,11 @@
+{
+  "name": "psur-validate",
+  "version": "1.0.0",
+  "description": "Apply the post-generation PSUR validation checklist and surface a summary into the provenance block.",
+  "when_to_use": "bool(validation_report)",
+  "inputs": ["validation_report"],
+  "outputs": ["validation_summary"],
+  "impl": "psur-validate",
+  "docs": "files/psur-validate/SKILL.md",
+  "enabled": true
+}

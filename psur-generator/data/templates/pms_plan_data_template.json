@@ -1,0 +1,299 @@
+{
+  "documentType": "Post-Market Surveillance Plan (PMSP)",
+  "deviceFamilyNameInReport": "YOUR DEVICE PRODUCT FAMILY",
+  "sections": {
+    "A_scope": {
+      "productNames": [
+        "Your Device Name®",
+        "Your Device Name Variant™"
+      ],
+      "implantable": false,
+      "deviceDescription": {
+        "Device_Variant_1": {
+          "intendedUseSummary": "Replace with intended use summary for variant 1. Example: [Device] attaches to [equipment] and enables [user] to [function] during [procedure type].",
+          "components": [
+            "Component 1 Name",
+            "Component 2 Name (sold separately)"
+          ]
+        },
+        "Device_Variant_2": {
+          "intendedUseSummary": "Replace with intended use summary for variant 2, or remove this block if only one variant.",
+          "components": [
+            "Component 1 Name",
+            "Component 2 Name (sold separately)"
+          ]
+        }
+      },
+      "regulatoryClassifications": {
+        "EU_MDR": {
+          "classification": "Class [I/IIa/IIb/III]",
+          "technicalDocumentationNumber": "TDXXX"
+        },
+        "US_FDA": {
+          "classification": "Class [I/II/III]",
+          "preMarketSubmissionNumbers": [
+            "K######",
+            "K###### (Accessory)"
+          ]
+        }
+      },
+      "postMarketSurveillance": {
+        "reportingMechanism": "Post-Market Surveillance Report",
+        "updateFrequency": "Replace with update frequency (e.g., 'Annually', 'Every Two Years', 'When Necessary')",
+        "submissionToNotifiedBodyRequired": false,
+        "submissionConditionNote": "Only required if implantable or EU Class III"
+      },
+      "modelCatalogNumbers": [
+        "MODEL-001",
+        "MODEL-002",
+        "ACCESSORY-001",
+        "ACCESSORY-002"
+      ]
+    },
+    "B_customer_feedback": {
+      "ownerRole": "Replace with responsible role (e.g., 'Marketing Product Manager')",
+      "processSummary": "Replace with your customer feedback collection process summary. Describe how feedback is collected, categorized, and routed to the appropriate quality process.",
+      "routingRules": {
+        "toComplaintProcessIfAllegesDeficiencyIn": [
+          "identity",
+          "quality",
+          "durability",
+          "reliability",
+          "safety",
+          "effectiveness",
+          "performance"
+        ],
+        "nonComplaintFeedbackHandling": "Replace with how non-complaint feedback is handled"
+      },
+      "outputsForPMSR": [
+        "Summary of non-complaint feedback received during the PMSR surveillance period"
+      ]
+    },
+    "C_product_complaint_handling": {
+      "ownerGroup": "Replace with responsible group (e.g., 'Product Surveillance group')",
+      "procedures": [
+        {
+          "id": "YOUR-QAR-XXX",
+          "name": "Product Complaint Handling"
+        },
+        {
+          "id": "YOUR-QAR-XXX",
+          "name": "Product Complaint Investigation"
+        }
+      ],
+      "pmsrContentProvided": {
+        "complaintSummary": [
+          "complaint types",
+          "complaint counts",
+          "complaint rates (complaint counts per unit sales) during the PMSR surveillance period"
+        ],
+        "source": "Provided by Product Surveillance group for inclusion in the PMSR"
+      }
+    },
+    "D_product_complaint_rate_trending_and_trend_reporting": {
+      "ownerGroup": "Replace with responsible group",
+      "procedure": {
+        "id": "YOUR-QAR-XXX",
+        "name": "Post-Market Surveillance Trending"
+      },
+      "cadence": "Monthly",
+      "complaintRateDefinition": "Total number of complaints for a particular period divided by the estimated number of uses during that period.",
+      "trendReporting": {
+        "submissionChannel": "Notified body (via the EUDAMED system once operational)",
+        "trigger": "When associated trend reporting criteria are met",
+        "pmsrInclusions": [
+          "Overall complaint rate trending throughout the PMSR surveillance period",
+          "Listing of trend reports submitted to the EU during the surveillance period"
+        ]
+      },
+      "riskManagementComparison": {
+        "comparisonStatement": "Actual rate of occurrence for harms reported over the PMSR surveillance period will be compared to the maximum rates predicted within the risk management file (RMF).",
+        "actionsIfOutOfBounds": "If harms occurred that are not captured in the RMF or occur more frequently than predicted, additional investigation will be undertaken to determine what actions are potentially needed to address this."
+      }
+    },
+    "E_adverse_event_reporting": {
+      "ownerGroup": "Replace with responsible group",
+      "procedure": {
+        "id": "YOUR-QAR-XXX",
+        "name": "Adverse Event Reporting"
+      },
+      "assessmentRule": "Each complaint will be assessed against the criteria for adverse event reporting; as needed, reports will be submitted in the manner described in the procedure.",
+      "seriousIncidentHandling": {
+        "reportToCompetentAuthorities": "During the surveillance period, serious incidents shall be reported to the competent authorities of the countries in which the incident occurred.",
+        "communicationToEconomicOperators": {
+          "whenApplicable": true,
+          "operators": [
+            "distributors",
+            "users"
+          ],
+          "procedure": {
+            "id": "YOUR-QAR-XXX",
+            "name": "Product Recalls"
+          }
+        },
+        "correctiveActionEvaluation": {
+          "evaluatedForNeed": "Corrective action",
+          "procedure": {
+            "id": "YOUR-QAR-XXX",
+            "name": "Corrective and Preventive Actions"
+          }
+        }
+      },
+      "ifuNotice": {
+        "appliesTo": "Replace with applicable IFU reference",
+        "standardReferenced": "ISO 20417:2021",
+        "noticeSummary": "Any serious incident that has occurred in relation to the device should be reported to the manufacturer and the competent authority of the Member State in which the user and/or patient is established."
+      },
+      "pmsrInclusions": [
+        "Listing of adverse events occurring during the surveillance period which required submission of an adverse event report"
+      ]
+    },
+    "F_field_safety_corrective_actions": {
+      "continuousEvaluation": "Incidents will be continuously evaluated for user safety and product performance via PMS activities outlined in this PMSP.",
+      "ownerGroup": "Replace with responsible group",
+      "procedure": {
+        "id": "YOUR-QAR-XXX",
+        "name": "Product Recalls"
+      },
+      "traceabilityNote": "Includes methods to trace and identify devices for which corrective actions might be necessary.",
+      "notifiedBodyCommunication": "Notices, notifications, and reports will be sent to notified bodies through the EUDAMED system or the electronic system utilized by the respective competent authority.",
+      "pmsrInclusions": [
+        "Summary of FSCAs initiated for the device product during the PMSR surveillance period"
+      ]
+    },
+    "G_review_of_clinical_technical_literature": {
+      "ownerGroup": "Replace with responsible group (e.g., 'Clinical group')",
+      "referencePlan": {
+        "name": "Clinical Evaluation Plan (CEP) for [Your Device Name]",
+        "id": "CEXXXP"
+      },
+      "deliverables": {
+        "cer": "Detailed review included in the clinical evaluation report (CER).",
+        "pmsr": "Summary of the review for the PMSR surveillance period included in the PMSR."
+      },
+      "escalationRule": {
+        "ifLiteratureAllegesDeficienciesIn": [
+          "identity",
+          "quality",
+          "durability",
+          "reliability",
+          "safety",
+          "effectiveness",
+          "performance"
+        ],
+        "action": "Submit to Product Surveillance group for processing per Product Complaint Handling procedure",
+        "procedure": {
+          "id": "YOUR-QAR-XXX",
+          "name": "Product Complaint Handling"
+        }
+      }
+    },
+    "H_review_of_external_databases_and_registries": {
+      "ownerGroup": "Replace with responsible group",
+      "workInstruction": {
+        "id": "WI-QAR-XXX",
+        "name": "Periodic Safety Update Reports"
+      },
+      "minimumScope": [
+        {
+          "database": "US FDA Manufacturer and User Facility Device Experience (MAUDE) database",
+          "productCode": "Replace with your FDA product code",
+          "focus": "Replace with search focus description"
+        }
+      ],
+      "pmsrInclusions": [
+        "Summary of any issues found dated during the surveillance period (e.g., AERs, FSCAs)"
+      ],
+      "issueEscalation": "Any issues identified that are specifically associated with the device are to be submitted to the Product Surveillance group for assessment as complaints."
+    },
+    "I_review_of_production_information": {
+      "providerGroups": [
+        "Manufacturing",
+        "Operations Quality group"
+      ],
+      "site": "Replace with manufacturing site name",
+      "workInstruction": {
+        "id": "WI-QAR-XXX",
+        "name": "Periodic Safety Update Reports"
+      },
+      "pmsrInclusions": [
+        "Summary of product-specific production information during the PMSR surveillance period"
+      ]
+    },
+    "J_corrective_and_preventive_actions": {
+      "governanceProcedure": {
+        "id": "YOUR-QAR-XXX",
+        "name": "Corrective and Preventive Actions"
+      },
+      "pmsrInclusions": [
+        "Listing and description of product-specific CAPAs initiated during the PMSR surveillance period"
+      ],
+      "workInstructionReference": {
+        "id": "WI-QAR-XXX",
+        "name": "Periodic Safety Update Reports"
+      }
+    },
+    "K_post_market_clinical_follow_up": {
+      "statement": "Replace with your PMCF rationale statement. Example: Proactive collection of additional data through PMCF is [planned/not expected to provide meaningful additional evidence] to support the safety and clinical performance of the product.",
+      "rationale": [
+        "Replace with rationale point 1",
+        "Replace with rationale point 2",
+        "Add additional rationale points as needed"
+      ],
+      "pmcfPlanned": false
+    },
+    "L_benefit_risk_assessment": {
+      "assessmentLocation": "Clinical Evaluation Report (CER)",
+      "leadGroup": "Replace with responsible group (e.g., 'Clinical group')",
+      "consultation": "Replace with consultation role (e.g., 'Medical advisor')",
+      "cadenceRule": "No less frequently than the update cadence for the CER (as specified in the CEP).",
+      "pmsrInclusions": [
+        "Summary of the Benefit-Risk Assessment included in the PMSR"
+      ],
+      "referencePlan": {
+        "id": "CEXXXP",
+        "name": "Clinical Evaluation Plan (CEP)"
+      }
+    }
+  },
+  "referencedDocuments": [
+    {
+      "id": "TDXXX",
+      "type": "EU Technical Documentation Number",
+      "relatedDeviceFamily": "YOUR DEVICE PRODUCT FAMILY"
+    },
+    {
+      "id": "K######",
+      "type": "US Pre-Market Submission Number"
+    },
+    {
+      "id": "YOUR-QAR-XXX",
+      "type": "Procedure",
+      "name": "Product Complaint Handling"
+    },
+    {
+      "id": "YOUR-QAR-XXX",
+      "type": "Procedure",
+      "name": "Corrective and Preventive Actions"
+    },
+    {
+      "id": "YOUR-QAR-XXX",
+      "type": "Procedure",
+      "name": "Product Recalls"
+    },
+    {
+      "id": "WI-QAR-XXX",
+      "type": "Work Instruction",
+      "name": "Periodic Safety Update Reports"
+    },
+    {
+      "id": "CEXXXP",
+      "type": "Plan",
+      "name": "Clinical Evaluation Plan (CEP) for [Your Device Name]"
+    },
+    {
+      "id": "ISO 20417:2021",
+      "type": "Standard"
+    }
+  ]
+}

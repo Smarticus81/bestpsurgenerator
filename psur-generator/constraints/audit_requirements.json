@@ -1,0 +1,1523 @@
+{
+  "requirements": [
+    {
+      "req_id": "A.01",
+      "title": "Executive summary present",
+      "description": "PSUR must contain an executive summary per MDCG 2022-21 Annex I.",
+      "section": "A",
+      "framework": "EU_MDR",
+      "criticality": "CRITICAL",
+      "keywords": [
+        "executive summary",
+        "summary"
+      ],
+      "guidance_ref": "MDCG 2022-21 Annex I"
+    },
+    {
+      "req_id": "A.02",
+      "title": "Benefit-risk conclusion statement",
+      "description": "Executive summary must include a clear and bold statement on whether the benefit-risk profile has been adversely impacted or remains unchanged.",
+      "section": "A",
+      "framework": "EU_MDR",
+      "criticality": "CRITICAL",
+      "keywords": [
+        "benefit-risk",
+        "benefit risk",
+        "unchanged",
+        "adversely impacted",
+        "not been adversely"
+      ],
+      "guidance_ref": "MDCG 2022-21 Annex I"
+    },
+    {
+      "req_id": "A.03",
+      "title": "Previous PSUR actions status",
+      "description": "Executive summary must describe the status of actions taken based on the previous PSUR.",
+      "section": "A",
+      "framework": "EU_MDR",
+      "criticality": "MAJOR",
+      "keywords": [
+        "previous psur",
+        "prior psur",
+        "actions taken",
+        "prior period",
+        "previous period"
+      ],
+      "guidance_ref": "MDCG 2022-21 Annex I"
+    },
+    {
+      "req_id": "A.04",
+      "title": "Notified Body actions status",
+      "description": "Description of actions taken by the Notified Body from review of the previous PSUR.",
+      "section": "A",
+      "framework": "EU_MDR",
+      "criticality": "MAJOR",
+      "keywords": [
+        "notified body",
+        "nb review",
+        "nb actions",
+        "nb findings"
+      ],
+      "guidance_ref": "MDCG 2022-21 Annex I"
+    },
+    {
+      "req_id": "A.05",
+      "title": "Data collection period stated",
+      "description": "Executive summary must state the data collection (surveillance) period.",
+      "section": "A",
+      "framework": "EU_MDR",
+      "criticality": "CRITICAL",
+      "keywords": [
+        "data collection period",
+        "surveillance period",
+        "reporting period"
+      ],
+      "guidance_ref": "MDCG 2022-21 Annex I"
+    },
+    {
+      "req_id": "A.06",
+      "title": "Period change justification",
+      "description": "If the data collection period changed from the previous PSUR, provide justification and a statement on comparability.",
+      "section": "A",
+      "framework": "EU_MDR",
+      "criticality": "MAJOR",
+      "keywords": [
+        "period change",
+        "comparability",
+        "changed from"
+      ],
+      "guidance_ref": "MDCG 2022-21 Annex I"
+    },
+    {
+      "req_id": "A.07",
+      "title": "Main results summarised",
+      "description": "Executive summary should summarise the main results from the current PSUR.",
+      "section": "A",
+      "framework": "EU_MDR",
+      "criticality": "MAJOR",
+      "keywords": [
+        "main results",
+        "key findings",
+        "main findings",
+        "overall conclusion"
+      ],
+      "guidance_ref": "MDCG 2022-21 Annex I"
+    },
+    {
+      "req_id": "B.01",
+      "title": "Device identification",
+      "description": "Device trade name(s), Basic UDI-DI(s), EMDN code, and classification rule must be present.",
+      "section": "B",
+      "framework": "EU_MDR",
+      "criticality": "CRITICAL",
+      "keywords": [
+        "udi",
+        "basic udi-di",
+        "emdn",
+        "trade name",
+        "classification",
+        "device name"
+      ],
+      "guidance_ref": "MDCG 2022-21 Annex I — Art 86.1"
+    },
+    {
+      "req_id": "B.02",
+      "title": "Intended purpose stated",
+      "description": "Intended purpose per IFU including indications, contra-indications, and target populations.",
+      "section": "B",
+      "framework": "EU_MDR",
+      "criticality": "CRITICAL",
+      "keywords": [
+        "intended purpose",
+        "intended use",
+        "indication",
+        "contra-indication",
+        "target population"
+      ],
+      "guidance_ref": "MDCG 2022-21 Annex I — Art 86.1"
+    },
+    {
+      "req_id": "B.03",
+      "title": "Device status declared",
+      "description": "Status of the device: on market, no longer placed on market, recalled, or FSCA initiated.",
+      "section": "B",
+      "framework": "EU_MDR",
+      "criticality": "MAJOR",
+      "keywords": [
+        "on the market",
+        "market status",
+        "placed on the market",
+        "recalled"
+      ],
+      "guidance_ref": "MDCG 2022-21 Annex I"
+    },
+    {
+      "req_id": "B.04",
+      "title": "Grouping justification",
+      "description": "If multiple devices are grouped in one PSUR, the grouping must be justified with a leading device defined.",
+      "section": "B",
+      "framework": "EU_MDR",
+      "criticality": "MAJOR",
+      "keywords": [
+        "grouping",
+        "leading device",
+        "device group",
+        "device family"
+      ],
+      "guidance_ref": "MDCG 2022-21 Section 4"
+    },
+    {
+      "req_id": "B.05",
+      "title": "CE marking / certification date",
+      "description": "Date of first CE marking, declaration of conformity, or EU certificate must be stated.",
+      "section": "B",
+      "framework": "EU_MDR",
+      "criticality": "MAJOR",
+      "keywords": [
+        "ce mark",
+        "ce-mark",
+        "certificate",
+        "declaration of conformity",
+        "certification date"
+      ],
+      "guidance_ref": "MDCG 2022-21 Annex I — MDR devices"
+    },
+    {
+      "req_id": "C.01",
+      "title": "Volume of sales data present",
+      "description": "Sales or distribution volume data must be provided as the denominator for rate calculations.",
+      "section": "C",
+      "framework": "EU_MDR",
+      "criticality": "CRITICAL",
+      "keywords": [
+        "volume of sales",
+        "units sold",
+        "units distributed",
+        "units shipped",
+        "sales data"
+      ],
+      "guidance_ref": "MDCG 2022-21 Annex I — Art 86.1, Annex II Table 1"
+    },
+    {
+      "req_id": "C.02",
+      "title": "Counting method stated",
+      "description": "The counting method (units distributed, units shipped, procedures, etc.) must be explicitly stated and consistent.",
+      "section": "C",
+      "framework": "EU_MDR",
+      "criticality": "CRITICAL",
+      "keywords": [
+        "counting method",
+        "denominator",
+        "units distributed",
+        "procedures performed",
+        "counting criteria"
+      ],
+      "guidance_ref": "MDCG 2022-21 Annex II"
+    },
+    {
+      "req_id": "C.03",
+      "title": "Year-to-year comparison",
+      "description": "Sales data must be presented year-to-year to enable trend detection per Annex II Table 1.",
+      "section": "C",
+      "framework": "EU_MDR",
+      "criticality": "MAJOR",
+      "keywords": [
+        "year-to-year",
+        "year to year",
+        "yoy",
+        "annual comparison",
+        "reporting day"
+      ],
+      "guidance_ref": "MDCG 2022-21 Annex II Table 1, Annex III"
+    },
+    {
+      "req_id": "C.04",
+      "title": "Regional breakdown",
+      "description": "Data should be split by region: EEA+TR+XI and Worldwide per Annex III.",
+      "section": "C",
+      "framework": "EU_MDR",
+      "criticality": "MAJOR",
+      "keywords": [
+        "region",
+        "eea",
+        "worldwide",
+        "eu",
+        "europe",
+        "regional breakdown",
+        "by region"
+      ],
+      "guidance_ref": "MDCG 2022-21 Annex III"
+    },
+    {
+      "req_id": "C.05",
+      "title": "Population exposure estimated",
+      "description": "Estimated patient exposure independent of sales volume where applicable.",
+      "section": "C",
+      "framework": "EU_MDR",
+      "criticality": "MAJOR",
+      "keywords": [
+        "population exposure",
+        "patient exposure",
+        "number of patients",
+        "patient population"
+      ],
+      "guidance_ref": "MDCG 2022-21 Annex I — Art 86.1"
+    },
+    {
+      "req_id": "C.06",
+      "title": "Denominator consistency",
+      "description": "The same denominator type must be used consistently throughout all PSUR sections.",
+      "section": "C",
+      "framework": "EU_MDR",
+      "criticality": "CRITICAL",
+      "keywords": [
+        "consistent",
+        "denominator",
+        "same denominator",
+        "rate calculation"
+      ],
+      "guidance_ref": "MDCG 2022-21 Annex III"
+    },
+    {
+      "req_id": "D.01",
+      "title": "Serious incidents characterised",
+      "description": "Serious incidents must be characterised from three perspectives: device problem, root cause, and health effect.",
+      "section": "D",
+      "framework": "EU_MDR",
+      "criticality": "CRITICAL",
+      "keywords": [
+        "serious incident",
+        "device problem",
+        "root cause",
+        "health effect",
+        "health impact"
+      ],
+      "guidance_ref": "MDCG 2022-21 Annex I — Art 87, Annex III"
+    },
+    {
+      "req_id": "D.02",
+      "title": "IMDRF coding used",
+      "description": "Incidents must use IMDRF AET terminology: Annex A (device problem), Annex C (investigation findings), Annex F (health impact).",
+      "section": "D",
+      "framework": "EU_MDR",
+      "criticality": "CRITICAL",
+      "keywords": [
+        "imdrf",
+        "annex a",
+        "annex c",
+        "annex f",
+        "adverse event terminology",
+        "device problem code"
+      ],
+      "guidance_ref": "MDCG 2022-21 Annex III"
+    },
+    {
+      "req_id": "D.03",
+      "title": "Incident rates provided",
+      "description": "Both absolute figures and rates of serious incidents must be reported.",
+      "section": "D",
+      "framework": "EU_MDR",
+      "criticality": "MAJOR",
+      "keywords": [
+        "incident rate",
+        "rate of serious",
+        "absolute",
+        "per unit",
+        "complaint rate"
+      ],
+      "guidance_ref": "MDCG 2022-21 Annex II Tables 4-6"
+    },
+    {
+      "req_id": "E.01",
+      "title": "Customer complaints summarised",
+      "description": "All non-serious complaints and user feedback must be presented.",
+      "section": "E",
+      "framework": "EU_MDR",
+      "criticality": "MAJOR",
+      "keywords": [
+        "customer feedback",
+        "user feedback",
+        "complaint",
+        "non-serious"
+      ],
+      "guidance_ref": "MDCG 2022-21 Annex I — Annex III, Annex XIV Part B"
+    },
+    {
+      "req_id": "E.02",
+      "title": "Complaint grouping with IMDRF codes",
+      "description": "Complaints grouped by IMDRF AET Annex A codes (device problem) with both codes and terms.",
+      "section": "E",
+      "framework": "EU_MDR",
+      "criticality": "MAJOR",
+      "keywords": [
+        "imdrf",
+        "annex a",
+        "device problem",
+        "complaint group",
+        "complaint categor"
+      ],
+      "guidance_ref": "MDCG 2022-21 Annex I"
+    },
+    {
+      "req_id": "E.03",
+      "title": "Occurrence rates reported",
+      "description": "Complaint occurrence rates with reference denominator.",
+      "section": "E",
+      "framework": "EU_MDR",
+      "criticality": "MAJOR",
+      "keywords": [
+        "occurrence rate",
+        "complaint rate",
+        "rate per",
+        "per unit"
+      ],
+      "guidance_ref": "MDCG 2022-21 Annex I"
+    },
+    {
+      "req_id": "E.04",
+      "title": "CAPA linkage from complaints",
+      "description": "Information on whether presented complaints led to initiation of CAPA.",
+      "section": "E",
+      "framework": "EU_MDR",
+      "criticality": "MAJOR",
+      "keywords": [
+        "capa",
+        "corrective action",
+        "preventive action",
+        "capa initiation"
+      ],
+      "guidance_ref": "MDCG 2022-21 Annex I"
+    },
+    {
+      "req_id": "E.05",
+      "title": "Exclusion justification",
+      "description": "Justification for inclusion and exclusion of complaint groups.",
+      "section": "E",
+      "framework": "EU_MDR",
+      "criticality": "MINOR",
+      "keywords": [
+        "exclusion",
+        "justification",
+        "excluded",
+        "not included",
+        "included"
+      ],
+      "guidance_ref": "MDCG 2022-21 Annex I"
+    },
+    {
+      "req_id": "F.01",
+      "title": "Complaint data with IMDRF Annex A",
+      "description": "Comprehensive complaint data grouped by IMDRF Annex A codes.",
+      "section": "F",
+      "framework": "EU_MDR",
+      "criticality": "CRITICAL",
+      "keywords": [
+        "imdrf",
+        "annex a",
+        "complaint type",
+        "complaint code",
+        "device problem"
+      ],
+      "guidance_ref": "MDCG 2022-21 Annex I, Annex II Tables 4-6"
+    },
+    {
+      "req_id": "F.02",
+      "title": "Complaint rates vs RACT thresholds",
+      "description": "Actual complaint rates compared against maximum expected rates from the RACT.",
+      "section": "F",
+      "framework": "EU_MDR",
+      "criticality": "CRITICAL",
+      "keywords": [
+        "ract",
+        "maximum expected",
+        "threshold",
+        "risk acceptance",
+        "acceptable rate",
+        "upper control"
+      ],
+      "guidance_ref": "MDCG 2022-21 Annex III"
+    },
+    {
+      "req_id": "F.03",
+      "title": "Year-to-year complaint trending",
+      "description": "Year-to-year comparison of complaint rates enabling trend identification.",
+      "section": "F",
+      "framework": "EU_MDR",
+      "criticality": "MAJOR",
+      "keywords": [
+        "year-to-year",
+        "trend",
+        "trending",
+        "annual comparison",
+        "rate change"
+      ],
+      "guidance_ref": "MDCG 2022-21 Annex III"
+    },
+    {
+      "req_id": "F.04",
+      "title": "Regional complaint data",
+      "description": "Complaint data split by region (EEA/Worldwide) where applicable.",
+      "section": "F",
+      "framework": "EU_MDR",
+      "criticality": "MAJOR",
+      "keywords": [
+        "region",
+        "eea",
+        "worldwide",
+        "by region"
+      ],
+      "guidance_ref": "MDCG 2022-21 Annex III"
+    },
+    {
+      "req_id": "F.05",
+      "title": "All IMDRF categories accounted",
+      "description": "All IMDRF categories must be addressed, not just the top categories.",
+      "section": "F",
+      "framework": "EU_MDR",
+      "criticality": "MAJOR",
+      "keywords": [
+        "all categor",
+        "complete",
+        "comprehensive",
+        "each code",
+        "all codes"
+      ],
+      "guidance_ref": "MDCG 2022-21 Annex III assessment"
+    },
+    {
+      "req_id": "G.01",
+      "title": "Trend monitoring methodology described",
+      "description": "Description of statistical trend monitoring methodology (SPC, UCL/LCL).",
+      "section": "G",
+      "framework": "EU_MDR",
+      "criticality": "CRITICAL",
+      "keywords": [
+        "trend monitoring",
+        "trend report",
+        "spc",
+        "statistical process control",
+        "methodology"
+      ],
+      "guidance_ref": "MDCG 2022-21 Annex I — Art 88"
+    },
+    {
+      "req_id": "G.02",
+      "title": "UCL/LCL control limits defined",
+      "description": "Upper and Lower Control Limits clearly stated with calculation basis.",
+      "section": "G",
+      "framework": "EU_MDR",
+      "criticality": "CRITICAL",
+      "keywords": [
+        "ucl",
+        "lcl",
+        "control limit",
+        "upper control",
+        "lower control"
+      ],
+      "guidance_ref": "MDCG 2022-21 Annex I — Art 88"
+    },
+    {
+      "req_id": "G.03",
+      "title": "UCL breach investigation",
+      "description": "Any UCL breaches must be identified and investigated.",
+      "section": "G",
+      "framework": "EU_MDR",
+      "criticality": "CRITICAL",
+      "keywords": [
+        "breach",
+        "exceedance",
+        "exceeded",
+        "above ucl",
+        "above the upper"
+      ],
+      "guidance_ref": "MDCG 2022-21 Annex I — Art 88"
+    },
+    {
+      "req_id": "G.04",
+      "title": "Comparison with previous period",
+      "description": "Comparison of trend findings with the previous reporting period.",
+      "section": "G",
+      "framework": "EU_MDR",
+      "criticality": "MAJOR",
+      "keywords": [
+        "previous period",
+        "prior period",
+        "comparison",
+        "compared to prior",
+        "previous psur"
+      ],
+      "guidance_ref": "MDCG 2022-21 Annex I — Art 88"
+    },
+    {
+      "req_id": "G.05",
+      "title": "Trend reports to authorities",
+      "description": "Any formal trend reports submitted to regulatory authorities during the period.",
+      "section": "G",
+      "framework": "EU_MDR",
+      "criticality": "MAJOR",
+      "keywords": [
+        "trend report",
+        "submitted to",
+        "regulatory",
+        "competent authority",
+        "article 88"
+      ],
+      "guidance_ref": "MDCG 2022-21 Annex I — Art 88"
+    },
+    {
+      "req_id": "G.06",
+      "title": "Benefit-risk linkage from trends",
+      "description": "Trend analysis linked to the overall benefit-risk determination.",
+      "section": "G",
+      "framework": "EU_MDR",
+      "criticality": "MAJOR",
+      "keywords": [
+        "benefit-risk",
+        "benefit risk",
+        "impact on",
+        "risk profile"
+      ],
+      "guidance_ref": "MDCG 2022-21 Annex I"
+    },
+    {
+      "req_id": "H.01",
+      "title": "FSCA summary present",
+      "description": "Summary of all Field Safety Corrective Actions per Annex II Table 7.",
+      "section": "H",
+      "framework": "EU_MDR",
+      "criticality": "CRITICAL",
+      "keywords": [
+        "fsca",
+        "field safety",
+        "corrective action",
+        "recall",
+        "safety notice"
+      ],
+      "guidance_ref": "MDCG 2022-21 Annex I — Art 87, Annex II Table 7"
+    },
+    {
+      "req_id": "H.02",
+      "title": "FSCA details complete",
+      "description": "Each FSCA must include: type, date, scope, status, ref number, rationale, impacted regions.",
+      "section": "H",
+      "framework": "EU_MDR",
+      "criticality": "CRITICAL",
+      "keywords": [
+        "type of action",
+        "issuing date",
+        "scope",
+        "status",
+        "reference number",
+        "impacted region"
+      ],
+      "guidance_ref": "MDCG 2022-21 Annex II Table 7"
+    },
+    {
+      "req_id": "I.01",
+      "title": "CAPA listing present",
+      "description": "All relevant CAPAs listed with type, date, scope, status, ref, description, root cause, effectiveness.",
+      "section": "I",
+      "framework": "EU_MDR",
+      "criticality": "CRITICAL",
+      "keywords": [
+        "capa",
+        "corrective",
+        "preventive",
+        "root cause",
+        "effectiveness"
+      ],
+      "guidance_ref": "MDCG 2022-21 Annex I — Art 83(4), Annex II Table 8"
+    },
+    {
+      "req_id": "I.02",
+      "title": "CAPA effectiveness documented",
+      "description": "Closed CAPAs must have effectiveness documented (resolved/not resolved).",
+      "section": "I",
+      "framework": "EU_MDR",
+      "criticality": "MAJOR",
+      "keywords": [
+        "effectiveness",
+        "closed",
+        "resolved",
+        "not resolved",
+        "verification"
+      ],
+      "guidance_ref": "MDCG 2022-21 Annex II Table 8"
+    },
+    {
+      "req_id": "J.01",
+      "title": "Literature search described",
+      "description": "Systematic search strategy, databases searched, and inclusion/exclusion criteria.",
+      "section": "J",
+      "framework": "EU_MDR",
+      "criticality": "MAJOR",
+      "keywords": [
+        "literature",
+        "search strategy",
+        "pubmed",
+        "medline",
+        "database search",
+        "systematic"
+      ],
+      "guidance_ref": "MDCG 2022-21 Annex I — Annex III, Annex XIV Part B"
+    },
+    {
+      "req_id": "J.02",
+      "title": "Findings assessed for safety impact",
+      "description": "Literature findings assessed for relevance to device safety and performance.",
+      "section": "J",
+      "framework": "EU_MDR",
+      "criticality": "MAJOR",
+      "keywords": [
+        "safety",
+        "performance",
+        "clinical",
+        "findings",
+        "relevant",
+        "assessment"
+      ],
+      "guidance_ref": "MDCG 2022-21 Annex I"
+    },
+    {
+      "req_id": "J.03",
+      "title": "Comparison with similar devices",
+      "description": "Performance and safety compared with similar devices with the same intended purpose.",
+      "section": "J",
+      "framework": "EU_MDR",
+      "criticality": "MAJOR",
+      "keywords": [
+        "similar device",
+        "equivalent",
+        "comparator",
+        "same intended",
+        "comparison"
+      ],
+      "guidance_ref": "MDCG 2022-21 Annex III"
+    },
+    {
+      "req_id": "K.01",
+      "title": "External databases reviewed",
+      "description": "Active surveillance of external regulatory databases (MAUDE, BfArM, etc.).",
+      "section": "K",
+      "framework": "EU_MDR",
+      "criticality": "MAJOR",
+      "keywords": [
+        "maude",
+        "bfarm",
+        "external database",
+        "registry",
+        "eudamed"
+      ],
+      "guidance_ref": "MDCG 2022-21 Annex I — Annex III, Annex XIV Part B"
+    },
+    {
+      "req_id": "K.02",
+      "title": "Findings from similar devices",
+      "description": "Publicly available information from other manufacturers of similar devices.",
+      "section": "K",
+      "framework": "EU_MDR",
+      "criticality": "MAJOR",
+      "keywords": [
+        "similar device",
+        "publicly available",
+        "sscp",
+        "cochrane",
+        "other manufacturer"
+      ],
+      "guidance_ref": "MDCG 2022-21 Annex I"
+    },
+    {
+      "req_id": "K.03",
+      "title": "New risks from external data",
+      "description": "Any new risks identified from external data sources must be discussed.",
+      "section": "K",
+      "framework": "EU_MDR",
+      "criticality": "MAJOR",
+      "keywords": [
+        "new risk",
+        "emerging risk",
+        "safety signal",
+        "identified from external"
+      ],
+      "guidance_ref": "MDCG 2022-21 Annex I"
+    },
+    {
+      "req_id": "L.01",
+      "title": "PMCF activities summarised",
+      "description": "Summary of PMCF activities and findings per Annex XIV Part B.",
+      "section": "L",
+      "framework": "EU_MDR",
+      "criticality": "MAJOR",
+      "keywords": [
+        "pmcf",
+        "post-market clinical",
+        "clinical follow-up",
+        "pmcf plan",
+        "pmcf evaluation"
+      ],
+      "guidance_ref": "MDCG 2022-21 Annex I — Art 86, Annex XIV Part B"
+    },
+    {
+      "req_id": "M.01",
+      "title": "Overall benefit-risk determination",
+      "description": "Final benefit-risk conclusion synthesising all data from all prior sections.",
+      "section": "M",
+      "framework": "EU_MDR",
+      "criticality": "CRITICAL",
+      "keywords": [
+        "benefit-risk",
+        "benefit risk",
+        "overall conclusion",
+        "risk profile",
+        "unchanged"
+      ],
+      "guidance_ref": "MDCG 2022-21 Annex I — Summary"
+    },
+    {
+      "req_id": "M.02",
+      "title": "Data limitations acknowledged",
+      "description": "Identify limitations to collected data and whether they impact conclusions.",
+      "section": "M",
+      "framework": "EU_MDR",
+      "criticality": "MAJOR",
+      "keywords": [
+        "limitation",
+        "bias",
+        "reduced sales",
+        "data quality",
+        "enrollment"
+      ],
+      "guidance_ref": "MDCG 2022-21 Annex I"
+    },
+    {
+      "req_id": "M.03",
+      "title": "New/emerging risks identified",
+      "description": "Outline any new or emerging risks identified during the reporting period.",
+      "section": "M",
+      "framework": "EU_MDR",
+      "criticality": "CRITICAL",
+      "keywords": [
+        "new risk",
+        "emerging risk",
+        "safety signal",
+        "newly identified"
+      ],
+      "guidance_ref": "MDCG 2022-21 Annex I"
+    },
+    {
+      "req_id": "M.04",
+      "title": "Actions described",
+      "description": "Specific actions taken to address newly identified risks or poor performance.",
+      "section": "M",
+      "framework": "EU_MDR",
+      "criticality": "MAJOR",
+      "keywords": [
+        "actions taken",
+        "corrective",
+        "preventive",
+        "initiated",
+        "addressed"
+      ],
+      "guidance_ref": "MDCG 2022-21 Annex I — Art 83(3)"
+    },
+    {
+      "req_id": "N.01",
+      "title": "Manufacturer identification",
+      "description": "Manufacturer name, address, and SRN present on cover page or Section B.",
+      "section": "N",
+      "framework": "EU_MDR",
+      "criticality": "CRITICAL",
+      "keywords": [
+        "manufacturer",
+        "srn",
+        "single registration",
+        "address"
+      ],
+      "guidance_ref": "MDCG 2022-21 Annex I, Annex V"
+    },
+    {
+      "req_id": "O.01",
+      "title": "PSUR reference number",
+      "description": "Unique PSUR reference number assigned and present.",
+      "section": "O",
+      "framework": "EU_MDR",
+      "criticality": "MAJOR",
+      "keywords": [
+        "reference number",
+        "psur number",
+        "psur ref",
+        "document number"
+      ],
+      "guidance_ref": "MDCG 2022-21 Terminology"
+    },
+    {
+      "req_id": "P.01",
+      "title": "IMDRF terminology used throughout",
+      "description": "IMDRF Adverse Event Terminology used consistently across relevant sections.",
+      "section": "P",
+      "framework": "EU_MDR",
+      "criticality": "MAJOR",
+      "keywords": [
+        "imdrf",
+        "adverse event terminology",
+        "annex a",
+        "annex f"
+      ],
+      "guidance_ref": "MDCG 2022-21 Annex III"
+    },
+    {
+      "req_id": "P.02",
+      "title": "Stand-alone document",
+      "description": "PSUR can be assessed independently from supporting documentation (per MDCG guidance).",
+      "section": "P",
+      "framework": "EU_MDR",
+      "criticality": "MAJOR",
+      "keywords": [
+        "stand-alone",
+        "standalone",
+        "independently",
+        "self-contained"
+      ],
+      "guidance_ref": "MDCG 2022-21 Core Principles"
+    },
+    {
+      "req_id": "Q.01",
+      "title": "Absent data justified",
+      "description": "If specific datasets are excluded, the manufacturer justifies the absence.",
+      "section": "Q",
+      "framework": "EU_MDR",
+      "criticality": "MAJOR",
+      "keywords": [
+        "absent",
+        "not applicable",
+        "n/a",
+        "not available",
+        "justif",
+        "excluded"
+      ],
+      "guidance_ref": "MDCG 2022-21 Core Principles"
+    },
+    {
+      "req_id": "Q.02",
+      "title": "Consistent denominators",
+      "description": "Same denominator used across all sections for rate calculations.",
+      "section": "Q",
+      "framework": "EU_MDR",
+      "criticality": "CRITICAL",
+      "keywords": [
+        "denominator",
+        "consistent",
+        "rate calculation",
+        "per unit"
+      ],
+      "guidance_ref": "MDCG 2022-21 Annex III"
+    },
+    {
+      "req_id": "Q.03",
+      "title": "Data compared across sources",
+      "description": "Findings from all datasets compared to identify conflicting results.",
+      "section": "Q",
+      "framework": "EU_MDR",
+      "criticality": "MAJOR",
+      "keywords": [
+        "compared",
+        "conflicting",
+        "consistent with",
+        "corroborat",
+        "align"
+      ],
+      "guidance_ref": "MDCG 2022-21 Annex III"
+    },
+    {
+      "req_id": "Q.04",
+      "title": "Table formats per Annex II",
+      "description": "Data tables follow the Annex II format guidance (Tables 1–8).",
+      "section": "Q",
+      "framework": "EU_MDR",
+      "criticality": "MINOR",
+      "keywords": [
+        "table 1",
+        "table 2",
+        "table 3",
+        "table 4",
+        "table 5",
+        "table 6",
+        "table 7",
+        "table 8",
+        "annex ii"
+      ],
+      "guidance_ref": "MDCG 2022-21 Annex II"
+    },
+    {
+      "req_id": "R.01",
+      "title": "No prohibited regulation citations in narratives",
+      "description": "Narratives should not cite specific MDR Article X(Y) or MDCG XXXX patterns — compliance is embedded in the template structure.",
+      "section": "R",
+      "framework": "EU_MDR",
+      "criticality": "MINOR",
+      "keywords": [],
+      "guidance_ref": "FormQAR-054 writing rules"
+    },
+    {
+      "req_id": "R.02",
+      "title": "No bullet points in narratives",
+      "description": "Narratives should use flowing prose without bullet points.",
+      "section": "R",
+      "framework": "EU_MDR",
+      "criticality": "MINOR",
+      "keywords": [],
+      "guidance_ref": "FormQAR-054 writing rules"
+    },
+    {
+      "req_id": "R.03",
+      "title": "Revision and version tracking",
+      "description": "PSUR version number and revision history present.",
+      "section": "R",
+      "framework": "EU_MDR",
+      "criticality": "MINOR",
+      "keywords": [
+        "version",
+        "revision",
+        "rev.",
+        "version number"
+      ],
+      "guidance_ref": "MDCG 2022-21 Terminology"
+    },
+    {
+      "req_id": "S.01",
+      "title": "FSCA-CAPA cross-reference",
+      "description": "FSCAs in Section H should cross-reference related CAPAs in Section I.",
+      "section": "S",
+      "framework": "EU_MDR",
+      "criticality": "MAJOR",
+      "keywords": [
+        "fsca",
+        "capa",
+        "cross-reference",
+        "section h",
+        "section i"
+      ],
+      "guidance_ref": "MDCG 2022-21 — assessment practice"
+    },
+    {
+      "req_id": "S.02",
+      "title": "Trend-incident linkage",
+      "description": "Trend findings in Section G should reference incidents from Section D.",
+      "section": "S",
+      "framework": "EU_MDR",
+      "criticality": "MAJOR",
+      "keywords": [
+        "trend",
+        "incident",
+        "section d",
+        "section g",
+        "ucl",
+        "breach"
+      ],
+      "guidance_ref": "MDCG 2022-21 — assessment practice"
+    },
+    {
+      "req_id": "S.03",
+      "title": "Conclusion supported by sections",
+      "description": "Section M conclusions must be supported by evidence from all prior sections.",
+      "section": "S",
+      "framework": "EU_MDR",
+      "criticality": "CRITICAL",
+      "keywords": [
+        "conclusion",
+        "supported by",
+        "evidence",
+        "based on",
+        "demonstrates"
+      ],
+      "guidance_ref": "MDCG 2022-21 Annex I — Summary"
+    },
+    {
+      "req_id": "UK.01",
+      "title": "PMS system maintained",
+      "description": "Manufacturer must establish and maintain a post-market surveillance system that is proportionate to the risk class and appropriate to the type of device.",
+      "section": "S",
+      "framework": "UK_MDR",
+      "criticality": "CRITICAL",
+      "keywords": [
+        "pms system",
+        "post-market surveillance system",
+        "proportionate",
+        "risk class"
+      ],
+      "guidance_ref": "UK MDR 2024 — Reg 44ZE"
+    },
+    {
+      "req_id": "UK.02",
+      "title": "PMS data analysis throughout lifetime",
+      "description": "The PMS system must include systematic collection and analysis of relevant data throughout the entire lifetime of the device.",
+      "section": "S",
+      "framework": "UK_MDR",
+      "criticality": "CRITICAL",
+      "keywords": [
+        "pms",
+        "data analysis",
+        "lifetime",
+        "systematic",
+        "collection"
+      ],
+      "guidance_ref": "UK MDR 2024 — Reg 44ZE"
+    },
+    {
+      "req_id": "UK.03",
+      "title": "PMS plan documented",
+      "description": "A PMS plan must be documented in a clear, organised and searchable format. It must specify the device lifetime and include processes for collecting and analysing incidents, complaints, feedback and trends.",
+      "section": "S",
+      "framework": "UK_MDR",
+      "criticality": "CRITICAL",
+      "keywords": [
+        "pms plan",
+        "clear",
+        "organised",
+        "searchable",
+        "device lifetime"
+      ],
+      "guidance_ref": "UK MDR 2024 — Reg 44ZF"
+    },
+    {
+      "req_id": "UK.04",
+      "title": "PMS plan threshold values",
+      "description": "The PMS plan must define threshold values and indicators for risk reassessment including re-evaluation of benefit-risk determination.",
+      "section": "S",
+      "framework": "UK_MDR",
+      "criticality": "MAJOR",
+      "keywords": [
+        "threshold",
+        "indicator",
+        "risk reassessment",
+        "benefit-risk",
+        "pms plan"
+      ],
+      "guidance_ref": "UK MDR 2024 — Reg 44ZF"
+    },
+    {
+      "req_id": "UK.05",
+      "title": "PMS plan communication processes",
+      "description": "The PMS plan must include effective communication processes between the manufacturer, UK Responsible Person, approved body and Secretary of State.",
+      "section": "S",
+      "framework": "UK_MDR",
+      "criticality": "MAJOR",
+      "keywords": [
+        "communication",
+        "pms plan",
+        "uk rp",
+        "approved body",
+        "secretary of state"
+      ],
+      "guidance_ref": "UK MDR 2024 — Reg 44ZF"
+    },
+    {
+      "req_id": "UK.06",
+      "title": "PMS plan available within 3 working days",
+      "description": "The PMS plan must be provided to the Secretary of State within 3 working days of a request.",
+      "section": "S",
+      "framework": "UK_MDR",
+      "criticality": "CRITICAL",
+      "keywords": [
+        "3 working days",
+        "secretary of state",
+        "pms plan",
+        "request"
+      ],
+      "guidance_ref": "UK MDR 2024 — Reg 44ZF"
+    },
+    {
+      "req_id": "UK.07",
+      "title": "CAPA when risk identified",
+      "description": "The manufacturer must take necessary preventive and corrective action as soon as possible when a risk is identified or non-conformity is suspected, including field safety corrective actions where appropriate.",
+      "section": "I",
+      "framework": "UK_MDR",
+      "criticality": "CRITICAL",
+      "keywords": [
+        "capa",
+        "preventive",
+        "corrective",
+        "risk identified",
+        "non-conformity"
+      ],
+      "guidance_ref": "UK MDR 2024 — Reg 44ZG"
+    },
+    {
+      "req_id": "UK.08",
+      "title": "CAPA notification to UK RP and approved body",
+      "description": "The manufacturer must notify the UK Responsible Person, approved body and Secretary of State when undertaking field safety corrective actions.",
+      "section": "I",
+      "framework": "UK_MDR",
+      "criticality": "CRITICAL",
+      "keywords": [
+        "notify",
+        "uk rp",
+        "approved body",
+        "secretary of state",
+        "fsca"
+      ],
+      "guidance_ref": "UK MDR 2024 — Reg 44ZG"
+    },
+    {
+      "req_id": "UK.09",
+      "title": "Serious incident reporting to Secretary of State",
+      "description": "Serious incidents must be reported to the Secretary of State. Default timeline is 15 days; 2 days for serious public health threats; 10 days for death or unanticipated serious deterioration in state of health.",
+      "section": "D",
+      "framework": "UK_MDR",
+      "criticality": "CRITICAL",
+      "keywords": [
+        "serious incident",
+        "secretary of state",
+        "15 days",
+        "2 days",
+        "10 days",
+        "public health threat",
+        "death",
+        "serious deterioration"
+      ],
+      "guidance_ref": "UK MDR 2024 — Reg 44ZH"
+    },
+    {
+      "req_id": "UK.10",
+      "title": "Serious incident report content — manufacturer details",
+      "description": "Initial serious incident report must include manufacturer details and UK Responsible Person details.",
+      "section": "D",
+      "framework": "UK_MDR",
+      "criticality": "MAJOR",
+      "keywords": [
+        "manufacturer details",
+        "uk rp",
+        "uk responsible person",
+        "incident report"
+      ],
+      "guidance_ref": "UK MDR 2024 — Reg 44ZH"
+    },
+    {
+      "req_id": "UK.11",
+      "title": "Serious incident report content — device and incident",
+      "description": "Initial serious incident report must include device description, incident description, preliminary conclusions and whether FSCA is being considered.",
+      "section": "D",
+      "framework": "UK_MDR",
+      "criticality": "MAJOR",
+      "keywords": [
+        "device description",
+        "incident description",
+        "preliminary conclusions",
+        "fsca",
+        "initial report"
+      ],
+      "guidance_ref": "UK MDR 2024 — Reg 44ZH"
+    },
+    {
+      "req_id": "UK.12",
+      "title": "Incident investigation and risk analysis review",
+      "description": "The manufacturer must investigate each serious incident, review risk analysis in light of findings and submit a final report detailing investigation methods and conclusions.",
+      "section": "D",
+      "framework": "UK_MDR",
+      "criticality": "CRITICAL",
+      "keywords": [
+        "investigate",
+        "risk analysis",
+        "final report",
+        "methods",
+        "conclusions"
+      ],
+      "guidance_ref": "UK MDR 2024 — Reg 44ZI"
+    },
+    {
+      "req_id": "UK.13",
+      "title": "Final report — similar incidents and FSCA",
+      "description": "The final incident report must include consideration of FSCA, details of any similar incidents and cooperation with the Secretary of State investigation.",
+      "section": "D",
+      "framework": "UK_MDR",
+      "criticality": "MAJOR",
+      "keywords": [
+        "final report",
+        "similar incidents",
+        "fsca",
+        "cooperate",
+        "secretary of state"
+      ],
+      "guidance_ref": "UK MDR 2024 — Reg 44ZI"
+    },
+    {
+      "req_id": "UK.14",
+      "title": "FSCA risk assessment and initial report",
+      "description": "Before undertaking a field safety corrective action the manufacturer must produce a risk assessment and submit an initial report together with the proposed field safety notice to the Secretary of State.",
+      "section": "H",
+      "framework": "UK_MDR",
+      "criticality": "CRITICAL",
+      "keywords": [
+        "fsca",
+        "risk assessment",
+        "initial report",
+        "field safety notice",
+        "secretary of state"
+      ],
+      "guidance_ref": "UK MDR 2024 — Reg 44ZJ"
+    },
+    {
+      "req_id": "UK.15",
+      "title": "Field safety notice content",
+      "description": "The field safety notice must identify affected devices with UDI, explain the reasons for the FSCA and describe actions to be taken by users.",
+      "section": "H",
+      "framework": "UK_MDR",
+      "criticality": "CRITICAL",
+      "keywords": [
+        "field safety notice",
+        "udi",
+        "reasons",
+        "user actions",
+        "identify devices"
+      ],
+      "guidance_ref": "UK MDR 2024 — Reg 44ZJ"
+    },
+    {
+      "req_id": "UK.16",
+      "title": "FSCA final report with effectiveness evidence",
+      "description": "A final report on the FSCA must be submitted to the Secretary of State including the outcome and evidence of effectiveness of the corrective action.",
+      "section": "H",
+      "framework": "UK_MDR",
+      "criticality": "MAJOR",
+      "keywords": [
+        "fsca",
+        "final report",
+        "outcome",
+        "effectiveness",
+        "evidence"
+      ],
+      "guidance_ref": "UK MDR 2024 — Reg 44ZJ"
+    },
+    {
+      "req_id": "UK.17",
+      "title": "FSCA outside GB reported",
+      "description": "Any field safety corrective action taken outside Great Britain for the same device model must be reported to the Secretary of State, including a justification if the same FSCA is not being taken in GB.",
+      "section": "H",
+      "framework": "UK_MDR",
+      "criticality": "CRITICAL",
+      "keywords": [
+        "fsca",
+        "outside gb",
+        "outside great britain",
+        "justification",
+        "same device model"
+      ],
+      "guidance_ref": "UK MDR 2024 — Reg 44ZK"
+    },
+    {
+      "req_id": "UK.18",
+      "title": "PMSR for Class I / IVD Class A-B",
+      "description": "For Class I and IVD Class A-B devices a post-market surveillance report must be produced within 3 years of placing the device on the UK market and updated at least every 3 years. It must include a summary of PMS results and conclusions and a description of preventive and corrective actions taken.",
+      "section": "M",
+      "framework": "UK_MDR",
+      "criticality": "CRITICAL",
+      "keywords": [
+        "pmsr",
+        "class i",
+        "ivd class a",
+        "ivd class b",
+        "3 years",
+        "pms results",
+        "corrective actions"
+      ],
+      "guidance_ref": "UK MDR 2024 — Reg 44ZL"
+    },
+    {
+      "req_id": "UK.19",
+      "title": "UK PSUR required for higher-risk classes",
+      "description": "A periodic safety update report is required for Class IIa, IIb, III and IVD Class C-D devices. The first PSUR must be produced within 1 year of placing the device on the UK market (2 years for Class IIa) and updated annually (biennially for Class IIa).",
+      "section": "M",
+      "framework": "UK_MDR",
+      "criticality": "CRITICAL",
+      "keywords": [
+        "psur",
+        "class iia",
+        "class iib",
+        "class iii",
+        "ivd class c",
+        "ivd class d",
+        "1 year",
+        "2 years",
+        "annually",
+        "biennially"
+      ],
+      "guidance_ref": "UK MDR 2024 — Reg 44ZM"
+    },
+    {
+      "req_id": "UK.20",
+      "title": "UK PSUR content — market and population data",
+      "description": "The UK PSUR must include the number of devices placed on the UK market, population characteristics, estimates of population size in the UK and outside the UK and usage frequency.",
+      "section": "C",
+      "framework": "UK_MDR",
+      "criticality": "CRITICAL",
+      "keywords": [
+        "uk market",
+        "population",
+        "usage frequency",
+        "number of devices",
+        "uk",
+        "great britain"
+      ],
+      "guidance_ref": "UK MDR 2024 — Reg 44ZM"
+    },
+    {
+      "req_id": "UK.21",
+      "title": "UK PSUR content — PMS results and risk analysis",
+      "description": "The UK PSUR must include a summary of PMS results and conclusions, preventive and corrective actions taken, risk analysis outcomes and PMCF conclusions.",
+      "section": "M",
+      "framework": "UK_MDR",
+      "criticality": "CRITICAL",
+      "keywords": [
+        "pms results",
+        "risk analysis",
+        "pmcf",
+        "corrective actions",
+        "conclusions"
+      ],
+      "guidance_ref": "UK MDR 2024 — Reg 44ZM"
+    },
+    {
+      "req_id": "UK.22",
+      "title": "UK PSUR submitted to approved body",
+      "description": "The PSUR must be submitted to the approved body responsible for the device.",
+      "section": "M",
+      "framework": "UK_MDR",
+      "criticality": "MAJOR",
+      "keywords": [
+        "approved body",
+        "submit",
+        "psur",
+        "uk"
+      ],
+      "guidance_ref": "UK MDR 2024 — Reg 44ZM"
+    },
+    {
+      "req_id": "UK.23",
+      "title": "Trend reporting — statistically significant increase",
+      "description": "Any statistically significant increase in frequency or severity of incidents that could adversely impact the risk analysis must be reported to the Secretary of State. Statistical methodology must align with the PMS plan.",
+      "section": "G",
+      "framework": "UK_MDR",
+      "criticality": "CRITICAL",
+      "keywords": [
+        "trend",
+        "statistically significant",
+        "frequency",
+        "severity",
+        "secretary of state",
+        "risk analysis",
+        "mhra"
+      ],
+      "guidance_ref": "UK MDR 2024 — Reg 44ZN"
+    },
+    {
+      "req_id": "UK.24",
+      "title": "Trend reporting — IVD erroneous results",
+      "description": "For IVD devices any statistically significant increase in expected erroneous results must also be reported and investigated with a final report submitted.",
+      "section": "G",
+      "framework": "UK_MDR",
+      "criticality": "MAJOR",
+      "keywords": [
+        "ivd",
+        "erroneous results",
+        "trend",
+        "investigation",
+        "final report"
+      ],
+      "guidance_ref": "UK MDR 2024 — Reg 44ZN"
+    },
+    {
+      "req_id": "UK.25",
+      "title": "PMS documentation retention period",
+      "description": "All PMS documentation must be retained for the PMS period or 15 years for implantable devices and 10 years for all other devices, whichever is longer.",
+      "section": "S",
+      "framework": "UK_MDR",
+      "criticality": "CRITICAL",
+      "keywords": [
+        "retention",
+        "15 years",
+        "10 years",
+        "implantable",
+        "pms documentation"
+      ],
+      "guidance_ref": "UK MDR 2024 — Reg 44ZQ"
+    },
+    {
+      "req_id": "UK.26",
+      "title": "Documentation available within 3 working days",
+      "description": "All PMS documentation must be provided to the Secretary of State within 3 working days of a request.",
+      "section": "S",
+      "framework": "UK_MDR",
+      "criticality": "CRITICAL",
+      "keywords": [
+        "3 working days",
+        "request",
+        "secretary of state",
+        "documentation"
+      ],
+      "guidance_ref": "UK MDR 2024 — Reg 44ZR"
+    },
+    {
+      "req_id": "UK.27",
+      "title": "UK Responsible Person identified",
+      "description": "If the device is marketed in the UK the UK Responsible Person must be clearly stated in the PSUR scope section.",
+      "section": "B",
+      "framework": "UK_MDR",
+      "criticality": "CRITICAL",
+      "keywords": [
+        "uk responsible person",
+        "ukrp",
+        "uk rp",
+        "uk representative"
+      ],
+      "guidance_ref": "UK MDR 2024 — Reg 44ZG/44ZH"
+    },
+    {
+      "req_id": "UK.28",
+      "title": "UKCA marking status",
+      "description": "UKCA marking or UK conformity assessment status must be referenced for devices placed on the GB market.",
+      "section": "B",
+      "framework": "UK_MDR",
+      "criticality": "MAJOR",
+      "keywords": [
+        "ukca",
+        "uk conformity",
+        "uk marking",
+        "gb market"
+      ],
+      "guidance_ref": "UK MDR 2024 — Part 4A general"
+    },
+    {
+      "req_id": "UK.29",
+      "title": "UK complaint data identifiable",
+      "description": "Complaints originating from the UK market must be separately identifiable within the PSUR complaint analysis.",
+      "section": "F",
+      "framework": "UK_MDR",
+      "criticality": "MAJOR",
+      "keywords": [
+        "uk",
+        "complaint",
+        "gb",
+        "united kingdom",
+        "uk market"
+      ],
+      "guidance_ref": "UK MDR 2024 — Reg 44ZF/44ZM"
+    },
+    {
+      "req_id": "UK.30",
+      "title": "UK customer feedback captured",
+      "description": "Customer feedback from UK users must be captured as part of the PMS system and reflected in the PSUR.",
+      "section": "E",
+      "framework": "UK_MDR",
+      "criticality": "MAJOR",
+      "keywords": [
+        "uk",
+        "feedback",
+        "customer",
+        "user",
+        "gb",
+        "united kingdom"
+      ],
+      "guidance_ref": "UK MDR 2024 — Reg 44ZF"
+    }
+  ]
+}

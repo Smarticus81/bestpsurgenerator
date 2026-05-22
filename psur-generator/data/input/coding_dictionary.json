@@ -1,0 +1,23 @@
+{
+  "AnnexA": {
+    "A030101": "Cosmetic / aesthetic issue only",
+    "A070101": "Fracture / break of device",
+    "A070102": "Detachment of device component",
+    "A0601": "Packaging defect",
+    "A100102": "Leak / flow issue",
+    "A020101": "Failure to operate as intended",
+    "A130105": "Interface / display error",
+    "A080104": "Battery failure",
+    "A080105": "Power supply issue",
+    "A040102": "Material degradation / discoloration",
+    "A0301": "Device issues, cosmetic or aesthetic only",
+    "A0302": "Device issues, consequence or impact unknown"
+  },
+  "AnnexF": {
+    "F0101": "No Health Consequence or Impact",
+    "F0102": "Near Miss",
+    "F0601": "Unknown / Not yet determined",
+    "F0201": "Skin/Subcutaneous Injury (Laceration)",
+    "F0202": "Tissue Reaction (Staple Migration/Extrusion)"
+  }
+}
