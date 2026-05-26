@@ -69,6 +69,10 @@ class PSURTemplateRenderer(ValueMapMixin, ParagraphMixin, TableMixin, Formatting
             )
 
         self.doc = Document(str(self.template_path))
+        props = self.doc.core_properties
+        props.author = "Mastropietro Company Regulatory Affairs"
+        props.last_modified_by = "Mastropietro Company Regulatory Affairs"
+        props.title = "Periodic Safety Update Report"
         self.chart_paths = chart_paths or {}
         self._placed_chart_keys = set()
         self._chart_context = self._build_chart_context(psur)

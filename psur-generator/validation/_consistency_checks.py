@@ -627,7 +627,8 @@ class ConsistencyChecksMixin:
         sections = psur.get("sections", {})
         stats = psur.get("_statistics", {})
 
-        si_count = stats.get("serious_incident_count", 0)
+        si_count = stats.get("eu_uk_serious_incident_count", stats.get("serious_incident_count", 0))
+        fda_mdr = int(stats.get("fda_mdr_count") or 0)
 
         sec_f = sections.get("F_product_complaint_types_counts_and_rates", {})
         table7 = sec_f.get("table_7_complaint_rate_and_count", {})
@@ -654,7 +655,7 @@ class ConsistencyChecksMixin:
             if any(kw in harm for kw in injury_keywords):
                 f_serious_count += int(row.get("current_12_month_complaint_count", 0) or 0)
 
-        if si_count == 0 and f_serious_count > 0:
+        if si_count == 0 and f_serious_count > 0 and not fda_mdr:
             errors.append(
                 f"SERIOUS_INCIDENT_HARM: Statistics reports 0 serious incidents but "
                 f"Section F Table 7 has {f_serious_count} complaints classified as "
@@ -666,5 +667,114 @@ class ConsistencyChecksMixin:
                 f"incidents but Section F Table 7 shows no 'Serious Injury' harm rows. "
                 f"Serious incidents must appear in F's harm taxonomy."
             )
+
+        return errors
+
+    def _check_final_reconciliation_contract(
+        self,
+        psur: Dict[str, Any],
+        device_context: Dict[str, Any] = None,
+    ) -> List[str]:
+        """Checks that deterministic facts remain authoritative after LLM prose."""
+        errors: List[str] = []
+        sections = psur.get("sections", {})
+        stats = psur.get("_statistics", {}) or {}
+
+        sec_m = sections.get("M_findings_and_conclusions", {}) or {}
+        m_text = json.dumps(sec_m).lower()
+        eu_uk_si = int(stats.get("eu_uk_serious_incident_count") or 0)
+        fda_mdr = int(stats.get("fda_mdr_count") or 0)
+        if eu_uk_si == 0 and fda_mdr > 0:
+            forbidden = [
+                f"{fda_mdr} serious incidents",
+                f"{fda_mdr} serious incident",
+                "serious incident rate",
+            ]
+            for phrase in forbidden:
+                if phrase in m_text:
+                    errors.append(
+                        "FINAL_RECONCILIATION: Section M treats FDA MDR-reportable "
+                        "events as confirmed EU/UK serious incidents."
+                    )
+                    break
+            if "fda mdr-reportable" not in m_text or "0 confirmed eu/uk" not in m_text:
+                errors.append(
+                    "FINAL_RECONCILIATION: Section M does not preserve the FDA MDR "
+                    "vs EU/UK serious-incident distinction."
+                )
+
+        sec_i = sections.get("I_corrective_and_preventive_actions", {}) or {}
+        capa_rows = sec_i.get("table_9_capa_initiated_current_reporting_period") or []
+        actions = sec_m.get("actions_taken_or_planned") or {}
+        if isinstance(capa_rows, list) and any(str(r.get("capa_number", "")).upper() != "N/A" for r in capa_rows if isinstance(r, dict)):
+            if actions.get("capa_initiated") is not True:
+                errors.append("FINAL_RECONCILIATION: CAPA rows exist but Section M CAPA checkbox is not Yes.")
+
+        sec_h = sections.get("H_information_from_fsca", {}) or {}
+        fsca_rows = sec_h.get("table_8_fsca_initiated_current_period_and_open_fscas") or []
+        if isinstance(fsca_rows, list) and any(str(r.get("manufacturer_reference_number", "")).upper() != "N/A" for r in fsca_rows if isinstance(r, dict)):
+            if actions.get("fsca_initiated") is not True:
+                errors.append("FINAL_RECONCILIATION: FSCA rows exist but Section M FSCA checkbox is not Yes.")
+
+        sec_b = sections.get("B_scope_and_device_description", {}) or {}
+        b_class = sec_b.get("device_classification", {}) or {}
+        uk = b_class.get("uk_classification", {}) or {}
+        h_text = json.dumps(sec_h).lower()
+        if ("mhra" in h_text or "uk" in h_text) and uk.get("is_applicable") is not True:
+            errors.append("FINAL_RECONCILIATION: UK/MHRA evidence exists but Section B UK scope is not applicable.")
+        if int((stats.get("units_by_region") or {}).get("NorthAmerica", 0) or 0) > 0 or fda_mdr > 0:
+            us_class = str(b_class.get("us_fda_classification") or "")
+            us_submission = str(b_class.get("us_pre_market_submission_number") or "")
+            if us_class in ("", "NOT_SELECTED") or us_submission == "":
+                errors.append("FINAL_RECONCILIATION: US/FDA evidence exists but Section B FDA classification/submission is blank.")
+
+        sec_c = sections.get("C_volume_of_sales_and_population_exposure", {}) or {}
+        table1 = sec_c.get("table_1_sales_by_region", {}) or {}
+        rows = (table1.get("annual_format") or {}).get("rows") or []
+        by_region = {str(r.get("region")): r for r in rows if isinstance(r, dict)}
+        worldwide_prev = by_region.get("Worldwide", {}).get("preceding_12_month_periods") or []
+        row_prev_nonzero = []
+        for region, row in by_region.items():
+            if region in ("Worldwide", "Rest of World"):
+                continue
+            vals = row.get("preceding_12_month_periods") or []
+            row_prev_nonzero.extend([v for v in vals if v])
+        if any(worldwide_prev) and not row_prev_nonzero and any((by_region.get("Rest of World", {}).get("preceding_12_month_periods") or [])):
+            errors.append("FINAL_RECONCILIATION: Historical sales are bucketed only to Rest of World despite nonzero worldwide history.")
+
+        sec_k = sections.get("K_review_of_external_databases_and_registries", {}) or {}
+        k_text = json.dumps(sec_k).lower()
+        table10 = sec_k.get("table_10_external_database_review") or sec_k.get("table_10_adverse_events_and_recalls") or []
+        if isinstance(table10, dict):
+            table10_rows = table10.get("rows") or table10.get("annual_format", {}).get("rows") or []
+        else:
+            table10_rows = table10
+        row_counts = []
+        for row in table10_rows if isinstance(table10_rows, list) else []:
+            if not isinstance(row, dict):
+                continue
+            for key in ("total_matches", "subject_device_matches", "events_identified", "number_of_events"):
+                try:
+                    row_counts.append(int(str(row.get(key, "0")).replace(",", "") or 0))
+                except ValueError:
+                    pass
+        says_events = bool(re.search(r"\b(?:[1-9]\d*)\s+(?:total\s+)?events?\b", k_text))
+        if says_events and row_counts and max(row_counts) == 0:
+            errors.append("FINAL_RECONCILIATION: Section K narrative and Table 10 external database counts conflict.")
+        if "laceration complaints" in json.dumps(psur).lower():
+            errors.append("FINAL_RECONCILIATION: Chart/narrative text references laceration complaints absent from source harms.")
+
+        if device_context:
+            expected_mfr = ((device_context.get("manufacturer_info") or {}).get("company_name") or "").strip()
+            cover_mfr = (
+                psur.get("psur_cover_page", {})
+                .get("manufacturer_information", {})
+                .get("company_name", "")
+                .strip()
+            )
+            if expected_mfr and cover_mfr and expected_mfr != cover_mfr:
+                errors.append(
+                    f"FINAL_RECONCILIATION: Cover manufacturer '{cover_mfr}' does not match device context '{expected_mfr}'."
+                )
 
         return errors

@@ -360,7 +360,9 @@ def extract_statistics_summary(stats_dict: Dict[str, Any]) -> Dict[str, Any]:
         "total_complaints": stats_dict.get("total_complaints", "N/A"),
         "complaint_rate": stats_dict.get("overall_complaint_rate", "N/A"),
         "complaint_percentage": stats_dict.get("overall_complaint_percentage", "N/A"),
-        "serious_injuries": stats_dict.get("serious_incident_count", 0),
+        "serious_injuries": stats_dict.get("eu_uk_serious_incident_count", 0),
+        "eu_uk_serious_incidents": stats_dict.get("eu_uk_serious_incident_count", 0),
+        "fda_mdr_reportable_events": stats_dict.get("fda_mdr_count", 0),
         "deaths": 0,  # Extracted below if available
         "field_safety_actions": 0,  # No FSCA count in stats; set at orchestrator level
         "trend_direction": "stable",

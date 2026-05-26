@@ -1,6 +1,7 @@
 """DOCX output validation mixin for PSURValidator."""
 from pathlib import Path
 from typing import Any, List, Tuple
+import re
 
 
 class DocxChecksMixin:
@@ -94,41 +95,55 @@ class DocxChecksMixin:
                 blocks.append(("t", child))
 
         for table_prefix, required_headers in expected_table_headers.items():
+            table_re = re.compile(rf"^{re.escape(table_prefix)}\b")
             title_index = None
             for i, (kind, payload) in enumerate(blocks):
-                if kind == "p" and payload.startswith(table_prefix):
+                if kind == "p" and table_re.match(payload):
                     title_index = i
                     break
+            candidate_tables = []
             if title_index is None:
-                errors.append(f"DOCX_TABLE: Missing table starting with '{table_prefix}'")
+                candidate_tables = [payload for kind, payload in blocks if kind == "t"]
+            else:
+                for i in range(title_index + 1, len(blocks)):
+                    if blocks[i][0] == "t":
+                        candidate_tables.append(blocks[i][1])
+                    elif candidate_tables:
+                        break
+            if not candidate_tables:
+                errors.append(f"DOCX_TABLE: No table found for '{table_prefix}'")
                 continue
 
-            tbl_xml = None
-            for i in range(title_index + 1, len(blocks)):
-                if blocks[i][0] == "t":
-                    tbl_xml = blocks[i][1]
-                    break
-            if tbl_xml is None:
-                errors.append(f"DOCX_TABLE: No table found after heading '{table_prefix}'")
-                continue
-
-            header_cells = []
-            tr = next((c for c in tbl_xml.iterchildren() if c.tag.split("}")[-1] == "tr"), None)
-            if tr is not None:
-                for tc in tr.iterchildren():
-                    if tc.tag.split("}")[-1] != "tc":
+            matched = False
+            last_missing = list(required_headers)
+            search_tables = candidate_tables if title_index is None else candidate_tables[:3]
+            for tbl_xml in search_tables:
+                header_cells = []
+                header_rows = 0
+                for tr in tbl_xml.iterchildren():
+                    if tr.tag.split("}")[-1] != "tr":
                         continue
-                    txt = "".join(t.text or "" for t in tc.iter() if t.tag.split("}")[-1] == "t").strip()
-                    header_cells.append(txt)
+                    header_rows += 1
+                    for tc in tr.iterchildren():
+                        if tc.tag.split("}")[-1] != "tc":
+                            continue
+                        txt = "".join(t.text or "" for t in tc.iter() if t.tag.split("}")[-1] == "t").strip()
+                        header_cells.append(txt)
+                    if header_rows >= 3:
+                        break
 
-            normalized = {h.strip() for h in header_cells if h and h.strip()}
-            missing = [
-                h for h in required_headers
-                if not any(h in cell for cell in normalized)
-            ]
-            if missing:
+                normalized = {h.strip() for h in header_cells if h and h.strip()}
+                missing = [
+                    h for h in required_headers
+                    if not any(h in cell for cell in normalized)
+                ]
+                last_missing = missing
+                if not missing:
+                    matched = True
+                    break
+            if not matched:
                 errors.append(
-                    f"DOCX_TABLE: '{table_prefix}' missing expected columns: {missing}"
+                    f"DOCX_TABLE: '{table_prefix}' missing expected columns: {last_missing}"
                 )
 
         return (len(errors) == 0, errors)

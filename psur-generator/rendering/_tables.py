@@ -81,14 +81,32 @@ class TableMixin:
         if det_t7:
             complaint_rows = [
                 {
-                    "harm": r.get("harm", "No Harm"),
+                    "harm": (
+                        "No Health Consequence or Impact"
+                        if (
+                            str(r.get("harm", "")).strip().lower() in {"no harm", "no health consequence", "no health consequence or impact"}
+                            or str(r.get("harm", "")).strip().lower().startswith("no harm")
+                            or "near miss" in str(r.get("harm", "")).strip().lower()
+                        )
+                        else r.get("harm", "No Health Consequence or Impact")
+                    ),
                     "medical_device_problem": r.get("medical_device_problem", ""),
                     "current_12_month_complaint_count": r.get("complaint_count", 0),
                     "current_12_month_complaint_rate": r.get("complaint_percentage", 0.0),
                     "max_expected_rate_of_occurrence_from_ract": (
                         r.get("ract_max_expected_rate")
                         if r.get("ract_max_expected_rate") is not None
-                        else None
+                        else (
+                            r.get("occurrence_max_expected_rate")
+                            if r.get("occurrence_max_expected_rate") is not None
+                            else None
+                        )
+                    ),
+                    "occurrence_code": r.get("occurrence_code", ""),
+                    "occurrence_max_expected_rate": (
+                        f"{float(r.get('occurrence_max_expected_rate')) * 100:.4f}%"
+                        if r.get("occurrence_max_expected_rate") is not None
+                        else ""
                     ),
                 }
                 for r in det_t7
@@ -478,12 +496,9 @@ class TableMixin:
                     cells[4].text = label
                 if len(cells) >= 6:
                     cells[5].text = "12-Month Percent of Global Sales"
-            trs = list(tbl_el.iterchildren(qn("w:tr")))
-            if len(trs) > 2:
-                tbl_el.remove(trs[2])
-            trs = list(tbl_el.iterchildren(qn("w:tr")))
-            if len(trs) > 1:
-                tbl_el.remove(trs[1])
+            # Keep both header rows: row 1 contains grouped labels and row 2
+            # contains the actual preceding-period/current-period column labels.
+            # Removing either row makes Table 1 unreadable in the rendered DOCX.
 
     # ==================================================================
     # Complaint table
@@ -501,6 +516,17 @@ class TableMixin:
                     self._set_cell_text(tcs[0], "None reported during this period.")
             return
 
+        def _canonical_harm(value):
+            label = stringify(value or "No Health Consequence or Impact").strip()
+            low = label.lower()
+            if (
+                low in {"no harm", "no health consequence", "no health consequence or impact"}
+                or low.startswith("no harm")
+                or "near miss" in low
+            ):
+                return "No Health Consequence or Impact"
+            return label
+
         # Deduplicate MDP rows: same harm + same MDP should only appear once
         # (take the row with the highest complaint count if duplicated)
         seen_keys = {}
@@ -508,7 +534,9 @@ class TableMixin:
         for row in complaint_rows:
             if not isinstance(row, dict):
                 continue
-            harm = row.get("harm", "No Health Consequence or Impact")
+            harm = _canonical_harm(row.get("harm"))
+            row = dict(row)
+            row["harm"] = harm
             mdp = row.get("medical_device_problem", "")
             key = f"{harm}|{mdp}"
             if key in seen_keys:
@@ -524,14 +552,14 @@ class TableMixin:
 
         harm_groups: Dict[str, list] = {}
         for row in deduped_rows:
-            harm = row.get("harm", "No Health Consequence or Impact")
+            harm = _canonical_harm(row.get("harm"))
             harm_groups.setdefault(harm, []).append(row)
 
-        noharm_key = None
+        noharm_key = "No Health Consequence or Impact" if "No Health Consequence or Impact" in harm_groups else None
         other_harm_keys = []
         for hk in harm_groups:
             if "no health" in hk.lower() or "no harm" in hk.lower():
-                noharm_key = hk
+                noharm_key = "No Health Consequence or Impact"
             else:
                 other_harm_keys.append(hk)
 

@@ -7,6 +7,16 @@ here as ``_prefilled`` so the LLM receives them as facts.
 from typing import Any, Dict, Optional
 
 
+def _eu_uk_serious_count(stats_dict: Dict[str, Any]) -> int:
+    """PSUR-facing serious incident count: EU/UK Article 2(65), not FDA MDRs."""
+    return int(stats_dict.get("eu_uk_serious_incident_count", stats_dict.get("serious_incident_count", 0)) or 0)
+
+
+def _serious_rate_pct(stats_dict: Dict[str, Any]) -> float:
+    units = stats_dict.get("total_units_sold", 0) or 0
+    return round((_eu_uk_serious_count(stats_dict) / units) * 100, 4) if units else 0.0
+
+
 def inject_prefilled_values(
     section_key: str,
     section_data: Optional[Dict],
@@ -27,17 +37,16 @@ def inject_prefilled_values(
 
     # ── Section A: Executive Summary — high-level conclusion signals ──
     if letter == "A":
-        for key in ("total_complaints", "total_units_sold", "serious_incident_count",
+        for key in ("total_complaints", "total_units_sold",
                     "eu_uk_serious_incident_count", "fda_mdr_count"):
             if stats_dict.get(key) is not None:
                 prefilled[key] = stats_dict[key]
         wu = stats_dict.get("total_units_sold", 0)
         tc = stats_dict.get("total_complaints")
-        si = stats_dict.get("serious_incident_count")
         if wu and tc is not None:
             prefilled["overall_complaint_rate_pct"] = round((tc / wu) * 100, 2) if wu > 0 else 0.0
-        if wu and si is not None:
-            prefilled["serious_incident_rate_pct"] = round((si / wu) * 100, 3) if wu > 0 else 0.0
+        prefilled["serious_incident_count"] = _eu_uk_serious_count(stats_dict)
+        prefilled["serious_incident_rate_pct"] = _serious_rate_pct(stats_dict)
         trend = stats_dict.get("trend_analysis", {})
         if trend:
             prefilled["trend_status"] = trend.get("status")
@@ -146,11 +155,11 @@ def inject_prefilled_values(
                 prefilled[ms_field] = val
 
     elif letter == "D":
-        si_count = stats_dict.get("serious_incident_count", 0)
+        si_count = _eu_uk_serious_count(stats_dict)
         prefilled["exact_serious_incident_count"] = si_count
         wu = stats_dict.get("total_units_sold", 0)
         if wu > 0 and si_count is not None:
-            prefilled["exact_serious_incident_rate"] = round((si_count / wu) * 100, 3)
+            prefilled["exact_serious_incident_rate"] = _serious_rate_pct(stats_dict)
         # Reusable vs single-use breakdown for Section D Table 2 split
         if stats_dict.get("portfolio_is_mixed"):
             prefilled["reusable_units"] = stats_dict.get("reusable_units", 0)
@@ -326,10 +335,11 @@ def inject_prefilled_values(
 
     elif letter == "M":
         for key in (
-            "total_complaints", "total_units_sold", "eea_units", "serious_incident_count",
+            "total_complaints", "total_units_sold", "eea_units",
         ):
             if stats_dict.get(key) is not None:
                 prefilled[key] = stats_dict[key]
+        prefilled["serious_incident_count"] = _eu_uk_serious_count(stats_dict)
 
         # ── Manufacturer identity — prevents M from fabricating ──
         mfr_name = (
@@ -349,15 +359,11 @@ def inject_prefilled_values(
             prefilled["uk_market_detected"] = True
         wu = stats_dict.get("total_units_sold", 0)
         tc = stats_dict.get("total_complaints")
-        si = stats_dict.get("serious_incident_count")
         if wu and tc is not None:
             prefilled["exact_overall_complaint_rate"] = (
                 round((tc / wu) * 100, 2) if wu > 0 else 0.0
             )
-        if wu and si is not None:
-            prefilled["exact_serious_incident_rate"] = (
-                round((si / wu) * 100, 3) if wu > 0 else 0.0
-            )
+        prefilled["exact_serious_incident_rate"] = _serious_rate_pct(stats_dict)
         prefilled["denominator_term"] = stats_dict.get(
             "denominator_description", "units distributed"
         )
@@ -393,6 +399,20 @@ def inject_prefilled_values(
         sterility = device_context.get("sterility_status", "")
         if sterility:
             prefilled["sterility_status"] = sterility
+
+    # Keep jurisdictional reportability distinct. FDA MDRs travel separately
+    # from the PSUR-facing EU/UK Article 2(65) serious-incident count.
+    if "eu_uk_serious_incident_count" in stats_dict:
+        prefilled["serious_incident_count"] = stats_dict.get("eu_uk_serious_incident_count", 0)
+        prefilled["exact_serious_incident_count"] = stats_dict.get("eu_uk_serious_incident_count", 0)
+        prefilled["fda_mdr_count"] = stats_dict.get("fda_mdr_count", 0)
+        wu = stats_dict.get("total_units_sold", 0) or 0
+        eu_uk_si = stats_dict.get("eu_uk_serious_incident_count", 0) or 0
+        prefilled["exact_serious_incident_rate"] = round((eu_uk_si / wu) * 100, 4) if wu else 0.0
+        prefilled["serious_event_authorized_framing"] = (
+            f"{stats_dict.get('fda_mdr_count', 0)} FDA MDR-reportable event(s); "
+            f"{eu_uk_si} confirmed EU/UK Article 2(65) serious incident(s)."
+        )
 
     if prefilled:
         section_data["_prefilled"] = prefilled

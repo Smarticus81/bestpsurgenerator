@@ -483,9 +483,17 @@ def compute_psur_statistics(
         for harm_cat, imdrf_counts in harm_by_imdrf.items():
             code_count = imdrf_counts.get(rate_result.category, 0)
             if code_count > 0:
-                harms_for_code[strip_imdrf_code(harm_cat)] = code_count
+                harm_label = strip_imdrf_code(harm_cat)
+                harm_low = harm_label.strip().lower()
+                if (
+                    harm_low in {"no harm", "no health consequence", "no health consequence or impact"}
+                    or harm_low.startswith("no harm")
+                    or "near miss" in harm_low
+                ):
+                    harm_label = "No Health Consequence or Impact"
+                harms_for_code[harm_label] = harms_for_code.get(harm_label, 0) + code_count
         if not harms_for_code:
-            harms_for_code = {"No Harm": rate_result.complaint_count}
+            harms_for_code = {"No Health Consequence or Impact": rate_result.complaint_count}
         for harm_cat, count in harms_for_code.items():
             row_rate = round(calculate_rate(count, total_units), 8)
             row_pct = round(calculate_rate(count, total_units) * 100, 4)
@@ -513,7 +521,7 @@ def compute_psur_statistics(
         u_rate = round(calculate_rate(uncoded, total_units), 8)
         u_pct = round(calculate_rate(uncoded, total_units) * 100, 4)
         uncoded_row = {
-            "harm": "No Harm",
+            "harm": "No Health Consequence or Impact",
             "medical_device_problem": "Uncoded / Other",
             "complaint_count": uncoded,
             "complaint_rate": u_rate,
@@ -548,9 +556,27 @@ def compute_psur_statistics(
             row["rate_vs_ract"] = "NO_RACT_DATA"
             row["ract_ratio"] = None
 
+    def _canonical_harm_label(value: Any) -> str:
+        label = strip_imdrf_code(value) if value else "No Harm"
+        if not label:
+            label = "No Harm"
+        low = str(label).strip().lower()
+        if (
+            low in {"no harm", "no health consequence", "no health consequence or impact"}
+            or low.startswith("no harm")
+            or "near miss" in low
+        ):
+            return "No Health Consequence or Impact"
+        return str(label).strip()
+
+    canonical_complaints_by_harm: Dict[str, int] = {}
+    for harm, count in complaints_data.get("by_harm_category", {}).items():
+        key = _canonical_harm_label(harm)
+        canonical_complaints_by_harm[key] = canonical_complaints_by_harm.get(key, 0) + int(count or 0)
+
     # Rates by harm category
     rates_by_harm = []
-    for harm, count in complaints_data.get("by_harm_category", {}).items():
+    for harm, count in canonical_complaints_by_harm.items():
         rate = calculate_rate(count, total_units)
         rates_by_harm.append(ComplaintRateResult(
             category=harm,
@@ -789,7 +815,8 @@ def compute_psur_statistics(
 
     def _bucketize_period(period_by_country: Dict[str, int],
                           period_total: int,
-                          period_unknown: int) -> Dict[str, int]:
+                          period_unknown: int,
+                          period_by_region: Optional[Dict[str, int]] = None) -> Dict[str, int]:
         """Return units per template region label for one historical window."""
         eea_xi = sum(int(period_by_country.get(c, 0) or 0) for c in EEA_COUNTRIES)
         eea_xi += int(period_by_country.get("Northern Ireland", 0) or 0)
@@ -798,6 +825,15 @@ def compute_psur_statistics(
             label: sum(int(period_by_country.get(a, 0) or 0) for a in aliases)
             for label, aliases in _COUNTRY_ALIASES.items()
         }
+        for label, units in (period_by_region or {}).items():
+            bucket = _macro_bucket(label)
+            u = int(units or 0)
+            if bucket == "EEA":
+                eea_xi += u
+            elif bucket == "USA":
+                named["United States"] = named.get("United States", 0) + u
+            elif bucket == "UK":
+                uk += u
         accounted = eea_xi + uk + sum(named.values()) + int(period_unknown or 0)
         row = {
             "EEA+TR+XI": eea_xi,
@@ -821,6 +857,7 @@ def compute_psur_statistics(
             period.get("by_country", {}) or {},
             period.get("total_units", 0) or 0,
             period.get("units_unknown_country", 0) or 0,
+            period.get("by_region", {}) or {},
         ))
         period_labels.append(period.get("label", ""))
 
@@ -843,7 +880,7 @@ def compute_psur_statistics(
     determined_periods: List[Any] = []
     try:
         determined_periods = determine_12month_periods_from_dates(start_period, end_period)
-        if determined_periods:
+        if determined_periods and len(determined_periods) >= 3:
             # Use skill-generated period labels if available
             section_c_period_labels = [p[2] for p in determined_periods[-3:]]  # Last 3 periods
     except Exception:
@@ -910,6 +947,13 @@ def compute_psur_statistics(
         harm_label = strip_imdrf_code(harm_raw) if harm_raw else "No Harm"
         if not harm_label:
             harm_label = "No Harm"
+        harm_low = str(harm_label).strip().lower()
+        if (
+            harm_low in {"no harm", "no health consequence", "no health consequence or impact"}
+            or harm_low.startswith("no harm")
+            or "near miss" in harm_low
+        ):
+            harm_label = "No Health Consequence or Impact"
         harm_by_month.setdefault(d, {})
         harm_by_month[d][harm_label] = harm_by_month[d].get(harm_label, 0) + 1
 
@@ -1058,7 +1102,7 @@ def compute_psur_statistics(
         units_by_product=sales_data.get("by_product", {}),
         total_complaints=total_complaints,
         complaints_by_imdrf=complaints_data.get("by_imdrf_code", {}),
-        complaints_by_harm=complaints_data.get("by_harm_category", {}),
+        complaints_by_harm=canonical_complaints_by_harm,
         complaints_by_region=complaints_data.get("by_region", {}),
         complaints_by_month=complaints_by_month_filled,
         harm_by_imdrf=harm_by_imdrf,

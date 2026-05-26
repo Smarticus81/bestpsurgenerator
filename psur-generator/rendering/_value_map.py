@@ -55,7 +55,12 @@ class ValueMapMixin:
         period = doc_info.get("data_collection_period", {})
         v["DOC_PERIOD_START"] = stringify(period.get("start_date", ""))
         v["DOC_PERIOD_END"] = stringify(period.get("end_date", ""))
-        v["DOC_PSUR_CADENCE"] = stringify(doc_info.get("psur_cadence", ""))
+        cadence_raw = stringify(doc_info.get("psur_cadence", ""))
+        cadence_display = {
+            "EVERY_TWO_YEARS": "Every two years",
+            "ANNUALLY": "Annually",
+        }.get(cadence_raw.upper(), cadence_raw)
+        v["DOC_PSUR_CADENCE"] = cadence_display
 
         # ── SECTION A: Executive Summary ─────────────────────────────
         sec_a = sections.get("A_executive_summary", {})
@@ -95,7 +100,11 @@ class ValueMapMixin:
         conc_a = stringify(brc_a.get("conclusion", "")) if isinstance(brc_a, dict) else ""
         v["CB_A_BRC_UNCHANGED"] = cb(conc_a == "NOT_ADVERSELY_IMPACTED_UNCHANGED")
         v["CB_A_BRC_IMPACTED"] = cb(conc_a == "ADVERSELY_IMPACTED")
-        v["A_BRC_SUMMARY"] = stringify(brc_a.get("high_level_summary_if_adversely_impacted", "")) if isinstance(brc_a, dict) else ""
+        v["A_BRC_SUMMARY"] = (
+            stringify(brc_a.get("high_level_summary_if_adversely_impacted", ""))
+            if isinstance(brc_a, dict) and conc_a == "ADVERSELY_IMPACTED"
+            else ""
+        )
 
         # ── Synthesized Executive Summary Narrative ──────────────────
         device_name = stringify(doc_ctrl.get("product_or_product_family", ""))
@@ -621,11 +630,17 @@ class ValueMapMixin:
             if not isinstance(row, dict):
                 continue
             harm = row.get("harm", "No Health Consequence or Impact")
+            harm_low = str(harm).strip().lower()
+            if (
+                harm_low in {"no harm", "no health consequence", "no health consequence or impact"}
+                or harm_low.startswith("no harm")
+                or "near miss" in harm_low
+            ):
+                harm = "No Health Consequence or Impact"
             harm_groups.setdefault(harm, []).append(row)
 
-        harm_keys = [k for k in harm_groups if k != "No Health Consequence or Impact"
-                     and k != "No Harm"]
-        noharm_keys = [k for k in harm_groups if k in ("No Health Consequence or Impact", "No Harm")]
+        harm_keys = [k for k in harm_groups if k != "No Health Consequence or Impact"]
+        noharm_keys = [k for k in harm_groups if k == "No Health Consequence or Impact"]
 
         if harm_keys:
             v["T7_HARM_A"] = strip_imdrf_code(harm_keys[0])

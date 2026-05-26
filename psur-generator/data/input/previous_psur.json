@@ -20,6 +20,9 @@
   "previous_actions": [
     "CAPA-HUG-2022-01"
   ],
+  "previous_actions_status": "COMPLETED",
+  "previous_actions_closure_date": "2023-03-31",
+  "previous_actions_effectiveness": "Verified effective",
   "summary": {
     "total_complaints": 14,
     "serious_incidents": 1,

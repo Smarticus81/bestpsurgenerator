@@ -1,0 +1,21 @@
+{
+  "pmcf_plan_reference": "PMCF-HUG2000",
+  "pmcf_evaluation_report_reference": "PMCFE-HUG2000-2023",
+  "enrollment_recovery_plan": "Mastropietro Company will extend supervised-use observation enrollment into the 2024 PMCF interval, perform monthly site activation follow-up, and approve a PMCF Plan amendment by 2024-03-31 if the 600-observation target or completion timing is revised.",
+  "activities": [
+    {
+      "specific_pmcf_activity": "Supervised comfort-use observational follow-up",
+      "key_findings": "218 of 600 planned supervised-use observations were enrolled during the 2023 period. No permanent injury, death, or serious deterioration in health was observed. Transient pressure marks and skin redness resolved without medical intervention.",
+      "impact_on_safety_performance": "Findings support continued acceptability of the known skin-contact and pressure-control risks when fit checks and maximum cycle duration are followed.",
+      "rmf_cer_update": "RMF-HUG2000-RA will be updated with interim PMCF observations. CER-HUG2000 will consider the interim observations at the next scheduled review; no CER revision was completed during the 2023 reporting period.",
+      "pmcf_evaluation_report_reference": "PMCFE-HUG2000-2023"
+    },
+    {
+      "specific_pmcf_activity": "User feedback from neonatal nurses",
+      "key_findings": "Users identified alarm audibility and wrap-size selection as training-sensitive topics. No new user population or use environment was identified.",
+      "impact_on_safety_performance": "Feedback supports the IFU training update and does not identify a new safety or performance concern.",
+      "rmf_cer_update": "Training effectiveness to remain under CAPA04 monitoring.",
+      "pmcf_evaluation_report_reference": "PMCFE-HUG2000-2023"
+    }
+  ]
+}

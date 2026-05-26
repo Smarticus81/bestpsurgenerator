@@ -133,7 +133,10 @@ def parse_capa(
             if src in df.columns and not record.get(dest):
                 val = row.get(src)
                 if pd.notna(val):
-                    record[dest] = str(val)
+                    if isinstance(val, pd.Timestamp):
+                        record[dest] = val.strftime("%Y-%m-%d")
+                    else:
+                        record[dest] = str(val)
 
         capa_records.append(record)
 

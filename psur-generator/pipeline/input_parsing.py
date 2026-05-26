@@ -47,6 +47,21 @@ def _parse_fsca_csv(path: Path) -> Dict[str, Any]:
     }
 
 
+def _parse_external_db_csv(path: Path) -> Dict[str, Any]:
+    """Parse external database CSV rows so Section K narrative/table share one source."""
+    records: List[Dict[str, Any]] = []
+    with open(path, newline="", encoding="utf-8-sig") as f:
+        for row in csv.DictReader(f):
+            if not any(str(v or "").strip() for v in row.values()):
+                continue
+            records.append({str(k or "").strip(): v for k, v in row.items()})
+    return {
+        "records": records,
+        "total_events": len(records),
+        "source_file": path.name,
+    }
+
+
 def _rebuild_imdrf_counts(complaints_data: Dict, summaries: list):
     """Rebuild IMDRF and harm counts + cross-tabs after auto-coding.
 
@@ -122,6 +137,7 @@ def parse_all_inputs(
     ract_path: Optional[Path],
     pms_plan_path: Optional[Path],
     pmcf_path: Optional[Path],
+    literature_path: Optional[Path] = None,
     fsca_path: Optional[Path],
     ext_db_path: Optional[Path],
     prev_psur_path: Optional[Path],
@@ -216,7 +232,7 @@ def parse_all_inputs(
             _cur_start = datetime.strptime(start_date, _fmt)
             _cur_end = datetime.strptime(end_date, _fmt)
             historical_periods = []
-            for offset in (1, 2, 3):
+            for offset in (1, 2, 3, 4, 5):
                 window = _cur_end - _cur_start
                 p_end = _cur_start - timedelta(days=1) - (window * (offset - 1))
                 p_start = p_end - window
@@ -225,7 +241,7 @@ def parse_all_inputs(
                 try:
                     h = parse_sales(sales_path, p_start_s, p_end_s)
                     historical_periods.append({
-                        "label": f"P-{offset} ({p_start_s} → {p_end_s})",
+                        "label": f"P-{offset} ({p_start_s} to {p_end_s})",
                         "start": p_start_s,
                         "end": p_end_s,
                         "total_units": h.get("total_units", 0),
@@ -362,6 +378,7 @@ def parse_all_inputs(
         ("IFU", ifu_path, "instructions for use"),
         ("RMF", rmf_path, "risk management file"),
         ("PMCF", pmcf_path, "post-market clinical follow-up"),
+        ("Literature Review", literature_path, "scientific literature review"),
         ("FSCA", fsca_path, "field safety corrective action"),
         ("External DB", ext_db_path, "external database search results"),
     ]:
@@ -373,6 +390,17 @@ def parse_all_inputs(
             if key == "fsca" and filepath.suffix.lower() == ".csv":
                 parsed_data[key] = _parse_fsca_csv(filepath)
                 console.print(f"    -> {parsed_data[key]['total_fscas']} FSCAs")
+            elif key == "external_db" and filepath.suffix.lower() == ".csv":
+                parsed_data[key] = _parse_external_db_csv(filepath)
+                console.print(f"    -> {parsed_data[key]['total_events']} external event rows")
+            elif key == "pmcf" and filepath.suffix.lower() == ".json":
+                with open(filepath, "r", encoding="utf-8") as fh:
+                    parsed_data[key] = json.load(fh)
+                console.print(f"    -> PMCF JSON records loaded")
+            elif key == "literature_review" and filepath.suffix.lower() == ".json":
+                with open(filepath, "r", encoding="utf-8") as fh:
+                    parsed_data[key] = json.load(fh)
+                console.print(f"    -> Literature search JSON loaded")
             else:
                 parsed_data[key] = text
 
@@ -473,7 +501,7 @@ def parse_all_inputs(
                 prev = json.load(f)
             prev_text = json.dumps(prev, default=str)
             expanded_context["previous_psur"] = prev_text
-            parsed_data["previous_psur"] = prev_text
+            parsed_data["previous_psur"] = prev
             # Build a STRUCTURED previous_stats from section_d so YoY math
             # can happen without an LLM call. Keys mirror PSURStatistics so
             # statistics.compute_psur_statistics can subtract/divide directly.
@@ -509,10 +537,14 @@ def parse_all_inputs(
                     _su, "overall_complaint_rate_percent",
                     "complaint_rate_pct", "complaint_rate_percent",
                 )
+                _summary = prev.get("summary") or {}
                 _prev_units = _reuse_units + _su_units
+                if not _prev_units:
+                    _prev_units = int(_n(_summary, "units_distributed", "total_units_sold", "sales"))
                 _prev_complaints = (
                     int(_sec_d.get("total_complaints") or 0)
                     or (_reuse_c + _su_c)
+                    or int(_summary.get("total_complaints") or 0)
                 )
                 previous_stats = {
                     "total_units_sold": _prev_units,

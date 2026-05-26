@@ -2,7 +2,7 @@
 
 Tries Anthropic (Claude) first. If Anthropic fails due to rate-limit, quota
 exhaustion, overload, or authentication errors, automatically falls back to
-OpenAI (gpt-4.1). Also supports local Ollama models via the OpenAI-compatible
+OpenAI (GPT-5.5 by default). Also supports local Ollama models via the OpenAI-compatible
 API (http://localhost:11434/v1).
 
 All callers get back a response object matching Anthropic's interface:
@@ -35,13 +35,25 @@ except ImportError:
             return args[0]
         return decorator
 
-from config import ANTHROPIC_API_KEY, OLLAMA_URL, OLLAMA_MODEL, OLLAMA_REASONING_MODEL, OLLAMA_NUM_CTX
+from config import (
+    ANTHROPIC_API_KEY,
+    OLLAMA_URL,
+    OLLAMA_MODEL,
+    OLLAMA_REASONING_MODEL,
+    OLLAMA_NUM_CTX,
+    APPROVED_REASONING_MODELS,
+    OPENAI_API_KEY,
+    OPENAI_FALLBACK_MODEL,
+    normalize_reasoning_model,
+)
 
 # ---------------------------------------------------------------------------
 # OpenAI config
 # ---------------------------------------------------------------------------
-OPENAI_API_KEY = os.environ.get("OPENAI_API_KEY")
-OPENAI_FALLBACK_MODEL = os.environ.get("OPENAI_FALLBACK_MODEL", "gpt-4.1")
+OPENAI_FALLBACK_CHAIN: List[str] = []
+for _model in (OPENAI_FALLBACK_MODEL,):
+    if _model and _model not in OPENAI_FALLBACK_CHAIN:
+        OPENAI_FALLBACK_CHAIN.append(_model)
 
 # ---------------------------------------------------------------------------
 # Ollama config  (set at module level; overridden by set_ollama_override())
@@ -53,10 +65,13 @@ def set_ollama_override(model: str, url: Optional[str] = None) -> None:
     """Activate Ollama as the sole LLM provider for all subsequent calls.
 
     Args:
-        model: Ollama model tag, e.g. "qwen3:32b", "deepseek-r1:70b".
+        model: approved Ollama reasoning model, "deepseek-r1" or "qwq".
         url:   Base URL override (default from OLLAMA_URL env / config).
     """
     global _ollama_override, _ollama_url, _active_provider
+    model = normalize_reasoning_model(model)
+    if APPROVED_REASONING_MODELS[model]["provider"] != "ollama":
+        raise ValueError("--ollama-model must be one of the approved local reasoning models: deepseek-r1, qwq")
     _ollama_override = model
     if url:
         _ollama_url = url
@@ -79,6 +94,14 @@ def _is_ollama_model(model: str) -> bool:
     return False
 
 
+def _is_gemini_model(model: str) -> bool:
+    try:
+        canonical = normalize_reasoning_model(model)
+    except ValueError:
+        return False
+    return APPROVED_REASONING_MODELS[canonical]["provider"] == "google"
+
+
 def _effective_ollama_model(model: str) -> str:
     """Resolve which Ollama model tag to use."""
     if _ollama_override:
@@ -87,8 +110,12 @@ def _effective_ollama_model(model: str) -> str:
 
 
 def _is_openai_model(model: str) -> bool:
-    """Return True if the model name indicates a direct OpenAI call (gpt-*)."""
-    return model.lower().startswith("gpt-") or model.lower().startswith("o")
+    """Return True if the model name is an approved OpenAI reasoning model."""
+    try:
+        canonical = normalize_reasoning_model(model)
+    except ValueError:
+        return False
+    return APPROVED_REASONING_MODELS[canonical]["provider"] == "openai"
 
 # Track which provider is active so callers can log it
 _active_provider = "anthropic"
@@ -283,6 +310,7 @@ def create_message(
     Returns a _NormalisedResponse with .content[0].text and .usage fields.
     """
     global _active_provider, _anthropic_disabled
+    model = normalize_reasoning_model(model)
 
     # ------------------------------------------------------------------
     # Ollama routing: if override is active or model is Ollama-bound
@@ -291,6 +319,13 @@ def create_message(
         return _call_ollama(model=_effective_ollama_model(model),
                             max_tokens=max_tokens, temperature=temperature,
                             system=system, messages=messages, tools=tools)
+
+    # ------------------------------------------------------------------
+    # Gemini routing
+    # ------------------------------------------------------------------
+    if _is_gemini_model(model):
+        return _call_gemini(model=model, max_tokens=max_tokens, temperature=temperature,
+                            system=system, messages=messages)
 
     # ------------------------------------------------------------------
     # Direct OpenAI routing: if model is gpt-* or o*, skip Anthropic
@@ -310,7 +345,6 @@ def create_message(
             kwargs: Dict[str, Any] = dict(
                 model=model,
                 max_tokens=max_tokens,
-                temperature=temperature,
                 messages=messages,
             )
             if system:
@@ -362,10 +396,44 @@ def create_message(
                 raise  # Non-quota errors should propagate normally
 
     # ------------------------------------------------------------------
-    # Attempt 2: OpenAI fallback
+    # Attempt 2: OpenAI fallback chain
     # ------------------------------------------------------------------
-    return _call_openai(model=OPENAI_FALLBACK_MODEL, max_tokens=max_tokens,
-                        temperature=temperature, system=system, messages=messages, tools=tools)
+    return _call_openai_fallback_chain(max_tokens=max_tokens, temperature=temperature,
+                                       system=system, messages=messages, tools=tools)
+
+
+def _call_openai_fallback_chain(
+    *,
+    max_tokens: int,
+    temperature: float,
+    system: Any,
+    messages: List[Dict[str, Any]],
+    tools: Optional[List[Dict[str, Any]]] = None,
+) -> _NormalisedResponse:
+    """Try configured OpenAI fallback models in order."""
+    errors: List[str] = []
+    for model in OPENAI_FALLBACK_CHAIN:
+        try:
+            return _call_openai(
+                model=model,
+                max_tokens=max_tokens,
+                temperature=temperature,
+                system=system,
+                messages=messages,
+                tools=tools,
+            )
+        except Exception as exc:
+            errors.append(f"{model}: {exc}")
+            if model != OPENAI_FALLBACK_CHAIN[-1]:
+                print(
+                    f"\n  [LLM Fallback] OpenAI fallback model failed: {model}\n"
+                    f"  â†’ Trying {OPENAI_FALLBACK_CHAIN[OPENAI_FALLBACK_CHAIN.index(model) + 1]}.\n",
+                    file=sys.stderr,
+                )
+    raise RuntimeError(
+        "All OpenAI fallback models failed.\n"
+        + "\n".join(f"  - {err}" for err in errors)
+    )
 
 
 def _is_reasoning_model(model: str) -> bool:
@@ -465,6 +533,107 @@ def _call_openai(
             f"OpenAI call failed (model={model}).\n"
             f"  Error: {oai_err}"
         ) from oai_err
+
+
+def _call_gemini(
+    *,
+    model: str,
+    max_tokens: int,
+    temperature: float,
+    system: Any,
+    messages: List[Dict[str, Any]],
+) -> _NormalisedResponse:
+    """Call Google Gemini for approved Gemini reasoning models."""
+    global _active_provider
+
+    api_key = os.environ.get("GEMINI_API_KEY") or os.environ.get("GOOGLE_AI_API_KEY") or os.environ.get("GOOGLE_API_KEY")
+    if not api_key:
+        raise RuntimeError(
+            "No GEMINI_API_KEY, GOOGLE_AI_API_KEY, or GOOGLE_API_KEY set in .env. "
+            "Add one to enable Gemini reasoning models."
+        )
+
+    prompt_parts: List[str] = []
+    if system:
+        if isinstance(system, str):
+            prompt_parts.append(f"System:\n{system}")
+        else:
+            prompt_parts.append(f"System:\n{_flatten_content(system)}")
+    for msg in messages:
+        role = msg.get("role", "user")
+        prompt_parts.append(f"{role.title()}:\n{_flatten_content(msg.get('content', ''))}")
+    prompt = "\n\n".join(part for part in prompt_parts if part)
+
+    try:
+        try:
+            import google.generativeai as genai
+
+            genai.configure(api_key=api_key)
+            generation_config = {
+                "max_output_tokens": max_tokens,
+                "temperature": temperature,
+            }
+            gemini_model = genai.GenerativeModel(model, generation_config=generation_config)
+            resp = gemini_model.generate_content(prompt)
+            text = getattr(resp, "text", "") or ""
+            usage = getattr(resp, "usage_metadata", None)
+            _active_provider = "google"
+            return _NormalisedResponse(
+                content=[_ContentBlock(text=text)],
+                usage=_Usage(
+                    input_tokens=getattr(usage, "prompt_token_count", 0) if usage else 0,
+                    output_tokens=getattr(usage, "candidates_token_count", 0) if usage else 0,
+                ),
+                model=model,
+                provider="google",
+                stop_reason=None,
+            )
+        except ImportError:
+            from google import genai
+
+            client = genai.Client(api_key=api_key)
+            resp = client.models.generate_content(
+                model=model,
+                contents=prompt,
+                config={
+                    "max_output_tokens": max_tokens,
+                    "temperature": temperature,
+                },
+            )
+            _active_provider = "google"
+            return _NormalisedResponse(
+                content=[_ContentBlock(text=getattr(resp, "text", "") or "")],
+                usage=_Usage(),
+                model=model,
+                provider="google",
+                stop_reason=None,
+            )
+    except Exception as gemini_err:
+        raise RuntimeError(
+            f"Gemini call failed (model={model}).\n"
+            f"  Error: {gemini_err}"
+        ) from gemini_err
+
+
+def _flatten_content(content: Any) -> str:
+    if isinstance(content, str):
+        return content
+    if isinstance(content, list):
+        parts = []
+        for block in content:
+            if isinstance(block, str):
+                parts.append(block)
+            elif isinstance(block, dict):
+                if block.get("type") == "text":
+                    parts.append(str(block.get("text", "")))
+                elif block.get("type") == "tool_result":
+                    parts.append(str(block.get("content", "")))
+                else:
+                    parts.append(str(block))
+            else:
+                parts.append(str(block))
+        return "\n".join(parts)
+    return str(content)
 
 
 def _strip_thinking_tags(text: str) -> str:

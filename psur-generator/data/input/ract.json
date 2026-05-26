@@ -1,6 +1,20 @@
 {
   "device_model": "HUG2000",
   "device_name": "Huggler 2000",
+  "max_expected_rates": {
+    "Patient Device Interaction Problem": 0.003,
+    "Protective Measures Problem": 0.002,
+    "Thermal Problem": 0.002,
+    "Device Sensing Problem": 0.002,
+    "Material Integrity Problem": 0.0025,
+    "Mechanical Problem": 0.0015,
+    "Use Error": 0.003,
+    "Device Alarm System Problem": 0.0015,
+    "Software Problem": 0.001,
+    "Chemical/Material Problem": 0.0015,
+    "Connection Problem": 0.0015,
+    "Electrical/Sensing Problem": 0.0015
+  },
   "hazards": [
     {
       "hazard_id": "HZ001",
@@ -8,6 +22,10 @@
       "description": "Hug bladder applies pressure above the labeled comfort limit, potentially causing transient pressure marks or restricted movement.",
       "severity": "High",
       "max_rate_per_1000": 0.03,
+      "medical_device_problem_terms": [
+        "Device Sensing Problem",
+        "Patient Device Interaction Problem"
+      ],
       "controls": [
         "Dual pressure sensors",
         "Automatic pressure relief",
@@ -21,6 +39,11 @@
       "description": "Textile contact, seam placement, or prolonged use may contribute to skin redness, irritation, or pressure marking.",
       "severity": "Medium",
       "max_rate_per_1000": 0.06,
+      "medical_device_problem_terms": [
+        "Patient Device Interaction Problem",
+        "Chemical/Material Problem",
+        "Use Error"
+      ],
       "controls": [
         "Soft-contact textile specification",
         "Single-patient-use wrap",
@@ -34,6 +57,12 @@
       "description": "Delayed alarm response or delayed hug release may prolong exposure to an unintended hug cycle.",
       "severity": "High",
       "max_rate_per_1000": 0.02,
+      "medical_device_problem_terms": [
+        "Device Alarm System Problem",
+        "Mechanical Problem",
+        "Material Integrity Problem",
+        "Software Problem"
+      ],
       "controls": [
         "Audible and visual alarm",
         "Manual quick-release tab",
@@ -47,6 +76,9 @@
       "description": "Localized warmth from the wrap or control unit tubing may cause discomfort or transient skin redness.",
       "severity": "Medium",
       "max_rate_per_1000": 0.04,
+      "medical_device_problem_terms": [
+        "Thermal Problem"
+      ],
       "controls": [
         "Temperature sensor alarm",
         "Breathable textile",

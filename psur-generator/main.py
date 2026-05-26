@@ -39,10 +39,11 @@ from rich.console import Console
 from config import INPUT_DIR, OUTPUT_DIR
 from statistics import compute_psur_statistics
 from agents.orchestrator import generate_psur
-from validation import PSURValidator
+from validation import PSURValidator, ValidationEngine
 from rendering import PSURTemplateRenderer
 from deterministic_tables import apply_psur_table_skills
 from charts import generate_all_charts
+from contradiction_remediation import remediate_contradictions_with_llm, run_full_coherence_audit
 
 # Pipeline modules
 from pipeline.discovery import auto_discover_inputs, print_discovered_files
@@ -59,6 +60,79 @@ from pipeline.input_parsing import parse_all_inputs
 from pipeline.performance import print_performance_summary
 
 logger = logging.getLogger(__name__)
+
+
+def _format_engine_messages(messages: List[str], *, limit: int = 10) -> List[str]:
+    shown = list(messages[:limit])
+    if len(messages) > limit:
+        shown.append(f"... and {len(messages) - limit} more")
+    return shown
+
+
+def _blocking_coherence_findings(report: Any) -> List[Any]:
+    return [
+        f
+        for f in getattr(report, "findings", []) or []
+        if getattr(f, "severity", "") in {"CRITICAL", "MAJOR"}
+        and str(getattr(f, "finding_id", "")).startswith("LLM-COHERENCE")
+    ]
+
+
+def _all_blockers_are_near_pass_coherence(report: Any) -> bool:
+    blockers = [
+        f
+        for f in getattr(report, "findings", []) or []
+        if getattr(f, "severity", "") in {"CRITICAL", "MAJOR"}
+    ]
+    coherence = _blocking_coherence_findings(report)
+    return bool(blockers) and len(blockers) <= 2 and len(blockers) == len(coherence)
+
+
+def _annotate_unresolved_coherence_issues(psur: Dict[str, Any], report: Any) -> None:
+    findings = _blocking_coherence_findings(report)
+    if not findings:
+        return
+    psur["_generated_with_unresolved_coherence_findings"] = [
+        {
+            "finding_id": getattr(f, "finding_id", ""),
+            "severity": getattr(f, "severity", ""),
+            "section": getattr(f, "section", ""),
+            "title": getattr(f, "title", ""),
+            "evidence": getattr(f, "evidence", ""),
+            "expected": getattr(f, "expected", ""),
+            "recommendation": getattr(f, "recommendation", ""),
+        }
+        for f in findings
+    ]
+    issue_text = "; ".join(
+        f"{getattr(f, 'finding_id', '')} ({getattr(f, 'section', '')}): {getattr(f, 'title', '')}"
+        for f in findings
+    )
+    sec_m = psur.setdefault("sections", {}).setdefault("M_findings_and_conclusions", {})
+    existing = str(sec_m.get("limitations_of_data_and_conclusion") or "").strip()
+    note = (
+        "Unresolved coherence review note: the report was generated with the following "
+        f"LLM coherence finding(s) requiring reviewer attention before release: {issue_text}."
+    )
+    if note not in existing:
+        sec_m["limitations_of_data_and_conclusion"] = f"{existing} {note}".strip()
+
+
+def _prompt_near_pass_action(console: Console, report: Any) -> str:
+    console.print(
+        "\n[yellow]Near-pass coherence gate: 2 or fewer LLM coherence finding(s) remain.[/yellow]"
+    )
+    for f in _blocking_coherence_findings(report):
+        console.print(f"  - {f.finding_id} [{f.severity}] {f.section}: {f.title}")
+    console.print("Choose how to proceed:")
+    console.print("  [bold]1[/bold] Generate PSUR with these issues highlighted")
+    console.print("  [bold]2[/bold] Stop generation")
+    console.print("  [bold]3[/bold] Continue remediation loop")
+    while True:
+        choice = typer.prompt("Enter 1, 2, or 3", default="2").strip()
+        if choice in {"1", "2", "3"}:
+            return choice
+        console.print("[yellow]Please enter 1, 2, or 3.[/yellow]")
 
 
 def _build_rich_context_from_config(wb_config: Dict[str, Any]) -> Dict[str, Any]:
@@ -166,7 +240,7 @@ def generate(
     output_dir: Path = typer.Option(None, "--output", "-o", help="Output directory"),
     resume: bool = typer.Option(False, "--resume", help="Resume from last checkpoint"),
     # Ollama local model support
-    ollama_model: Optional[str] = typer.Option(None, "--ollama-model", help="Use a local Ollama model for ALL LLM calls (e.g. qwen3:32b, deepseek-r1:70b)"),
+    ollama_model: Optional[str] = typer.Option(None, "--ollama-model", help="Use an approved local reasoning model for ALL LLM calls: deepseek-r1 or qwq"),
     ollama_url: Optional[str] = typer.Option(None, "--ollama-url", help="Ollama API base URL (default: http://localhost:11434)"),
 ):
     """Generate a PSUR from files in data/input/.
@@ -174,8 +248,8 @@ def generate(
     Drop your files into data/input/ and run:
         python main.py generate --start 2025-01-01 --end 2025-12-31
 
-    Use --ollama-model to run entirely on a local model:
-        python main.py generate --start 2025-01-01 --end 2025-12-31 --ollama-model qwen3:32b
+    Use --ollama-model to run entirely on an approved local reasoning model:
+        python main.py generate --start 2025-01-01 --end 2025-12-31 --ollama-model deepseek-r1
 
     Device name, classification, and reusability are auto-detected from ALL source
     files (sales, complaints, CAPA, CER, PMS Plan, previous PSUR, RACT, RMF, IFU, etc.).
@@ -242,6 +316,7 @@ def generate(
         "ract":         _resolve(ract, "ract"),
         "pms_plan":     _resolve(pms_plan, "pms_plan"),
         "pmcf":         _resolve(pmcf, "pmcf"),
+        "literature":   _resolve(None, "literature"),
         "fsca":         _resolve(fsca, "fsca"),
         "external_db":  _resolve(external_db, "external_db"),
         "previous_psur": _resolve(previous_psur, "previous_psur"),
@@ -368,6 +443,7 @@ def generate(
         ract_path=input_paths["ract"],
         pms_plan_path=input_paths["pms_plan"],
         pmcf_path=input_paths["pmcf"],
+        literature_path=input_paths.get("literature"),
         fsca_path=input_paths["fsca"],
         ext_db_path=input_paths["external_db"],
         prev_psur_path=input_paths["previous_psur"],
@@ -542,7 +618,8 @@ def generate(
     console.print(f"  Total {stats.denominator_type}: {stats.total_units_sold:,}")
     console.print(f"  Total complaints: {stats.total_complaints}")
     console.print(f"  Overall rate: {stats.overall_rate_display}")
-    console.print(f"  Serious incidents: {stats.serious_incident_count} ({stats.serious_incident_rate_display})")
+    console.print(f"  EU/UK serious incidents: {stats.eu_uk_serious_incident_count}")
+    console.print(f"  FDA MDR-reportable events: {stats.fda_mdr_count}")
     console.print(f"  Trend status: {stats.trend_analysis.status}")
     if stats.yoy_rate_change is not None:
         console.print(f"  YoY rate change: {stats.yoy_rate_change}%")
@@ -645,22 +722,117 @@ def generate(
         parsed_data=parsed_data,
         start_date=start_date,
         end_date=end_date,
+        device_context=device_context,
     )
+    psur = remediate_contradictions_with_llm(
+        psur,
+        statistics=stats,
+        parsed_data=parsed_data,
+        device_context=device_context,
+        start_date=start_date,
+        end_date=end_date,
+        console=console,
+    )
+    apply_psur_table_skills(
+        psur,
+        stats=stats,
+        parsed_data=parsed_data,
+        start_date=start_date,
+        end_date=end_date,
+        device_context=device_context,
+    )
+    while True:
+        contradiction_report = run_full_coherence_audit(
+            psur,
+            parsed_data=parsed_data,
+            device_context=device_context,
+        )
+        psur["_contradiction_accuracy_audit"] = contradiction_report.to_dict()
+        if not contradiction_report.blocking_findings:
+            console.print("  [green]Contradictions/accuracy audit: clean[/green]")
+            break
+
+        console.print(
+            f"  [yellow]Contradictions/accuracy audit: "
+            f"{contradiction_report.blocking_findings} blocking finding(s)[/yellow]"
+        )
+        unresolved = "\n".join(
+            f"- {f.finding_id} [{f.severity}] {f.section}: {f.title}"
+            for f in contradiction_report.findings
+            if f.severity in {"CRITICAL", "MAJOR"}
+        )
+
+        if _all_blockers_are_near_pass_coherence(contradiction_report):
+            choice = _prompt_near_pass_action(console, contradiction_report)
+            if choice == "1":
+                _annotate_unresolved_coherence_issues(psur, contradiction_report)
+                psur["_contradiction_accuracy_audit"] = contradiction_report.to_dict()
+                console.print(
+                    "  [yellow]Proceeding with generation; unresolved coherence "
+                    "finding(s) have been highlighted in Section M and the audit JSON.[/yellow]"
+                )
+                break
+            if choice == "3":
+                console.print("  [yellow]Continuing contradiction remediation loop...[/yellow]")
+                psur = remediate_contradictions_with_llm(
+                    psur,
+                    statistics=stats,
+                    parsed_data=parsed_data,
+                    device_context=device_context,
+                    start_date=start_date,
+                    end_date=end_date,
+                    max_iterations=2,
+                    console=console,
+                )
+                apply_psur_table_skills(
+                    psur,
+                    stats=stats,
+                    parsed_data=parsed_data,
+                    start_date=start_date,
+                    end_date=end_date,
+                    device_context=device_context,
+                )
+                continue
+
+        console.print(
+            "[red]Contradictions/accuracy remediation did not clear all blocking findings:[/red]\n"
+            f"{unresolved}"
+        )
+        raise typer.Exit(code=1)
 
     # ── 9. Validate ─────────────────────────────────────────────────
 
     console.print("\n[bold]Validating...[/bold]")
-    validator = PSURValidator()
-    is_valid, errors = validator.validate(psur, parsed_data=parsed_data, device_context=device_context)
-
-    if is_valid:
-        console.print("  [green]All validation checks passed[/green]")
+    validation_engine = ValidationEngine()
+    validation_report = validation_engine.run(
+        psur,
+        parsed_data=parsed_data,
+        device_context=device_context,
+        statistics=stats_dict,
+    )
+    psur["_validation_engine"] = validation_report
+    pv = validation_report["PSUR_VALIDATION"]
+    engine_ready = bool(pv["READY"])
+    if engine_ready:
+        console.print(
+            f"  [green]Validation engine READY[/green] "
+            f"(score {pv['SCORE']}/100, passed {pv['PASSED']}/{pv['CHECKS_RUN']})"
+        )
     else:
-        console.print(f"  [yellow]{len(errors)} issues found:[/yellow]")
-        for e in errors[:10]:
-            console.print(f"    - {e}")
-        if len(errors) > 10:
-            console.print(f"    ... and {len(errors) - 10} more")
+        console.print(
+            f"  [red]Validation engine NOT READY[/red] "
+            f"(score {pv['SCORE']}/100, failed {pv['FAILED']}/{pv['CHECKS_RUN']})"
+        )
+        for sev_key, colour in (("CRITICAL_ERRORS", "red"), ("MAJOR_ERRORS", "yellow"), ("MINOR_ERRORS", "cyan")):
+            messages = pv.get(sev_key) or []
+            if not messages:
+                continue
+            console.print(f"  [{colour}]{sev_key.replace('_', ' ').title()} ({len(messages)})[/{colour}]")
+            for msg in _format_engine_messages(messages):
+                console.print(f"    - {msg}")
+
+    # Legacy validator is retained only for advisory traceability and DOCX checks.
+    validator = PSURValidator()
 
     # ── 10. Save outputs ────────────────────────────────────────────
 
@@ -671,10 +843,28 @@ def generate(
         json.dump(psur, f, indent=2, default=str)
     console.print(f"\n  JSON: {json_path}")
 
+    engine_path = out_dir / f"PSUR_{safe_name}_{end_date[:4]}_validation_engine.json"
+    with open(engine_path, "w") as f:
+        json.dump(validation_report, f, indent=2, default=str)
+    console.print(f"  Validation Engine: {engine_path}")
+
+    contradiction_path = out_dir / f"PSUR_{safe_name}_{end_date[:4]}_contradiction_accuracy_audit.json"
+    with open(contradiction_path, "w") as f:
+        json.dump(psur.get("_contradiction_accuracy_audit", {}), f, indent=2, default=str)
+    console.print(f"  Contradictions/Accuracy Audit: {contradiction_path}")
+
     docx_path = out_dir / f"PSUR_{safe_name}_{end_date[:4]}.docx"
     renderer = PSURTemplateRenderer()
     renderer.render(psur, docx_path, chart_paths=chart_paths)
     console.print(f"  DOCX (template-based): {docx_path}")
+
+    is_valid_docx, docx_errors = validator.validate_docx(docx_path)
+    if is_valid_docx:
+        console.print("  [green]DOCX structural checks passed[/green]")
+    else:
+        console.print(f"  [yellow]DOCX structural issues: {len(docx_errors)}[/yellow]")
+        for err in _format_engine_messages(docx_errors):
+            console.print(f"    - {err}")
 
     stats_path = out_dir / f"PSUR_{safe_name}_{end_date[:4]}_statistics.json"
     with open(stats_path, "w") as f:
@@ -682,7 +872,9 @@ def generate(
     console.print(f"  Stats: {stats_path}")
 
     # Traceability matrix — every narrative sentence → data source
-    trace_matrix = getattr(validator, "last_traceability_matrix", None)
+    _trace_errors, trace_matrix = validator._check_traceability(
+        psur, parsed_data=parsed_data, device_context=device_context,
+    )
     if trace_matrix:
         trace_path = out_dir / f"PSUR_{safe_name}_{end_date[:4]}_traceability.json"
         with open(trace_path, "w") as f:
@@ -707,6 +899,8 @@ def generate(
     )
 
     console.print(f"\n[bold green]PSUR generation complete![/bold green]\n")
+    if not engine_ready or not is_valid_docx:
+        raise typer.Exit(code=1)
 
 @app.command()
 def validate(
@@ -754,8 +948,28 @@ def validate(
     except Exception as ex:
         console.print(f"[yellow]Could not load parsed_data context for validation: {ex}[/yellow]")
 
+    engine = ValidationEngine()
+    validation_report = engine.run(
+        psur,
+        parsed_data=parsed_data,
+        device_context=device_context,
+        statistics=psur.get("_statistics") or {},
+    )
+    pv = validation_report["PSUR_VALIDATION"]
+    console.print(
+        f"[bold {'green' if pv['READY'] else 'red'}]READY = {pv['READY']}  "
+        f"SCORE = {pv['SCORE']}/100[/bold {'green' if pv['READY'] else 'red'}]"
+    )
+    console.print(f"  checks_run={pv['CHECKS_RUN']}  passed={pv['PASSED']}  failed={pv['FAILED']}")
+    for sev_key, colour in (("CRITICAL_ERRORS", "red"), ("MAJOR_ERRORS", "yellow"), ("MINOR_ERRORS", "cyan")):
+        messages = pv.get(sev_key) or []
+        if not messages:
+            continue
+        console.print(f"\n[{colour}]{sev_key.replace('_', ' ').title()} ({len(messages)}):[/{colour}]")
+        for msg in messages:
+            console.print(f"  - {msg}")
+
     validator = PSURValidator()
-    is_valid_json, errors = validator.validate(psur, parsed_data=parsed_data, device_context=device_context)
 
     # Optional DOCX validation (post-render fidelity checks)
     docx_path = docx
@@ -767,17 +981,18 @@ def validate(
     if docx_path:
         console.print(f"Checking rendered DOCX: {docx_path}")
         is_valid_docx, docx_errors = validator.validate_docx(docx_path)
-        errors.extend(docx_errors)
+        if docx_errors:
+            for e in docx_errors:
+                console.print(f"  - {e}")
     else:
         is_valid_docx = True
 
-    is_valid = is_valid_json and is_valid_docx and len(errors) == 0
+    is_valid = bool(pv["READY"]) and is_valid_docx
     if is_valid:
-        console.print("[green]All validation checks passed[/green]")
+        console.print("[green]All release-gate validation checks passed[/green]")
     else:
-        console.print(f"[red]{len(errors)} validation errors:[/red]")
-        for e in errors:
-            console.print(f"  - {e}")
+        if not is_valid_docx:
+            console.print("[red]DOCX structural validation failed[/red]")
     return 0 if is_valid else 1
 
 

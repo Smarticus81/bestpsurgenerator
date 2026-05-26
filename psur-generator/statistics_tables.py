@@ -164,6 +164,13 @@ def build_complaint_region_breakdown(
     out: Dict[str, Dict[str, Dict[str, int]]] = {}
     for s in complaint_summaries or []:
         harm = (s.get("harm") or "No Harm").strip() or "No Harm"
+        harm_low = harm.lower()
+        if (
+            harm_low in {"no harm", "no health consequence", "no health consequence or impact"}
+            or harm_low.startswith("no harm")
+            or "near miss" in harm_low
+        ):
+            harm = "No Health Consequence or Impact"
         mdp = (s.get("imdrf_code") or "Uncoded / Other").strip() or "Uncoded / Other"
         country = s.get("region") or s.get("country") or ""
         region_bucket = classify_country_to_psur_region(country)
@@ -210,4 +217,3 @@ def build_table8_rows(
             rows.append(row)
     rows.sort(key=lambda r: -r["worldwide_count"])
     return rows
-

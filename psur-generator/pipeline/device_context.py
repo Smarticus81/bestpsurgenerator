@@ -89,8 +89,8 @@ def load_device_context_file(filepath: Path) -> Dict[str, Any]:
         "auto_detected_name": device_name,
         "device_class": device_class or "CLASS_IIB",
         "is_reusable": is_reusable,
-        "certificate_number": "",           # not in this file — kept for cert fields
-        "certificate_date": "",
+        "certificate_number": raw.get("certificate_number", ""),
+        "certificate_date": raw.get("certificate_date", ""),
         "psur_cadence": (
             "ANNUALLY" if (device_class or "CLASS_IIB") in ("CLASS_IIB", "CLASS_III")
             else "EVERY_TWO_YEARS"
@@ -112,6 +112,22 @@ def load_device_context_file(filepath: Path) -> Dict[str, Any]:
         "single_use_or_reusable": raw.get("single_use_or_reusable", ""),
         "market_history": raw.get("market_history", ""),
         "device_lifetime": lifetime,
+        "manufacturer_info": {
+            "company_name": raw.get("manufacturer_name", ""),
+            "address_lines": raw.get("manufacturer_address_lines", []),
+            "manufacturer_srn": raw.get("manufacturer_srn", ""),
+        },
+        "authorized_representative_info": {
+            "name": (raw.get("authorized_representative") or {}).get("name", ""),
+            "address_lines": (raw.get("authorized_representative") or {}).get("address_lines", []),
+            "srn": (
+                (raw.get("authorized_representative") or {}).get("authorized_representative_srn", "")
+                or (raw.get("authorized_representative") or {}).get("srn", "")
+            ),
+        },
+        "uk_mdr_classification_and_rule": raw.get("uk_mdr_classification_and_rule", ""),
+        "uk_responsible_person": raw.get("uk_responsible_person", ""),
+        "ukca_marking_status": raw.get("ukca_marking_status", ""),
         # Identifiers
         "known_identifiers": {
             "basic_udi_di": raw.get("basic_udi_di_or_device_family_name", ""),
@@ -123,6 +139,13 @@ def load_device_context_file(filepath: Path) -> Dict[str, Any]:
             "first_ce_marking_date": raw.get("date_of_first_ce_marking_or_doc", ""),
             "first_declaration_of_conformity_date": raw.get("date_of_first_ce_marking_or_doc", ""),
             "risk_management_file_number": raw.get("risk_management_file_document_number", ""),
+            "eu_technical_documentation_number": raw.get("eu_technical_documentation_number", ""),
+            "certificate_number": raw.get("certificate_number", ""),
+            "certificate_date": raw.get("certificate_date", ""),
+            "us_fda_classification": raw.get("us_fda_classification", ""),
+            "us_pre_market_submission_number": raw.get("us_pre_market_submission_number", ""),
+            "fda_clearance": raw.get("fda_clearance", ""),
+            "first_ec_eu_certificate_date": raw.get("certificate_date", ""),
         },
         # Notified body
         "notified_body": {"name": nb_name, "number": nb_number},
@@ -142,7 +165,7 @@ _SNIPPET_SOURCES: List[Tuple[str, int]] = [
     ("cer", 4000), ("previous_psur", 3000), ("pms_plan", 3000),
     ("ract", 2000), ("rmf", 2000), ("complaints", 2000),
     ("sales", 2000), ("capa", 2000), ("ifu", 2000),
-    ("pmcf", 2000), ("fsca", 2000), ("external_db", 2000),
+    ("pmcf", 2000), ("literature", 2000), ("fsca", 2000), ("external_db", 2000),
 ]
 
 
@@ -418,19 +441,40 @@ def build_device_context(
 
     # ── Device context file enrichment (highest priority) ─────
 
+    context_file_has_mfr = False
     if context_file_rich:
         # Merge descriptive fields
         for key in (
             "device_description", "intended_use", "indications",
+            "intended_purpose",
             "contraindications", "target_patient_population",
             "intended_user_profile", "sterility_status",
             "single_use_or_reusable", "market_history", "device_lifetime",
             "device_trade_names", "cer_document", "pms_plan_document",
             "pmcf_plan_document", "ifu_document", "other_associated_documents",
+            "eu_mdr_classification_and_rule", "uk_mdr_classification_and_rule",
         ):
             val = context_file_rich.get(key)
             if val:  # non-empty string, non-empty list, non-empty dict
                 device_context[key] = val
+
+        cf_mfr = context_file_rich.get("manufacturer_info") or {}
+        if context_file_rich.get("manufacturer_name") or cf_mfr.get("company_name"):
+            manufacturer_info["company_name"] = context_file_rich.get("manufacturer_name") or cf_mfr.get("company_name", "")
+        if context_file_rich.get("manufacturer_address_lines") or cf_mfr.get("address_lines"):
+            manufacturer_info["address_lines"] = context_file_rich.get("manufacturer_address_lines") or cf_mfr.get("address_lines", [])
+        if context_file_rich.get("manufacturer_srn") or cf_mfr.get("manufacturer_srn"):
+            manufacturer_info["manufacturer_srn"] = context_file_rich.get("manufacturer_srn") or cf_mfr.get("manufacturer_srn", "")
+        context_file_has_mfr = bool(manufacturer_info.get("company_name"))
+
+        if context_file_rich.get("authorized_representative") or context_file_rich.get("authorized_representative_info"):
+            ar_src = context_file_rich.get("authorized_representative") or context_file_rich.get("authorized_representative_info")
+            if isinstance(ar_src, dict):
+                ar_info = {
+                    "name": ar_src.get("name", ""),
+                    "address_lines": ar_src.get("address_lines", []),
+                    "srn": ar_src.get("authorized_representative_srn") or ar_src.get("srn", ""),
+                }
 
         # Merge identifiers (fill gaps, don't overwrite non-empty)
         cf_ids = context_file_rich.get("known_identifiers", {})
@@ -444,6 +488,32 @@ def build_device_context(
             notified_body_info["name"] = cf_nb["name"]
         if cf_nb.get("number") and not notified_body_info.get("number"):
             notified_body_info["number"] = cf_nb["number"]
+        if context_file_rich.get("notified_body_name_and_id") and not notified_body_info.get("name"):
+            nb_text = str(context_file_rich["notified_body_name_and_id"])
+            notified_body_info["name"] = nb_text
+            import re
+            m = re.search(r"\b(\d{4})\b", nb_text)
+            if m:
+                notified_body_info["number"] = m.group(1)
+
+        top_level_id_map = {
+            "basic_udi_di_or_device_family_name": "basic_udi_di",
+            "emdn_code": "emdn_code",
+            "risk_management_file_document_number": "risk_management_file_number",
+            "eu_technical_documentation_number": "eu_technical_documentation_number",
+            "classification_rule_mdr_annex_viii": "classification_rule_mdr_annex_viii",
+            "certificate_number": "certificate_number",
+            "certificate_date": "certificate_date",
+        }
+        for src, dest in top_level_id_map.items():
+            val = context_file_rich.get(src)
+            if val and dest in known_identifiers and not known_identifiers.get(dest):
+                known_identifiers[dest] = val
+            elif val and dest in ("certificate_number", "certificate_date") and not device_context.get(dest):
+                device_context[dest] = val
+        if context_file_rich.get("model_or_catalog_numbers") and not known_identifiers.get("model_numbers"):
+            known_identifiers["model_numbers"] = context_file_rich["model_or_catalog_numbers"]
+            known_identifiers["catalog_numbers"] = context_file_rich["model_or_catalog_numbers"]
 
         logger.info("Merged device_context.json rich fields into device_context")
 
@@ -471,7 +541,7 @@ def build_device_context(
 
         # Auto-deduce manufacturer from CER
         mfr_info = cer_data.get("manufacturer_info", {})
-        if mfr_info and mfr_info.get("company_name"):
+        if mfr_info and mfr_info.get("company_name") and not context_file_has_mfr:
             manufacturer_info["company_name"] = mfr_info["company_name"]
             manufacturer_info["address_lines"] = mfr_info.get("address_lines", [])
             manufacturer_info["manufacturer_srn"] = mfr_info.get("manufacturer_srn", "")
@@ -603,7 +673,7 @@ def build_device_context(
     available_inputs = []
     for label in (
         "sales", "complaints", "capa", "cer", "ifu", "rmf", "ract",
-        "pms_plan", "pmcf", "fsca", "external_db", "previous_psur",
+        "pms_plan", "pmcf", "literature", "fsca", "external_db", "previous_psur",
     ):
         path = input_paths.get(label)
         if path and path.exists():

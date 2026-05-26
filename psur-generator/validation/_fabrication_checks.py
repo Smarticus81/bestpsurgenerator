@@ -255,7 +255,7 @@ class FabricationChecksMixin:
                 return len(value) == 0
             return False
 
-        if stats.get("serious_incident_count", 0) == 0:
+        if stats.get("eu_uk_serious_incident_count", stats.get("serious_incident_count", 0)) == 0:
             sec_d = sections.get("D_information_on_serious_incidents", {})
             d_text = _json.dumps(sec_d)
             if not any(phrase in d_text.lower() for phrase in [

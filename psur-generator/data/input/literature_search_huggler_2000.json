@@ -1,0 +1,15 @@
+{
+  "reference": "LIT-HUG2000-2023",
+  "search_period": {
+    "start_date": "2023-01-01",
+    "end_date": "2023-12-31"
+  },
+  "methodology": "Searches were performed in PubMed, Embase, Google Scholar, and clinical guideline sources using combinations of neonatal positioning, infant comfort device, swaddling pressure, pressure injury prevention, alarm response, textile skin irritation, and neonatal soothing support. Records were screened for relevance to supervised infant positioning, pressure-contact devices, thermal comfort, and skin-integrity outcomes.",
+  "records_screened": 42,
+  "relevant_articles_identified": 6,
+  "summary_of_new_data_performance_or_safety": "The literature continued to emphasize direct supervision, skin inspection, avoidance of excessive compression, and careful temperature control for neonatal positioning and comfort products. No publication identified a new hazard beyond the Huggler 2000 risk management file topics of pressure control, skin irritation, alarm/release response, and temperature discomfort.",
+  "newly_observed_uses": "No newly observed clinical use outside supervised neonatal or pediatric comfort positioning was identified.",
+  "previously_unassessed_risks": "No previously unassessed risks were identified. Literature findings were consistent with the existing RACT hazards.",
+  "state_of_the_art_changes": "No state-of-the-art change requiring design, labeling, or clinical evaluation update was identified during the period.",
+  "comparison_with_similar_devices": "Comparator reports for infant wraps and positioning supports described transient skin redness, fit-related pressure marking, and alarm audibility complaints. These are consistent with the subject-device complaint profile and do not indicate a worse safety profile for Huggler 2000."
+}

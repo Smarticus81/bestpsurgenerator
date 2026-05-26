@@ -18,6 +18,7 @@ Standardized file naming convention:
   - previous_psur.docx / .json   (or {NNN}_previous_psur.docx)
   - device_context.json  (optional override — extracted from previous PSUR if absent)
   - pms_plan.json / .docx (optional enrichment)
+  - literature_search.json / .docx (optional enrichment)
   - external_events.csv  (optional enrichment)
   - coding_dictionary.json (optional enrichment)
 
@@ -53,6 +54,7 @@ INPUT_TYPES: Dict[str, Tuple[str, bool, List[str]]] = {
     "ifu":              ("Instructions for Use (enrichment)",    False, [".docx", ".doc", ".pdf"]),
     "rmf":              ("Risk Management File (enrichment)",    False, [".docx", ".doc", ".pdf"]),
     "pmcf":             ("PMCF Report/Plan (enrichment)",        False, [".docx", ".doc", ".pdf", ".json"]),
+    "literature":       ("Literature search results",            False, [".docx", ".doc", ".pdf", ".json", ".csv", ".txt", ".md"]),
     "external_db":      ("External database results",            False, [".csv", ".xlsx", ".xls"]),
     "coding_dictionary": ("IMDRF coding dictionary",             False, [".json", ".csv"]),
 }
@@ -71,6 +73,7 @@ _KEYWORDS: Dict[str, List[str]] = {
     "ifu":              ["ifu", "instructions_for_use", "instructions for use"],
     "rmf":              ["rmf", "risk_management", "risk management"],
     "pmcf":             ["pmcf", "post_market_clinical", "post-market clinical"],
+    "literature":       ["literature", "lit_search", "scientific_literature", "publication"],
     "external_db":      ["maude", "external_db", "external_database", "registry",
                          "eudamed", "external_events", "external events"],
     "coding_dictionary": ["coding_dictionary", "imdrf_codes", "imdrf_dictionary",
@@ -212,4 +215,3 @@ def print_input_resolution(resolved: Dict[str, Optional[Path]]):
 
     console.print(table)
     console.print()
-

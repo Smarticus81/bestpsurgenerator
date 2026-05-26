@@ -83,6 +83,11 @@ def _parse_ract_json(filepath: Path) -> Dict[str, Any]:
     raw_hazards = data.get("hazards") or []
     hazards: List[Dict[str, Any]] = []
     max_rates: Dict[str, float] = {}
+    for k, v in (data.get("max_expected_rates") or {}).items():
+        try:
+            max_rates[str(k)] = float(v)
+        except (TypeError, ValueError):
+            continue
 
     for h in raw_hazards:
         if not isinstance(h, dict):
@@ -107,9 +112,13 @@ def _parse_ract_json(filepath: Path) -> Dict[str, Any]:
             "harm_category": h.get("harm_category") or "",
             "controls": h.get("controls") or [],
         })
-        key = h.get("imdrf_code") or hazard_id or name
-        if key and rate_f is not None:
-            max_rates[str(key)] = rate_f
+        keys = [h.get("imdrf_code"), hazard_id, name]
+        keys.extend(h.get("medical_device_problem_terms") or [])
+        keys.extend(h.get("aliases") or [])
+        if rate_f is not None:
+            for key in keys:
+                if key:
+                    max_rates[str(key)] = rate_f
 
     risk_summary = _compute_risk_summary(hazards)
     result = {

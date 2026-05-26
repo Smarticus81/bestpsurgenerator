@@ -1,6 +1,6 @@
-capa_id,complaint_id,device_model,device_name,trigger,root_cause,actions_taken,effectiveness
-CAPA01,C004,HUG2000,Huggler 2000,Complaint,Sensor calibration drift,Revised pressure sensor calibration verification and added lot-level release testing,Effective
-CAPA02,C015,HUG2000,Huggler 2000,Trend,Alarm threshold logic,Updated alarm-delay software threshold and added verification tests,Pending
-CAPA03,C018,HUG2000,Huggler 2000,Complaint,Adhesive bond weakness,Implemented quick-release tab bond-strength inspection,Effective
-CAPA04,C007,HUG2000,Huggler 2000,Audit,Use beyond labeled duration,Updated IFU fit-check and maximum-cycle training aid,Pending
-CAPA05,C005,HUG2000,Huggler 2000,Supplier Quality,Supplier textile variation,Opened supplier corrective action and tightened incoming textile acceptance criteria,Pending
+capa_id,complaint_id,device_model,device_name,initiation_date,target_completion_date,completion_date,status,trigger,root_cause,actions_taken,effectiveness,escalation_or_recovery_plan
+CAPA01,C004,HUG2000,Huggler 2000,2023-03-08,2023-06-30,2023-06-30,Closed,Complaint,Sensor calibration drift,Revised pressure sensor calibration verification and added lot-level release testing,Verified effective,N/A - closed
+CAPA02,C015,HUG2000,Huggler 2000,2023-09-18,2024-03-31,,In Progress,Trend,Alarm threshold logic,Updated alarm-delay software threshold and added verification tests,Pending verification,Verification testing continues under CAPA governance with target completion 2024-03-31.
+CAPA03,C018,HUG2000,Huggler 2000,2023-10-30,2023-11-30,2023-11-30,Closed,Complaint,Adhesive bond weakness,Implemented quick-release tab bond-strength inspection,Verified effective,N/A - closed
+CAPA04,C007,HUG2000,Huggler 2000,2023-04-25,2024-02-15,,In Progress,Audit,Use beyond labeled duration,Updated IFU fit-check and maximum-cycle training aid,Effectiveness check pending,Original 2023-12-15 target was escalated during management review and revised to 2024-02-15 for effectiveness verification.
+CAPA05,C005,HUG2000,Huggler 2000,2023-05-31,2024-02-28,,In Progress,Supplier Quality,Supplier textile variation,Opened supplier corrective action and tightened incoming textile acceptance criteria,Effectiveness check pending,Supplier corrective action remains open with target completion 2024-02-28.

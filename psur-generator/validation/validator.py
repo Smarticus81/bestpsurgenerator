@@ -16,6 +16,7 @@ from validation._consistency_checks import ConsistencyChecksMixin
 from validation._docx_checks import DocxChecksMixin
 from validation._traceability import TraceabilityChecksMixin
 from validation._remediation_checks import RemediationChecksMixin
+from contradiction_accuracy_auditor import run_contradiction_accuracy_audit
 
 
 class PSURValidator(
@@ -193,7 +194,23 @@ class PSURValidator(
         errors.extend(self._check_sales_narrative_vs_table(psur))
         # 37. D vs F serious incident harm count consistency
         errors.extend(self._check_serious_incident_d_vs_f_harm(psur))
-        # 38. Sentence-level traceability / leakage prevention
+        # 38. End-to-end deterministic reconciliation checks
+        errors.extend(self._check_final_reconciliation_contract(psur, device_context))
+        # 38a. Contradictions and accuracy auditor (source facts vs generated prose/tables)
+        contradiction_report = run_contradiction_accuracy_audit(
+            psur,
+            parsed_data=parsed_data,
+            device_context=device_context,
+        )
+        psur["_contradiction_accuracy_audit"] = contradiction_report.to_dict()
+        for finding in contradiction_report.findings:
+            if finding.severity in {"CRITICAL", "MAJOR"}:
+                errors.append(
+                    f"CONTRADICTION_ACCURACY [{finding.severity}] {finding.finding_id} "
+                    f"{finding.section}: {finding.title} -- {finding.evidence} "
+                    f"Expected: {finding.expected}"
+                )
+        # 39. Sentence-level traceability / leakage prevention
         trace_errors, trace_matrix = self._check_traceability(
             psur, parsed_data=parsed_data, device_context=device_context,
         )

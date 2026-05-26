@@ -196,11 +196,37 @@ class ParagraphMixin:
 
     def _build_chart_context(self, psur: Dict[str, Any]) -> Dict[str, Dict[str, Any]]:
         stats = psur.get("_statistics", {}) or {}
+        report_facts = psur.get("_report_facts", {}) or {}
+        chart_insights = report_facts.get("chart_insights", {}) if isinstance(report_facts, dict) else {}
 
         def field(row, key, default=None):
             if isinstance(row, dict):
                 return row.get(key, default)
             return getattr(row, key, default)
+
+        def authorized_note(chart_key: str) -> str:
+            note = str(chart_insights.get(chart_key, {}).get("authorized_interpretation") or "").strip()
+            lower = note.lower()
+            if (
+                " must " in lower
+                or lower.startswith("must ")
+                or " may only " in lower
+                or "do not " in lower
+                or "cannot " in lower
+            ):
+                return ""
+            return note
+
+        def harm_label(value) -> str:
+            label = str(value or "").strip()
+            low = label.lower()
+            if (
+                low in {"no harm", "no health consequence", "no health consequence or impact"}
+                or low.startswith("no harm")
+                or "near miss" in low
+            ):
+                return "No Health Consequence or Impact"
+            return label
 
         def num(v, default=0):
             try:
@@ -227,10 +253,20 @@ class ParagraphMixin:
 
         rates_by_harm = stats.get("rates_by_harm") or []
         top_harm = max(rates_by_harm, key=lambda r: field(r, "complaint_count", 0), default={})
+        harm_labels = [
+            harm_label(field(r, "category", ""))
+            for r in sorted(rates_by_harm, key=lambda r: field(r, "complaint_count", 0), reverse=True)
+            if str(field(r, "category", "")).strip()
+        ][:4]
+        harm_trend_note = (
+            "Interpretation: the time-series view separates monthly complaints by actual harm category"
+            + (f" ({', '.join(harm_labels)})" if harm_labels else "")
+            + " so changes in harm severity can be assessed separately from complaint volume."
+        )
         harm_note = (
             f"Interpretation: {int(field(top_harm, 'complaint_count', 0))} of {total_complaints} complaints "
             f"({num(field(top_harm, 'percentage')):.4f}% of distributed units) were classified as "
-            f"{field(top_harm, 'category')}; this keeps the complaint profile anchored to the same denominator "
+            f"{harm_label(field(top_harm, 'category'))}; this keeps the complaint profile anchored to the same denominator "
             "used in Table 7."
             if top_harm else
             "Interpretation: complaint harm categories were not available for charting."
@@ -264,9 +300,12 @@ class ParagraphMixin:
                 "include": bool(stats.get("units_by_month")),
                 "caption": "Figure C-1. Sales trend by month for the 2023 surveillance period.",
                 "note": (
+                    authorized_note("sales_trend")
+                    or (
                     f"Interpretation: total exposure for this PSUR is {total_units:,} distributed units"
                     + (f", split across {', '.join(region_bits)}." if region_bits else ".")
                     + " This denominator is used consistently for complaint and serious-incident rate calculations."
+                    )
                 ),
             },
             "complaints_region": {
@@ -277,38 +316,44 @@ class ParagraphMixin:
             "harm_distribution": {
                 "include": bool(stats.get("complaints_by_harm")),
                 "caption": "Figure F-1. Complaint distribution by IMDRF harm category.",
-                "note": harm_note,
+                "note": authorized_note("harm_distribution") or harm_note,
             },
             "top_mdps": {
                 "include": bool(stats.get("complaints_by_imdrf")),
                 "caption": "Figure F-2. Top IMDRF medical device problem categories.",
-                "note": mdp_note,
+                "note": authorized_note("top_mdps") or mdp_note,
             },
             "trend_ucl": {
                 "include": bool(monthly),
                 "caption": "Figure G-1. Monthly complaint rate control chart.",
                 "note": (
+                    authorized_note("trend_ucl")
+                    or (
                     f"Interpretation: the monthly complaint-rate profile is {trend_status}; mean monthly rate was "
                     f"{mean_pct:.2f}%, UCL was {ucl_pct:.2f}%, and the period-end monthly rate was {current_pct:.2f}%."
+                    )
                 ),
             },
             "rate_occurrence": {
                 "include": bool(monthly),
                 "caption": "Figure G-2. Monthly complaint rate against occurrence reference bands.",
                 "note": (
+                    authorized_note("rate_occurrence")
+                    or (
                     f"Interpretation: the highest monthly rate was {max_monthly:.2f}% in {peak_label}; this view shows "
                     "whether observed complaint rates remain within the expected occurrence band used for risk trending."
+                    )
                 ),
             },
             "harm_trend": {
                 "include": bool(stats.get("harm_by_month")),
                 "caption": "Figure G-3. Monthly complaint count by harm category.",
-                "note": "Interpretation: the time-series view separates no-health-consequence complaints from laceration complaints so any change in harm severity can be assessed separately from complaint volume.",
+                "note": authorized_note("harm_trend") or harm_trend_note,
             },
             "per_period": {
                 "include": bool(stats.get("per_period_aggregates")),
                 "caption": "Figure G-4. Complaint count and rate by reporting period.",
-                "note": "Prior comparable 12-month aggregate data were not available, so the report does not include a year-over-year period chart; the current-period monthly control chart is used for trend assessment.",
+                "note": authorized_note("per_period") or "Prior comparable 12-month aggregate data were not available, so the report does not include a year-over-year period chart; the current-period monthly control chart is used for trend assessment.",
             },
             "ract_matrix": {
                 "include": bool(stats.get("ract_matrix") or stats.get("risk_summary")),

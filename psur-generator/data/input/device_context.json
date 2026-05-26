@@ -1,5 +1,20 @@
 {
   "manufacturer_name": "Mastropietro Company",
+  "manufacturer_address_lines": [
+    "200 Comfort Systems Drive",
+    "Boston, MA 02118",
+    "United States of America"
+  ],
+  "manufacturer_srn": "NL-MF-000000456",
+  "authorized_representative": {
+    "name": "Mastropietro Medical Europe B.V.",
+    "address_lines": [
+      "Celsiusweg 35",
+      "5928 PR Venlo",
+      "The Netherlands"
+    ],
+    "authorized_representative_srn": "NL-AR-000000123"
+  },
   "device_trade_names": [
     "Huggler 2000",
     "Huggler 2000 Comfort Wrap"
@@ -19,19 +34,32 @@
   "target_patient_population": "Clinically stable neonatal and pediatric patients within the labeled weight range for whom supervised comfort positioning is considered appropriate by the responsible clinician.",
   "intended_user_profile": "Trained neonatal nurses, pediatric nurses, and other healthcare professionals familiar with infant positioning, pressure-injury prevention, alarm response, and local monitoring procedures.",
   "basic_udi_di_or_device_family_name": "HUG2000 / UDI-DI-HUG2000",
+  "eu_technical_documentation_number": "TD-HUG2000",
+  "certificate_number": "MDR-2797-HUG2000-001",
+  "certificate_date": "2021-01-12",
+  "classification_rule_mdr_annex_viii": "Rule 11",
   "model_or_catalog_numbers": [
     "HUG2000",
     "HUG2000-CW",
     "HUG2000-NICU"
   ],
   "eu_mdr_classification_and_rule": "EU Class IIa under EU MDR 2017/745, Rule 11",
-  "uk_mdr_classification_and_rule": "UK Class IIa under UK MDR 2002 (as amended 2024), Rule 11",
+  "uk_mdr_classification_and_rule": "UK Class IIa under UK Medical Devices Regulations 2002, as amended by SI 2024/1368, Rule 11",
   "uk_responsible_person": "Mastropietro Company UK Ltd, 44 Care Lane, London, UK",
   "ukca_marking_status": "UKCA marked",
+  "uk_certificate_number": "UKCA-0086-HUG2000-001",
+  "uk_certificate_date": "2021-01-12",
+  "us_fda_classification": "CLASS_II",
+  "us_pre_market_submission_number": "K213456",
+  "fda_clearance": "K213456",
   "emdn_code": "Z12039080",
   "gmdn_code": "45678",
   "date_of_first_ce_marking_or_doc": "2021",
   "notified_body_name_and_id": "BSI Group The Netherlands B.V. (2797)",
+  "notified_body": {
+    "name": "BSI Group The Netherlands B.V.",
+    "number": "2797"
+  },
   "cer_document_number_and_version": "CER-HUG2000, Version 2",
   "cer_date_or_last_update": "2023-10-20",
   "device_lifetime": {

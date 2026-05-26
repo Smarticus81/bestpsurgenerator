@@ -51,6 +51,9 @@ from agents.stats_filter import filter_statistics_for_section
 from agents.prompts.global_context import build_global_context, extract_statistics_summary
 from agents.prompts.shared_context import build_shared_context
 from deterministic_tables import apply_psur_table_skills
+from reconciliation import reconcile_psur_content
+from contradiction_remediation import remediate_contradictions_with_llm, run_full_coherence_audit
+from report_facts import build_report_facts
 from statistics import PSURStatistics
 
 
@@ -340,6 +343,14 @@ def generate_psur(
     # be rendered. Without this, substance validation sees an empty stats dict
     # and raises false zero-denominator findings.
     psur["_statistics"] = stats_dict
+    psur["_report_facts"] = build_report_facts(
+        psur,
+        stats=stats_dict,
+        parsed_data=parsed_data,
+        device_context=device_context,
+        start_date=period.get("start_date", device_context.get("period_start", "")),
+        end_date=period.get("end_date", device_context.get("period_end", "")),
+    )
 
     # Generate each section
     console.print("\n[bold]Generating PSUR sections...[/bold]\n")
@@ -409,6 +420,9 @@ def generate_psur(
                     section_data["_data_lake"] = _get_lake_insights(
                         section_key, data_lake
                     )
+                if section_data is None:
+                    section_data = {}
+                section_data["_report_facts"] = psur.get("_report_facts", {})
 
                 # Filter statistics to only what this section needs
                 section_stats = filter_statistics_for_section(section_key, stats_dict)
@@ -612,14 +626,48 @@ def generate_psur(
         start_date=period.get("start_date", ""),
         end_date=period.get("end_date", ""),
     )
-
     psur = fix_cross_section_serious_consistency(psur)
     psur = enforce_first_psur_consistency(psur, has_previous_psur)
     psur = align_fsca_capa_narrative(psur, _fsca_count, _capa_count)
     psur = align_threshold_claims(psur, _any_threshold_exceeded)
+    psur = reconcile_psur_content(
+        psur,
+        stats=psur.get("_statistics", {}),
+        parsed_data=parsed_data,
+        device_context=device_context,
+        start_date=period.get("start_date", ""),
+        end_date=period.get("end_date", ""),
+    )
     # Re-run template-debris and duplicate-phrase scrubbing AFTER the
     # cross-section edits so any newly produced fragments are also cleaned.
     psur["sections"] = strip_template_debris(psur.get("sections", {}))
+
+    try:
+        psur = remediate_contradictions_with_llm(
+            psur,
+            statistics=statistics,
+            parsed_data=parsed_data,
+            device_context=device_context,
+            start_date=period.get("start_date", ""),
+            end_date=period.get("end_date", ""),
+            global_context=global_context,
+            console=console,
+        )
+        contradiction_report = run_full_coherence_audit(
+            psur,
+            parsed_data=parsed_data,
+            device_context=device_context,
+        )
+        psur["_contradiction_accuracy_audit"] = contradiction_report.to_dict()
+        if contradiction_report.blocking_findings:
+            console.print(
+                f"  [yellow]Contradictions/accuracy audit: "
+                f"{contradiction_report.blocking_findings} unresolved blocking finding(s)[/yellow]"
+            )
+        else:
+            console.print("  [green]Contradictions/accuracy audit: clean[/green]")
+    except Exception as e:
+        console.print(f"  [yellow]Contradictions/accuracy audit skipped: {e}[/yellow]")
 
     # ── Substance Validation ──────────────────────────────────────────
     try:

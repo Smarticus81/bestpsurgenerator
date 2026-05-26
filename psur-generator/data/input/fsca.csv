@@ -1,4 +1,4 @@
-action_id,reason,device_model,device_name,date_initiated,regions_affected,status,effectiveness
-FSCA01,Quick-release tab bond-strength field correction,HUG2000,Huggler 2000,2023-06-23,"NorthAmerica,Europe",Completed,Effective
-FSCA02,Pressure sensor calibration advisory,HUG2000,Huggler 2000,2023-08-14,"Europe,NorthAmerica",Completed,Effective
-FSCA03,Alarm-delay software update for affected control units,HUG2000,Huggler 2000,2023-08-15,"Europe,NorthAmerica",In Progress,Pending
+action_id,reason,device_model,device_name,date_initiated,final_fsn_date,regions_affected,uk_market_affected,date_reported_to_mhra,status,effectiveness
+FSCA01,Quick-release tab bond-strength field correction,HUG2000,Huggler 2000,2023-06-23,2023-06-23,"EU,UK,United States",YES,2023-06-27,Closed,Effective
+FSCA02,Pressure sensor calibration advisory,HUG2000,Huggler 2000,2023-08-14,2023-08-14,"EU,UK,United States",YES,2023-08-16,Closed,Effective
+FSCA03,Alarm-delay software update for affected control units,HUG2000,Huggler 2000,2023-08-15,2023-08-20,"EU,UK,United States",YES,2023-08-17,In Progress,Pending

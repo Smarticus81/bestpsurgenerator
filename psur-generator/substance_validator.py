@@ -178,7 +178,7 @@ def _check_cross_references(psur: Dict, stats: Dict) -> List[SubstanceFinding]:
     sections = psur.get("sections", {})
     total_units = stats.get("total_units_sold", 0)
     total_complaints = stats.get("total_complaints", 0)
-    serious_count = stats.get("serious_incident_count", 0)
+    serious_count = stats.get("eu_uk_serious_incident_count", stats.get("serious_incident_count", 0))
 
     # CR-01: Section C narrative vs statistics — unit count
     sec_c = sections.get("C_volume_of_sales_and_population_exposure", {})
@@ -254,7 +254,9 @@ def _check_logical_consistency(psur: Dict, stats: Dict) -> List[SubstanceFinding
     sections = psur.get("sections", {})
     total_units = stats.get("total_units_sold", 0)
     total_complaints = stats.get("total_complaints", 0)
-    serious_count = stats.get("serious_incident_count", 0)
+    serious_count = stats.get("eu_uk_serious_incident_count", stats.get("serious_incident_count", 0))
+    fda_mdr_count = stats.get("fda_mdr_count", stats.get("fda_mdr_reportable_event_count", 0))
+    reportable_count = stats.get("reportable_event_count", stats.get("serious_incident_count", 0))
     trend = stats.get("trend_analysis", {})
 
     # LC-01: Zero sales but meaningful complaint rate discussion
@@ -278,13 +280,25 @@ def _check_logical_consistency(psur: Dict, stats: Dict) -> List[SubstanceFinding
             ))
 
     # LC-02: Zero incidents but active FSCAs
+    #
+    # Important regulatory distinction: EU/UK Article 2(65) serious incidents,
+    # FDA MDR-reportable events, and FSCAs are not interchangeable. A field
+    # correction can remain active even when no event is adjudicated as an
+    # EU/UK serious incident, provided the report explains the FDA/non-EU
+    # vigilance or preventive-action basis. Do not create a false contradiction
+    # from that legitimate framing.
     if serious_count == 0:
         sec_h = sections.get("H_information_from_fsca", {})
         h_table = sec_h.get("table_8_fsca_initiated_current_period_and_open_fscas", [])
         active_fscas = [f for f in h_table
                        if f.get("status", "").lower() not in
                        ("closed", "n/a", "not applicable", "")]
-        if active_fscas:
+        h_text = json.dumps(sec_h).lower()
+        supported_non_eu_basis = (
+            (fda_mdr_count or reportable_count)
+            and any(token in h_text for token in ("fda", "mdr", "reportable", "field correction", "preventive"))
+        )
+        if active_fscas and not supported_non_eu_basis:
             findings.append(SubstanceFinding(
                 finding_id="LC-02", severity=Severity.MAJOR,
                 category=FindingCategory.LOGICAL_CONSISTENCY,
@@ -317,7 +331,18 @@ def _check_logical_consistency(psur: Dict, stats: Dict) -> List[SubstanceFinding
     a_conclusion = sec_a.get("benefit_risk_assessment_conclusion", {})
     a_status = a_conclusion.get("conclusion", "")
     m_conclusion = sec_m.get("benefit_risk_profile_conclusion", "")
-    if "adversely" in a_status.lower() and "not adversely" in m_text:
+    a_text = json.dumps(a_conclusion).lower()
+    adverse_a = (
+        "adversely" in a_text
+        and "not adversely" not in a_text
+        and "not_adversely" not in a_text
+        and "not adversely impacted" not in a_text
+    )
+    favorable_m = any(
+        phrase in m_text
+        for phrase in ("not adversely", "not_adversely", "remains favorable", "benefit-risk profile remains")
+    )
+    if adverse_a and favorable_m:
         findings.append(SubstanceFinding(
             finding_id="LC-04", severity=Severity.CRITICAL,
             category=FindingCategory.LOGICAL_CONSISTENCY,

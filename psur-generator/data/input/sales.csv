@@ -1,4 +1,14 @@
 date,device_model,device_name,region,units_sold
+2018-01-01,HUG2000,Huggler 2000,NorthAmerica,4200
+2018-01-01,HUG2000,Huggler 2000,Europe,3900
+2019-01-01,HUG2000,Huggler 2000,NorthAmerica,4550
+2019-01-01,HUG2000,Huggler 2000,Europe,4100
+2020-01-01,HUG2000,Huggler 2000,NorthAmerica,4800
+2020-01-01,HUG2000,Huggler 2000,Europe,4350
+2021-01-01,HUG2000,Huggler 2000,NorthAmerica,5100
+2021-01-01,HUG2000,Huggler 2000,Europe,4625
+2022-01-01,HUG2000,Huggler 2000,NorthAmerica,5450
+2022-01-01,HUG2000,Huggler 2000,Europe,5100
 2023-01-01,HUG2000,Huggler 2000,NorthAmerica,269
 2023-01-01,HUG2000,Huggler 2000,Europe,446
 2023-02-01,HUG2000,Huggler 2000,NorthAmerica,432

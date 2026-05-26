@@ -27,9 +27,16 @@ echo.
 echo Starting generation...
 echo.
 uv run main.py generate --start %START_DATE% --end %END_DATE%
+set GEN_EXIT=%ERRORLEVEL%
 
 echo.
 echo =======================================
-echo   Generation complete!
+if "%GEN_EXIT%"=="0" (
+    echo   Generation complete!
+) else (
+    echo   Generation stopped: unresolved blocking validation or contradiction issues remain.
+    echo   Exit code: %GEN_EXIT%
+)
 echo =======================================
 pause
+exit /b %GEN_EXIT%

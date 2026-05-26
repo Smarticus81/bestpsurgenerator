@@ -42,13 +42,15 @@ def filter_statistics_for_section(
         "uk_complaints": stats_dict.get("uk_complaints", 0),
         "uk_rate_display": stats_dict.get("uk_rate_display", ""),
         "uk_serious_incidents": stats_dict.get("uk_serious_incidents", 0),
+        "eu_uk_serious_incident_count": stats_dict.get("eu_uk_serious_incident_count", 0),
+        "fda_mdr_count": stats_dict.get("fda_mdr_count", 0),
     }
 
     if letter == "A":
         base["total_complaints"] = stats_dict.get("total_complaints")
-        base["serious_incident_count"] = stats_dict.get("serious_incident_count")
+        base["serious_incident_count"] = stats_dict.get("eu_uk_serious_incident_count", 0)
         base["overall_complaint_percentage"] = stats_dict.get("overall_complaint_percentage")
-        base["serious_incident_rate"] = stats_dict.get("serious_incident_rate")
+        base["serious_incident_rate"] = 0 if not stats_dict.get("eu_uk_serious_incident_count") else stats_dict.get("serious_incident_rate")
         trend = stats_dict.get("trend_analysis", {})
         base["trend_analysis"] = {
             "status": trend.get("status"),
@@ -78,12 +80,12 @@ def filter_statistics_for_section(
 
     elif letter == "D":
         base["total_complaints"] = stats_dict.get("total_complaints")
-        base["serious_incident_count"] = stats_dict.get("serious_incident_count")
-        base["serious_incidents_detail"] = stats_dict.get("serious_incidents_detail")
-        base["serious_incidents_by_imdrf"] = stats_dict.get("serious_incidents_by_imdrf")
+        base["serious_incident_count"] = stats_dict.get("eu_uk_serious_incident_count", 0)
+        base["serious_incidents_detail"] = [] if not stats_dict.get("eu_uk_serious_incident_count") else stats_dict.get("serious_incidents_detail")
+        base["serious_incidents_by_imdrf"] = {} if not stats_dict.get("eu_uk_serious_incident_count") else stats_dict.get("serious_incidents_by_imdrf")
         base["serious_by_region_imdrf"] = stats_dict.get("serious_by_region_imdrf")
-        base["serious_incident_rate"] = stats_dict.get("serious_incident_rate")
-        base["serious_incident_rate_display"] = stats_dict.get("serious_incident_rate_display")
+        base["serious_incident_rate"] = 0 if not stats_dict.get("eu_uk_serious_incident_count") else stats_dict.get("serious_incident_rate")
+        base["serious_incident_rate_display"] = "0 / denominator (0.0000%)" if not stats_dict.get("eu_uk_serious_incident_count") else stats_dict.get("serious_incident_rate_display")
         base["eea_units"] = stats_dict.get("eea_units")
         base["uk_units"] = stats_dict.get("uk_units")
         base["uk_complaints"] = stats_dict.get("uk_complaints")
@@ -92,12 +94,12 @@ def filter_statistics_for_section(
 
     elif letter == "E":
         base["total_complaints"] = stats_dict.get("total_complaints")
-        base["serious_incident_count"] = stats_dict.get("serious_incident_count")
+        base["serious_incident_count"] = stats_dict.get("eu_uk_serious_incident_count", 0)
         return base
 
     elif letter == "F":
         base["total_complaints"] = stats_dict.get("total_complaints")
-        base["serious_incident_count"] = stats_dict.get("serious_incident_count")
+        base["serious_incident_count"] = stats_dict.get("eu_uk_serious_incident_count", 0)
         base["complaints_by_imdrf"] = stats_dict.get("complaints_by_imdrf")
         base["complaints_by_harm"] = stats_dict.get("complaints_by_harm")
         base["complaints_by_region"] = stats_dict.get("complaints_by_region")
@@ -128,12 +130,12 @@ def filter_statistics_for_section(
 
     elif letter == "H":
         base["total_complaints"] = stats_dict.get("total_complaints")
-        base["serious_incident_count"] = stats_dict.get("serious_incident_count")
+        base["serious_incident_count"] = stats_dict.get("eu_uk_serious_incident_count", 0)
         return base
 
     elif letter == "I":
         base["total_complaints"] = stats_dict.get("total_complaints")
-        base["serious_incident_count"] = stats_dict.get("serious_incident_count")
+        base["serious_incident_count"] = stats_dict.get("eu_uk_serious_incident_count", 0)
         # Pass CAPA-related summary stats so Section I can contextualise
         base["capa_total"] = stats_dict.get("capa_total")
         base["capa_open"] = stats_dict.get("capa_open")
@@ -142,11 +144,13 @@ def filter_statistics_for_section(
 
     elif letter in ("J", "K", "L"):
         base["total_complaints"] = stats_dict.get("total_complaints")
-        base["serious_incident_count"] = stats_dict.get("serious_incident_count")
+        base["serious_incident_count"] = stats_dict.get("eu_uk_serious_incident_count", 0)
         return base
 
     elif letter == "M":
         m_stats = dict(stats_dict)
+        m_stats["serious_incident_count"] = stats_dict.get("eu_uk_serious_incident_count", 0)
+        m_stats["serious_incident_rate"] = 0 if not stats_dict.get("eu_uk_serious_incident_count") else stats_dict.get("serious_incident_rate")
         m_stats.pop("complaints_by_month", None)
         m_stats.pop("units_by_month", None)
         trend = m_stats.get("trend_analysis")

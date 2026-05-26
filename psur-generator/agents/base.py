@@ -1052,7 +1052,7 @@ that pads. Quality over quantity.
         return {
             "uk_market_detected": bool(self.uk_market_detected),
             "class_i_no_nb": bool(self.class_i_no_nb),
-            "has_serious_incidents": int(stats.get("serious_incident_count", 0) or 0) > 0,
+            "has_serious_incidents": int(stats.get("eu_uk_serious_incident_count", stats.get("serious_incident_count", 0)) or 0) > 0,
             "has_fsca": int(stats.get("fsca_count", 0) or 0) > 0,
             "ucl_breach": str(trend.get("status", "")).lower() in ("exceeded", "breach", "above_ucl"),
             "ract_breach": bool(ract_breaches),
