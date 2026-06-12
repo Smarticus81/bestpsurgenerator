@@ -1,0 +1,2 @@
+article_id,title,authors,journal,publication_date,database,search_terms,relevance,findings_summary,safety_signal
+LIT001,Example article title,"Author A; Author B",Example Journal of Surgery,2025-01-15,PubMed,device name; complication; safety,Yes,"One-paragraph summary of the article findings relevant to the device under review.",No

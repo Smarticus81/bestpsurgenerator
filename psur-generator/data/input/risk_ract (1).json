@@ -4,10 +4,11 @@
   "hazards": [
     {
       "hazard_id": "HZ001",
-      "name": "Device breakage",
-      "description": "Breakage of stapler mechanism",
+      "name": "Component Broken or Damaged",
+      "description": "Breakage of stapler mechanism or handle components",
+      "harm": "No Health Consequence or Impact",
       "severity": "High",
-      "max_rate_per_1000": 0.02,
+      "max_expected_rate": 0.0005,
       "controls": [
         "Improved Packaging",
         "Design Modification A"
@@ -15,10 +16,11 @@
     },
     {
       "hazard_id": "HZ002",
-      "name": "Skin/Subcutaneous Injury (Laceration)",
-      "description": "Laceration from stapler misfire",
+      "name": "Failure to Deliver Staple Properly / Misfire",
+      "description": "Laceration from stapler misfire during anastomosis",
+      "harm": "Skin/Subcutaneous Injury (Laceration)",
       "severity": "Medium",
-      "max_rate_per_1000": 0.05,
+      "max_expected_rate": 0.0008,
       "controls": [
         "Training Program",
         "Design Update B"
@@ -26,17 +28,42 @@
     },
     {
       "hazard_id": "HZ003",
-      "name": "Stapler Misfire",
-      "description": "Stapler misfire during procedure",
+      "name": "Failure to Fire",
+      "description": "Stapler fails to complete firing stroke during procedure",
+      "harm": "No Health Consequence or Impact",
       "severity": "Medium",
-      "max_rate_per_1000": 0.04,
+      "max_expected_rate": 0.0003,
       "controls": [
         "Material Improvement",
         "Procedure Checklist"
       ]
+    },
+    {
+      "hazard_id": "HZ004",
+      "name": "Mechanism Stiffness / Joint Resistance",
+      "description": "Articulating joint resistance impedes positioning",
+      "harm": "No Health Consequence or Impact",
+      "severity": "Low",
+      "max_expected_rate": 0.001,
+      "controls": [
+        "Lubrication Specification",
+        "Incoming Inspection"
+      ]
+    },
+    {
+      "hazard_id": "HZ005",
+      "name": "Foreign Material in/on Device",
+      "description": "Particulate or debris present in or on the device",
+      "harm": "No Health Consequence or Impact",
+      "severity": "Medium",
+      "max_expected_rate": 0.0005,
+      "controls": [
+        "Cleanroom Controls",
+        "Final Inspection"
+      ]
     }
   ],
   "global_thresholds": {
-    "overall_serious_rate_max": 0.1
+    "overall_serious_rate_max": 0.005
   }
 }

@@ -1,7 +1,7 @@
-"""Standalone PSUR FormQAR-054 table builder.
+"""Standalone PSUR RG-PSUR-001 table builder.
 
 Reads the 2023 input set for Laparoscopic Stapler X100 and writes a
-DOCX containing only the FormQAR-054 tables (no narrative). Used to
+DOCX containing only the RG-PSUR-001 tables (no narrative). Used to
 review table data before running the full pipeline.
 
 Run from psur-generator/:
@@ -49,7 +49,7 @@ def _find(patterns: list[str]) -> Path | None:
             return matches[0]
     return None
 
-# Country -> region mapping (per FormQAR-054 / CooperSurgical convention)
+# Country -> region mapping (per RG-PSUR-001 / the manufacturer convention)
 EEA_TR = {
     "Austria", "Belgium", "Bulgaria", "Croatia", "Cyprus", "Czech Republic",
     "Czechia", "Denmark", "Estonia", "Finland", "France", "Germany", "Greece",
@@ -61,7 +61,7 @@ EEA_TR = {
 
 
 def map_region(raw: str) -> str:
-    """Map a country/region label from sales CSV to FormQAR-054 region."""
+    """Map a country/region label from sales CSV to RG-PSUR-001 region."""
     c = raw.strip()
     if c in ("United States of America", "United States", "USA", "US", "NorthAmerica"):
         # Source data uses "NorthAmerica" as a continent label; treat as US
@@ -851,7 +851,7 @@ def main():
         section.right_margin = Cm(1.91)
 
     title = doc.add_paragraph()
-    run = title.add_run("PSUR Tables — FormQAR-054")
+    run = title.add_run("PSUR Tables — RG-PSUR-001")
     run.bold = True
     run.font.name = ARIAL
     run.font.size = Pt(14)
@@ -897,7 +897,7 @@ def build_tables_docx(
     current_period_label: str | None = None,
     preceding_period_label: str | None = None,
 ) -> Path:
-    """Render the FormQAR-054 PSUR tables DOCX for an arbitrary period/device.
+    """Render the RG-PSUR-001 PSUR tables DOCX for an arbitrary period/device.
 
     This is the public entry point used by `main.generate`. It mutates
     module-level config (REPORTING_*, INPUT_DIR, OUTPUT_PATH, *_LABEL) and

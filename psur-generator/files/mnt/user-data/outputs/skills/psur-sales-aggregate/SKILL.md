@@ -1,13 +1,13 @@
 ---
 name: psur-sales-aggregate
-description: Aggregate ERP sales data by FormQAR-054 region and reporting period for PSUR Table 1. Maps countries to regulatory regions (EEA+TR+XI, UK, etc.), computes current and preceding period totals, and calculates the complaint rate denominator. Use before building Table 1 or computing complaint rates.
+description: Aggregate ERP sales data by RG-PSUR-001 region and reporting period for PSUR Table 1. Maps countries to regulatory regions (EEA+TR+XI, UK, etc.), computes current and preceding period totals, and calculates the complaint rate denominator. Use before building Table 1 or computing complaint rates.
 when_to_use: Trigger when processing sales CSV for PSUR, aggregating sales by region, computing complaint denominators, or preparing Table 1 data.
 allowed-tools: Bash(python3 *) Read
 ---
 
 # Sales Data Aggregation for PSUR
 
-You process the raw ERP sales CSV into the regional aggregation required by FormQAR-054 Table 1 and compute the denominator used for all complaint rate calculations in Table 7.
+You process the raw ERP sales CSV into the regional aggregation required by RG-PSUR-001 Table 1 and compute the denominator used for all complaint rate calculations in Table 7.
 
 ## Input
 

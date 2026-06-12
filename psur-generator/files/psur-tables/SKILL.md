@@ -1,13 +1,13 @@
 ---
 name: psur-tables
-description: Build and populate all FormQAR-054 PSUR tables from source data. Use when generating a PSUR, filling in PSUR tables, building Table 7 complaint rates, building Table 1 sales data, or constructing any table in a Periodic Safety Update Report. Handles Table 1 (sales), Tables 2-4 (serious incidents), Table 6 (feedback), Table 7 (complaint rates by harm/MDP), Table 8 (FSCA), Table 9 (CAPA), Table 10 (external databases), and Table 11 (PMCF).
-when_to_use: Trigger when user mentions PSUR tables, FormQAR-054, complaint rate table, sales table, serious incident table, FSCA table, CAPA table, external database table, or PMCF table. Also trigger when user asks to populate, fill in, or generate any table in a PSUR document.
+description: Build and populate all RG-PSUR-001 PSUR tables from source data. Use when generating a PSUR, filling in PSUR tables, building Table 7 complaint rates, building Table 1 sales data, or constructing any table in a Periodic Safety Update Report. Handles Table 1 (sales), Tables 2-4 (serious incidents), Table 6 (feedback), Table 7 (complaint rates by harm/MDP), Table 8 (FSCA), Table 9 (CAPA), Table 10 (external databases), and Table 11 (PMCF).
+when_to_use: Trigger when user mentions PSUR tables, RG-PSUR-001, complaint rate table, sales table, serious incident table, FSCA table, CAPA table, external database table, or PMCF table. Also trigger when user asks to populate, fill in, or generate any table in a PSUR document.
 allowed-tools: Bash(python3 *) Read Write Edit Grep
 ---
 
-# PSUR Table Construction — FormQAR-054
+# PSUR Table Construction — RG-PSUR-001
 
-You are building tables for a CooperSurgical Periodic Safety Update Report. Every table must match the exact schema defined in FormQAR-054. Read the supporting files before generating any table:
+You are building tables for a Periodic Safety Update Report. Every table must match the exact schema defined in RG-PSUR-001. Read the supporting files before generating any table:
 
 - For column schemas, cell population logic, and rendering code: see [table-schemas.md](table-schemas.md)
 - For IMDRF complaint classification (required before Table 7): invoke `/psur-imdrf-classify`
@@ -16,7 +16,7 @@ You are building tables for a CooperSurgical Periodic Safety Update Report. Ever
 
 ## Global Rules — Apply to Every Table
 
-**SELECT ONE VARIANT ONLY.** FormQAR-054 provides annual AND biennial variants for Table 1 and Table 7. Determine the device cadence first (Class III / Class IIb = annual 12-month; Class IIa = biennial 24-month), render ONLY the matching variant, and DELETE the other from the document entirely.
+**SELECT ONE VARIANT ONLY.** RG-PSUR-001 provides annual AND biennial variants for Table 1 and Table 7. Determine the device cadence first (Class III / Class IIb = annual 12-month; Class IIa = biennial 24-month), render ONLY the matching variant, and DELETE the other from the document entirely.
 
 **STRIP ALL TEMPLATE DEBRIS.** Before rendering any table, remove:
 - All `[bracketed instructions]` — regex: `/\[.*?\]/g` (excluding checkbox ☐/☑ characters)

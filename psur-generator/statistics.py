@@ -13,6 +13,7 @@ from typing import List, Dict, Any, Optional
 from datetime import datetime
 import json
 
+from events import ProgressEmitter, NoopEmitter
 from imdrf_coder import strip_imdrf_code
 from config import RACT_CODES_PATH
 from statistics_tables import (
@@ -396,6 +397,7 @@ def compute_psur_statistics(
     is_reusable: bool = False,
     ract_data: Optional[Dict[str, Any]] = None,
     product_classification: Optional[Dict[str, Dict[str, str]]] = None,
+    emitter: Optional[ProgressEmitter] = None,
 ) -> PSURStatistics:
     """Compute all statistics for PSUR generation.
 
@@ -406,7 +408,9 @@ def compute_psur_statistics(
         previous_stats: Previous period stats for YoY
         is_reusable: If True, denominator = procedures; else = units distributed
         ract_data: Parsed RACT data (for max expected rates linkage to Table 7)
+        emitter: Optional ProgressEmitter for streaming decision events
     """
+    emitter = emitter or NoopEmitter()
     total_units = sales_data.get("total_units", 0)
     total_complaints = complaints_data.get("total_complaints", 0)
 
@@ -548,6 +552,58 @@ def compute_psur_statistics(
             row["rate_vs_ract"] = "NO_RACT_DATA"
             row["ract_ratio"] = None
 
+    # ── Decision events: RACT occurrence-code classification (O1-O5) ──
+    # Every Table 7 row's observed rate is classified into an occurrence
+    # bucket and compared against the RACT max expected rate (ISO 14971
+    # risk acceptability evaluation).
+    for row in table7_rows:
+        oc_code = row.get("occurrence_code")
+        if not oc_code:
+            continue
+        mdp = row.get("medical_device_problem", "")
+        max_rate = row.get("ract_max_expected_rate")
+        verdict = row.get("rate_vs_ract", "NO_RACT_DATA")
+        rate = row.get("complaint_rate", 0.0)
+        if verdict == "WITHIN":
+            reason = (
+                f"Observed rate {rate:.6f} for '{mdp}' is within the RACT max "
+                f"expected rate {max_rate}; classified {oc_code} "
+                f"({row.get('occurrence_label', '')}) — risk remains acceptable "
+                f"per the ISO 14971 risk acceptability criteria."
+            )
+        elif verdict == "EXCEEDS":
+            reason = (
+                f"Observed rate {rate:.6f} for '{mdp}' EXCEEDS the RACT max "
+                f"expected rate {max_rate} (ratio {row.get('ract_ratio')}); "
+                f"classified {oc_code} ({row.get('occurrence_label', '')}) — "
+                f"requires risk re-evaluation per ISO 14971."
+            )
+        else:
+            reason = (
+                f"Observed rate {rate:.6f} for '{mdp}' classified "
+                f"{oc_code} ({row.get('occurrence_label', '')}) against the "
+                f"standard occurrence thresholds; no RACT max expected rate "
+                f"was available for comparison."
+            )
+        emitter.decision(
+            "ract_occurrence_classification",
+            inputs_summary={
+                "harm": row.get("harm", ""),
+                "medical_device_problem": mdp,
+                "complaint_count": row.get("complaint_count", 0),
+                "observed_rate": rate,
+                "ract_max_expected_rate": max_rate,
+            },
+            output={
+                "occurrence_code": oc_code,
+                "occurrence_label": row.get("occurrence_label", ""),
+                "rate_vs_ract": verdict,
+            },
+            reason=reason,
+            regulatory_basis=["ISO 14971"],
+            section="F_product_complaint_types_counts_and_rates",
+        )
+
     # Rates by harm category
     rates_by_harm = []
     for harm, count in complaints_data.get("by_harm_category", {}).items():
@@ -594,6 +650,38 @@ def compute_psur_statistics(
             monthly_labels.append(month)
 
     trend = calculate_ucl(monthly_rates, monthly_labels)
+
+    # ── Decision event: UCL / Western Electric trend verdict ─────────
+    if trend.western_electric_violations:
+        _trend_reason = (
+            f"Western Electric rule violation(s) detected on the monthly "
+            f"complaint-rate control chart: "
+            f"{'; '.join(trend.western_electric_violations[:5])}. Status is "
+            f"{trend.status}: a statistically significant increase must be "
+            f"evaluated for trend reporting under UK MDR 2024 Reg 44ZN and "
+            f"MDCG 2022-21."
+        )
+    else:
+        _trend_reason = (
+            f"No Western Electric rule violations on the monthly complaint-rate "
+            f"control chart (mean {trend.mean:.6f}, UCL {trend.ucl_3sigma:.6f}); "
+            f"trend status is {trend.status} — no statistically significant "
+            f"increase requiring a trend report under UK MDR 2024 Reg 44ZN."
+        )
+    emitter.decision(
+        "ucl_trend_verdict",
+        inputs_summary={
+            "data_points": trend.data_points,
+            "mean_rate": trend.mean,
+            "ucl_3sigma": trend.ucl_3sigma,
+            "current_rate": trend.current_rate,
+            "western_electric_violations": trend.western_electric_violations,
+        },
+        output=trend.status,
+        reason=_trend_reason,
+        regulatory_basis=["UK MDR 2024 Reg 44ZN", "MDCG 2022-21"],
+        section="G_information_from_trend_reporting",
+    )
 
     # Cross-tabulations from parsed complaint data
     serious_by_region_imdrf = complaints_data.get("serious_by_region_imdrf", {})
@@ -673,7 +761,7 @@ def compute_psur_statistics(
     xi_units = units_by_country.get("Northern Ireland", 0)
     eea_tr_xi_units = eea_units + xi_units  # Turkey already in EEA_COUNTRIES list
 
-    # Per-country buckets matching the FormQAR-054 template's fixed region slots.
+    # Per-country buckets matching the RG-PSUR-001 template's fixed region slots.
     # Country names in the DB may use ISO codes or variants; we accept several
     # common spellings so totals reconcile to Worldwide.
     _COUNTRY_ALIASES = {

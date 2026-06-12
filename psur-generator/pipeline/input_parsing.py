@@ -19,7 +19,9 @@ from parsers.cer_extractor import extract_cer_data
 from parsers.universal import parse_file, parse_any_to_text
 from parsers.previous_psur import parse_previous_psur
 from parsers.ract import parse_ract
+from parsers.literature import parse_literature
 from pipeline.format_contract import normalize_to_canonical
+from events import ProgressEmitter, NoopEmitter
 from imdrf_coder import (
     auto_code_complaints,
     strip_imdrf_code,
@@ -117,6 +119,8 @@ def parse_all_inputs(
     skip_cer: bool = False,
     unified_workbook_path: Optional[Path] = None,
     classification_hint: Optional[Dict[str, str]] = None,
+    literature_path: Optional[Path] = None,
+    emitter: Optional[ProgressEmitter] = None,
 ) -> Dict[str, Any]:
     """Parse all input files and return (parsed_data, expanded_context, previous_stats).
 
@@ -125,6 +129,7 @@ def parse_all_inputs(
       - expanded_context: Dict of text extractions for expanded inputs
       - previous_stats: Optional dict of previous period statistics
     """
+    emitter = emitter or NoopEmitter()
     console.print("[bold]Parsing input files...[/bold]")
     parsed_data: Dict[str, Any] = {}
     expanded_context: Dict[str, str] = {}
@@ -269,8 +274,9 @@ def parse_all_inputs(
     # The forbidden 'Unknown / Not yet determined' tokens are scrubbed at
     # every step.
     if parsed_data["complaints"].get("total_complaints", 0) > 0:
+        emitter.phase_started("imdrf_coding")
         summaries = parsed_data["complaints"].get("complaint_summaries", [])
-        skill_counters = apply_skill_classification(summaries)
+        skill_counters = apply_skill_classification(summaries, emitter=emitter)
         deterministic = skill_counters["symptom_code"] + skill_counters["narrative"]
         if deterministic:
             console.print(
@@ -296,7 +302,8 @@ def parse_all_inputs(
                 f"    -> [yellow]{len(residual)} complaints still need IMDRF coding "
                 f"(LLM fallback)...[/yellow]"
             )
-            auto_code_complaints(residual, {"device_name": device_name})
+            auto_code_complaints(residual, {"device_name": device_name},
+                                 emitter=emitter)
 
         # Final scrub: F2 forbids 'Unknown' parent-node terms even after LLM.
         from imdrf_coder import force_safe_default
@@ -311,6 +318,10 @@ def parse_all_inputs(
 
         _rebuild_imdrf_counts(parsed_data["complaints"], summaries)
         console.print("    -> [green]IMDRF classification complete[/green]")
+        emitter.phase_completed(
+            "imdrf_coding",
+            detail=f"{len(summaries)} complaint(s) classified",
+        )
 
     if capa_path:
         console.print(f"  CAPA: {capa_path.name}")
@@ -394,9 +405,37 @@ def parse_all_inputs(
             parsed_data["pmcf_source"] = "cer"
             console.print("  [dim]PMCF: derived from CER (no dedicated PMCF file)[/dim]")
 
-    # Literature review — never supplied as a separate file today, but
-    # downstream agents look for "literature_review" context. Populate
-    # it from the CER whenever possible.
+    # ── Literature search results (Section J) ───────────────────────
+    # A dedicated literature CSV is the preferred source. Falls back to
+    # the CER literature subsection below when not supplied.
+    if literature_path and Path(literature_path).exists():
+        console.print(f"  Literature: {Path(literature_path).name}")
+        try:
+            lit_data = parse_literature(Path(literature_path))
+            parsed_data["literature"] = lit_data
+            # Section J's data-availability gate checks this key:
+            parsed_data["literature_search_results"] = lit_data
+            expanded_context["literature"] = json.dumps(
+                lit_data, indent=2, default=str
+            )
+            console.print(
+                f"    -> {lit_data['total_articles']} articles "
+                f"({lit_data['relevant_articles']} relevant, "
+                f"{len(lit_data['databases_searched'])} databases)"
+            )
+        except Exception as e:
+            console.print(
+                f"  [yellow]Literature structured parse failed ({e}), "
+                f"falling back to text[/yellow]"
+            )
+            text = parse_any_to_text(Path(literature_path),
+                                     purpose="literature search results")
+            expanded_context["literature"] = text
+            parsed_data["literature"] = text
+            parsed_data["literature_search_results"] = text
+
+    # Literature review — populate from the CER when no dedicated
+    # literature file was supplied.
     if "literature_review" not in expanded_context:
         lit = (cer_info.get("safety_efficacy_detail") or {}).get("literature_review_summary") \
               or cer_info.get("literature_review")

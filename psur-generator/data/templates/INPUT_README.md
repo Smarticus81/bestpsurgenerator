@@ -33,7 +33,9 @@ The pipeline auto-discovers input files by keyword matching on filenames. Use th
 | Risk Management | `rmf`, `risk_management` | `rmf_document.pdf` |
 | PMCF | `pmcf`, `post_market_clinical` | `pmcf_plan.pdf` |
 | FSCA | `fsca`, `field_safety` | `fsca_records.csv` |
-| External DB | `external_db`, `maude`, `bfarm` | `external_db_search.pdf` |
+| External DB | `external_db`, `maude`, `bfarm`, `external_event` | `external_db_search.pdf` |
+| Literature | `literature`, `lit_search` | `literature.csv` |
+| Clinical Safety/Performance | `clinical_safety`, `clinical_performance` | `clinical_safety.json` |
 | Analysis Workbook | `analysis_workbook`, `analysis` | `analysis_workbook.xlsx` |
 
 ---
@@ -226,7 +228,31 @@ The pipeline auto-discovers input files by keyword matching on filenames. Use th
 
 ---
 
-### 8. `analysis_workbook_template.xlsx`
+### 8. `literature_template.csv`
+
+**Purpose:** Literature search results for Section J (Scientific Literature Review). Without this file, Section J states that no formal literature search results were provided and references the CER.
+
+| Column | Required | Format | Description |
+|---|---|---|---|
+| `article_id` | Yes | Text | Unique article identifier (e.g., `LIT001`) |
+| `title` | Yes | Text | Full article title |
+| `authors` | Yes | Text | Semicolon-separated author list |
+| `journal` | Yes | Text | Journal name |
+| `publication_date` | Yes | `YYYY-MM-DD` | Publication date |
+| `database` | Yes | Text | Database searched (e.g., `PubMed`, `Embase`, `Cochrane Library`) |
+| `search_terms` | Yes | Text | Semicolon-separated search terms that retrieved the article |
+| `relevance` | Yes | `Yes` / `No` | Whether the article is relevant to the device under review |
+| `findings_summary` | Yes | Text | One-paragraph summary of findings relevant to the device |
+| `safety_signal` | Yes | `Yes` / `No` | Whether the article raises a potential safety signal |
+
+**Tips:**
+- The parser counts `relevance = Yes` rows for `number_of_relevant_articles_identified`
+- Articles flagged `safety_signal = Yes` are surfaced to the Section J agent for discussion
+- Use the same `database` names as your literature search protocol
+
+---
+
+### 9. `analysis_workbook_template.xlsx`
 
 **Purpose:** Pre-computed analysis tables that bypass raw data calculation, providing production-ready Table 1, Table 7, complaint trending, and Section D incident tables.
 

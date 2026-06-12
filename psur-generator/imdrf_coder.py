@@ -17,6 +17,51 @@ from typing import Any, Dict, List, Optional
 
 from llm_client import get_llm_client
 from config import MODEL, HARM_MDP_PATH
+from events import ProgressEmitter, NoopEmitter
+
+
+def _emit_coding_decision(
+    emitter: ProgressEmitter,
+    complaint: Dict[str, Any],
+    harm: str,
+    mdp: str,
+    method: str,
+    annex_a_code: str = "",
+    annex_f_code: str = "",
+) -> None:
+    """Emit one IMDRF auto-coding assignment as a decision event."""
+    ident = (
+        complaint.get("complaint_number")
+        or complaint.get("complaint_id")
+        or complaint.get("id")
+        or ""
+    )
+    desc = str(
+        complaint.get("description")
+        or complaint.get("narrative")
+        or ""
+    )[:200]
+    emitter.decision(
+        "imdrf_auto_coding",
+        inputs_summary={
+            "complaint": str(ident),
+            "description": desc,
+            "method": method,
+        },
+        output={
+            "device_problem": mdp,
+            "device_problem_code": annex_a_code,
+            "harm": harm,
+            "harm_code": annex_f_code,
+        },
+        reason=(
+            f"Complaint {ident or '(unnumbered)'} lacked complete IMDRF coding; "
+            f"assigned device problem '{mdp}' (IMDRF Annex A) and health impact "
+            f"'{harm}' (IMDRF Annex F) via {method}."
+        ),
+        regulatory_basis=["IMDRF Annex A", "IMDRF Annex F"],
+        section="F_product_complaint_types_counts_and_rates",
+    )
 
 
 # ---------------------------------------------------------------------------
@@ -172,12 +217,14 @@ def force_safe_default(harm: str, mdp: str) -> tuple[str, str]:
 
 def apply_skill_classification(
     complaints: List[Dict[str, Any]],
+    emitter: ProgressEmitter = None,
 ) -> Dict[str, int]:
     """Apply the deterministic F2 mapping to a complaint list IN PLACE.
 
     Returns counters for telemetry: {"symptom_code": n, "narrative": n,
     "fallback_default": n, "left_for_llm": n}.
     """
+    emitter = emitter or NoopEmitter()
     counters = {"symptom_code": 0, "narrative": 0,
                 "fallback_default": 0, "left_for_llm": 0}
     for complaint in complaints:
@@ -192,6 +239,13 @@ def apply_skill_classification(
             complaint["harm_code_auto"] = True
             complaint["_skill_classification_source"] = source
             counters[source] += 1
+            _emit_coding_decision(
+                emitter, complaint, harm, mdp,
+                method=(
+                    "deterministic symptom-code mapping" if source == "symptom_code"
+                    else "deterministic narrative keyword mapping"
+                ),
+            )
         else:
             # Coerce any forbidden terms even when no rule applied.
             harm = complaint.get("harm") or complaint.get("harm_code") or ""
@@ -253,7 +307,8 @@ def strip_imdrf_code(value: str) -> str:
 
 def auto_code_complaints(
     complaints: List[Dict[str, Any]],
-    device_context: Dict[str, Any] = None
+    device_context: Dict[str, Any] = None,
+    emitter: ProgressEmitter = None,
 ) -> List[Dict[str, Any]]:
     """
     Auto-assign IMDRF codes to complaints that lack them.
@@ -261,10 +316,12 @@ def auto_code_complaints(
     Args:
         complaints: List of complaint dicts with at least 'description' field
         device_context: Optional device info for coding context
+        emitter: Optional ProgressEmitter for per-assignment decision events
 
     Returns:
         Same list with 'imdrf_code' and 'harm_code' populated where missing
     """
+    emitter = emitter or NoopEmitter()
     needs_coding = []
     for i, c in enumerate(complaints):
         existing_code = c.get("imdrf_code", "")
@@ -292,7 +349,7 @@ def auto_code_complaints(
 
     for batch_start in range(0, len(needs_coding), batch_size):
         batch = needs_coding[batch_start:batch_start + batch_size]
-        _code_batch(client, complaints, batch, device_context)
+        _code_batch(client, complaints, batch, device_context, emitter=emitter)
 
     # Post-coding quality check: warn if >80% mapped to generic A0302
     coded = [c for c in complaints if c.get("imdrf_code", "")]
@@ -314,9 +371,11 @@ def _code_batch(
     client,
     complaints: List[Dict],
     batch: List[tuple],
-    device_context: Optional[Dict]
+    device_context: Optional[Dict],
+    emitter: ProgressEmitter = None,
 ):
     """Code a batch of complaints via LLM (Anthropic or OpenAI fallback)."""
+    emitter = emitter or NoopEmitter()
     device_desc = ""
     if device_context:
         device_desc = f"""
@@ -416,6 +475,8 @@ JSON only:"""
         complaint_num = coding.get("complaint_number", 0)
         if 1 <= complaint_num <= len(batch):
             orig_idx, complaint, needs_problem, needs_harm = batch[complaint_num - 1]
+            assigned_a_code = ""
+            assigned_f_code = ""
 
             if needs_problem:
                 code = coding.get("annex_a_code", "")
@@ -427,6 +488,7 @@ JSON only:"""
                     # Internal field: raw alphanumeric code for RACT matching
                     complaints[orig_idx]["_imdrf_code_raw"] = code
                     complaints[orig_idx]["imdrf_code_auto"] = True
+                    assigned_a_code = code
 
             if needs_harm:
                 code = coding.get("annex_f_code", "")
@@ -439,6 +501,18 @@ JSON only:"""
                     # Internal field: raw alphanumeric code
                     complaints[orig_idx]["_harm_code_raw"] = code
                     complaints[orig_idx]["harm_code_auto"] = True
+                    assigned_f_code = code
+
+            if assigned_a_code or assigned_f_code:
+                _emit_coding_decision(
+                    emitter,
+                    complaints[orig_idx],
+                    harm=complaints[orig_idx].get("harm", ""),
+                    mdp=complaints[orig_idx].get("imdrf_code", ""),
+                    method="LLM auto-coding against the IMDRF code tables",
+                    annex_a_code=assigned_a_code,
+                    annex_f_code=assigned_f_code,
+                )
 
 
 def _is_valid_imdrf_code(code_str: str) -> bool:

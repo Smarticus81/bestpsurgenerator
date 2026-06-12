@@ -46,6 +46,7 @@ from agents.prefill import inject_prefilled_values
 from agents.stats_filter import filter_statistics_for_section
 from agents.prompts.global_context import build_global_context, extract_statistics_summary
 from agents.prompts.shared_context import build_shared_context
+from events import ProgressEmitter, NoopEmitter
 from statistics import PSURStatistics
 
 
@@ -105,7 +106,7 @@ def _get_cover_defaults_from_guidance() -> Dict[str, Any]:
 
     return defaults
 
-# Section order matching FormQAR-054
+# Section order matching RG-PSUR-001
 SECTION_ORDER = [
     "A_executive_summary",
     "B_scope_and_device_description",
@@ -129,6 +130,7 @@ def generate_psur(
     previous_psur: Optional[Dict] = None,
     checkpoint_path: Optional[Path] = None,
     resume_data: Optional[Dict] = None,
+    emitter: Optional[ProgressEmitter] = None,
 ) -> Dict[str, Any]:
     """
     Generate complete PSUR by running all section agents.
@@ -144,11 +146,12 @@ def generate_psur(
         previous_psur: Previous PSUR JSON for comparison (optional)
         checkpoint_path: Path to save checkpoint JSON after each section
         resume_data: Loaded checkpoint data for resume (dict with 'completed_sections')
+        emitter: Optional ProgressEmitter for streaming progress/decision events
 
     Returns:
         Complete PSUR as JSON matching template.json schema
     """
-
+    emitter = emitter or NoopEmitter()
     stats_dict = asdict(statistics)
     period_months = compute_period_months(device_context, stats_dict)
 
@@ -228,7 +231,7 @@ def generate_psur(
 
     psur = {
         "form": {
-            "form_id": "FormQAR-054",
+            "form_id": "RG-PSUR-001",
             "form_title": "Periodic Safety Update Report (PSUR)",
             "revision": "C",
             "document_control": {
@@ -267,6 +270,7 @@ def generate_psur(
 
     # Generate each section
     console.print("\n[bold]Generating PSUR sections...[/bold]\n")
+    emitter.phase_started("generation", detail=f"{len(SECTION_ORDER)} section agents")
 
     with Progress(
         SpinnerColumn(),
@@ -286,7 +290,11 @@ def generate_psur(
             if section_key in completed_sections:
                 psur["sections"][section_key] = completed_sections[section_key]
                 progress.update(task, completed=1, description=f"Section {section_key.split('_')[0]} (resumed)")
+                emitter.progress("generation", "completed", section=section_key,
+                                 detail="resumed from checkpoint")
                 continue
+
+            emitter.progress("generation", "started", section=section_key)
 
             try:
                 agent = SectionAgent(
@@ -353,11 +361,14 @@ def generate_psur(
 
                 psur["sections"][section_key] = section_content
                 progress.update(task, completed=1, description=f"Section {section_key.split('_')[0]} done")
+                emitter.progress("generation", "completed", section=section_key)
 
             except Exception as e:
                 console.print(f"[red]Error in {section_key}: {e}[/red]")
                 psur["sections"][section_key] = {"error": str(e)}
                 progress.update(task, completed=1, description=f"Section {section_key.split('_')[0]} FAILED")
+                emitter.progress("generation", "completed", section=section_key,
+                                 detail=f"FAILED: {e}")
 
             # Save checkpoint after each section
             if checkpoint_path:
@@ -365,6 +376,9 @@ def generate_psur(
                     _save_checkpoint(checkpoint_path, psur)
                 except Exception:
                     pass  # Checkpoint save failure is non-fatal
+
+    emitter.phase_completed("generation",
+                            detail=f"{len(psur['sections'])} sections generated")
 
     # ══════════════════════════════════════════════════════════════════════
     # Audit-Remediation Loop — iteratively fix compliance gaps
@@ -380,9 +394,12 @@ def generate_psur(
         return psur
 
     console.print("\n[bold]Running compliance audit-remediation loop...[/bold]\n")
+    emitter.phase_started("audit")
 
     for audit_iter in range(1, MAX_AUDIT_ITERATIONS + 1):
         console.print(f"  [dim]Audit iteration {audit_iter}/{MAX_AUDIT_ITERATIONS}...[/dim]")
+        emitter.progress("audit", "started",
+                         detail=f"iteration {audit_iter}/{MAX_AUDIT_ITERATIONS}")
 
         section_results, audit_report = run_json_audit(
             psur,
@@ -391,12 +408,32 @@ def generate_psur(
             verbose=True,
         )
 
+        emitter.decision(
+            "audit_compliance_review",
+            inputs_summary={
+                "iteration": audit_iter,
+                "uk_market_detected": statistics.uk_market_detected,
+            },
+            output={
+                "compliance_score": audit_report.compliance_score,
+                "gaps": audit_report.gap,
+            },
+            reason=(
+                f"Audit iteration {audit_iter} scored the draft at "
+                f"{audit_report.compliance_score}% against the MDCG 2022-21 "
+                f"requirements checklist with {audit_report.gap} gap(s)."
+            ),
+            regulatory_basis=["MDCG 2022-21"],
+        )
+
         # Check if we've reached the pass threshold
         if audit_report.compliance_score >= PASS_THRESHOLD and audit_report.gap == 0:
             console.print(
                 f"  [green]Audit passed: {audit_report.compliance_score}% compliance, "
                 f"0 gaps.[/green]"
             )
+            emitter.progress("audit", "completed",
+                             detail=f"passed at {audit_report.compliance_score}%")
             break
 
         # Identify sections that need remediation
@@ -410,11 +447,19 @@ def generate_psur(
                 f"  [yellow]No actionable remediations found (score: "
                 f"{audit_report.compliance_score}%).[/yellow]"
             )
+            emitter.progress(
+                "audit", "completed",
+                detail=f"no actionable remediations (score {audit_report.compliance_score}%)",
+            )
             break
 
         console.print(
             f"  Remediating {len(sections_needing_fix)} section(s): "
             f"{', '.join(sr.section_key.split('_')[0] for sr in sections_needing_fix)}"
+        )
+        emitter.phase_started(
+            "remediation",
+            detail=f"{len(sections_needing_fix)} section(s) flagged",
         )
 
         for sr in sections_needing_fix:
@@ -474,9 +519,42 @@ def generate_psur(
 
                 psur["sections"][section_key] = remediated
                 console.print(f"    Section {letter}: remediated")
+                emitter.decision(
+                    "audit_remediation_fix",
+                    inputs_summary={
+                        "section": section_key,
+                        "audit_iteration": audit_iter,
+                        "finding": (sr.remediation_prompt or "")[:500],
+                    },
+                    output="section_remediated",
+                    reason=(
+                        f"Audit flagged Section {letter} against the MDCG 2022-21 "
+                        f"checklist; the section was regenerated with the audit "
+                        f"finding as a remediation instruction and deterministic "
+                        f"post-processing re-applied."
+                    ),
+                    regulatory_basis=["MDCG 2022-21"],
+                    section=section_key,
+                )
 
             except Exception as e:
                 console.print(f"    [red]Section {letter} remediation failed: {e}[/red]")
+                emitter.decision(
+                    "audit_remediation_fix",
+                    inputs_summary={
+                        "section": section_key,
+                        "audit_iteration": audit_iter,
+                        "finding": (sr.remediation_prompt or "")[:500],
+                    },
+                    output=f"remediation_failed: {e}",
+                    reason=(
+                        f"Audit flagged Section {letter} but the remediation "
+                        f"attempt failed; the prior section content is retained "
+                        f"for human review."
+                    ),
+                    regulatory_basis=["MDCG 2022-21"],
+                    section=section_key,
+                )
 
             # Save checkpoint after each remediation
             if checkpoint_path:
@@ -485,11 +563,20 @@ def generate_psur(
                 except Exception:
                     pass
 
+        emitter.phase_completed(
+            "remediation",
+            detail=f"iteration {audit_iter}: {len(sections_needing_fix)} section(s) remediated",
+        )
+
         # Log iteration result
         if audit_iter == MAX_AUDIT_ITERATIONS:
             console.print(
                 f"  [yellow]Max audit iterations reached "
                 f"(score: {audit_report.compliance_score}%).[/yellow]"
+            )
+            emitter.progress(
+                "audit", "completed",
+                detail=f"max iterations reached (score {audit_report.compliance_score}%)",
             )
 
     # ── Final cross-section consistency pass ─────────────────────────
@@ -526,7 +613,7 @@ def _get_section_data(section_key: str, parsed_data: Dict[str, Any]) -> Optional
         "G_information_from_trend_reporting": ["complaints", "sales", "previous_psur", "ract", "analysis_workbook"],
         "H_information_from_fsca": ["fsca", "complaints"],
         "I_corrective_and_preventive_actions": ["capa", "ract", "complaints"],
-        "J_scientific_literature_review": ["cer"],
+        "J_scientific_literature_review": ["cer", "literature", "literature_search_results"],
         "K_review_of_external_databases_and_registries": ["external_db", "cer"],
         "L_pmcf": ["cer", "pmcf", "pms_plan"],
         "M_findings_and_conclusions": ["complaints", "sales", "capa", "cer", "previous_psur", "ract", "fsca", "pmcf", "analysis_workbook"],
@@ -552,7 +639,7 @@ def _get_section_data(section_key: str, parsed_data: Dict[str, Any]) -> Optional
         },
         "K_review_of_external_databases_and_registries": {
             "missing": ["external_db"],
-            "warning": "CRITICAL — USER-INPUT SECTION: No external database search results were provided. This section requires user-provided data. You MUST: (1) State that no external database review results were provided for this PSUR period. (2) List only the databases that are part of CooperSurgical's review protocol (FDA MAUDE, EU Vigilance, MHRA, BfArM, TGA DAEN, Health Canada). (3) Set table_10 to an EMPTY array []. You MUST NOT: fabricate ANY report counts, event numbers, percentages, regulatory actions, recalls, field corrections, 'industry average' rates, or comparative benchmark data from ANY external source. ZERO quantitative findings."
+            "warning": "CRITICAL — USER-INPUT SECTION: No external database search results were provided. This section requires user-provided data. You MUST: (1) State that no external database review results were provided for this PSUR period. (2) List only the databases that are part of the manufacturer's review protocol (FDA MAUDE, EU Vigilance, MHRA, BfArM, TGA DAEN, Health Canada). (3) Set table_10 to an EMPTY array []. You MUST NOT: fabricate ANY report counts, event numbers, percentages, regulatory actions, recalls, field corrections, 'industry average' rates, or comparative benchmark data from ANY external source. ZERO quantitative findings."
         },
         "L_pmcf": {
             "missing": ["pmcf"],

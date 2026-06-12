@@ -19,7 +19,7 @@ logger = logging.getLogger(__name__)
 
 
 # ── Section heading patterns ──────────────────────────────────────────
-# These match FormQAR-054 headings as they appear in typical Word docs
+# These match RG-PSUR-001 headings as they appear in typical Word docs
 _HEADING_PATTERNS = {
     "executive_summary": re.compile(
         r"(?:section\s*a|executive\s*summary)", re.I

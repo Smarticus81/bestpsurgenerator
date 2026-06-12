@@ -1,4 +1,4 @@
-# Table Schemas — FormQAR-054
+# Table Schemas — RG-PSUR-001
 
 This file defines the exact schema for each PSUR table. Each section includes: columns, widths, row order, population logic, data sources, and failure modes.
 
@@ -62,7 +62,7 @@ EEA_TR = {
     'Hungary','Ireland','Italy','Latvia','Lithuania','Luxembourg','Malta',
     'Netherlands','Poland','Portugal','Romania','Slovakia','Slovenia',
     'Spain','Sweden','Iceland','Liechtenstein','Norway','Turkey',
-    'Switzerland'  # grouped here per CooperSurgical convention
+    'Switzerland'  # grouped here per the template region convention
 }
 
 def map_region(country):

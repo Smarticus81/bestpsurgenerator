@@ -35,7 +35,7 @@ _SECTION_HEADING_RE = re.compile(
     r"^(Section\s+)?[A-M][\.\:]\s", re.IGNORECASE
 )
 
-# Sub-section label patterns (typical FormQAR-054 sub-titles)
+# Sub-section label patterns (typical RG-PSUR-001 sub-titles)
 _SUBTITLE_TEXT_PATTERNS = [
     re.compile(r"^[A-M]\.\d+", re.IGNORECASE),           # "A.1 ..."
     re.compile(r"^(Previous PSUR|Notified Body|Data Collection|"

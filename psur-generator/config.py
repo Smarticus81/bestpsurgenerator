@@ -12,7 +12,7 @@ CONSTRAINTS_DIR = BASE_DIR / "constraints"
 TEMPLATE_SCHEMA_PATH = CONSTRAINTS_DIR / "template_schema.json"
 SECTION_GUIDANCE_PATH = CONSTRAINTS_DIR / "section_guidance.json"
 MDCG_KB_PATH = CONSTRAINTS_DIR / "mdcg_2022_21_knowledge_base.json"
-DOCX_TEMPLATE_PATH = CONSTRAINTS_DIR / "FormQAR-054_template.docx"
+DOCX_TEMPLATE_PATH = CONSTRAINTS_DIR / "rg_psur_001_template.docx"
 
 
 INPUT_DIR = BASE_DIR / "data" / "input"

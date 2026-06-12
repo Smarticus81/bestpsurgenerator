@@ -626,7 +626,7 @@ how the report was prepared.
 safety signals warrant full paragraphs.
 - DO NOT add meta-narration ('This section provides…', 'This reporting period \
 establishes the baseline…').
-- Use 'CooperSurgical' — never 'we', 'our', 'us', or 'I'.
+- Use the manufacturer's legal entity name — never 'we', 'our', 'us', or 'I'.
 - DO NOT restate conclusions already present in different words.
 - DO NOT change numeric values, table data, enum values, or identifiers.
 - A concise narrative that covers all relevant data is BETTER than a longer one \

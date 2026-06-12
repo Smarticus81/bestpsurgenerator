@@ -1,7 +1,7 @@
 """
 PSURTemplateRenderer — thin facade composing rendering mixins.
 
-Clones FormQAR-054_template.docx and fills it from PSUR JSON data.
+Clones rg_psur_001_template.docx and fills it from PSUR JSON data.
 """
 import json
 import logging
@@ -44,7 +44,7 @@ _CHART_INSTRUCTION_PARAGRAPHS = {
 
 
 class PSURTemplateRenderer(ValueMapMixin, ParagraphMixin, TableMixin, FormattingMixin):
-    """Clone the FormQAR-054 DOCX template and fill it from PSUR JSON."""
+    """Clone the RG-PSUR-001 DOCX template and fill it from PSUR JSON."""
 
     def __init__(self, template_path: Optional[Path] = None):
         self.template_path = Path(template_path) if template_path else DOCX_TEMPLATE_PATH
@@ -65,7 +65,7 @@ class PSURTemplateRenderer(ValueMapMixin, ParagraphMixin, TableMixin, Formatting
         if not self.template_path.exists():
             raise FileNotFoundError(
                 f"Template not found: {self.template_path}\n"
-                "Ensure FormQAR-054_template.docx is in the constraints/ folder."
+                "Ensure rg_psur_001_template.docx is in the constraints/ folder."
             )
 
         self.doc = Document(str(self.template_path))
@@ -151,7 +151,7 @@ class PSURTemplateRenderer(ValueMapMixin, ParagraphMixin, TableMixin, Formatting
             logger.info(f"Stripped {debris_count} template debris instances from document")
 
     def _remove_chart_instruction_paragraph(self, para) -> bool:
-        """Remove the FormQAR chart placeholder instruction block."""
+        """Remove the RG-PSUR-001 chart placeholder instruction block."""
         text = " ".join((para.text or "").replace("[", "").replace("]", "").split())
         text_lower = text.lower().lstrip("-• ").strip()
         if text_lower in _CHART_INSTRUCTION_PARAGRAPHS:
@@ -213,7 +213,7 @@ class PSURTemplateRenderer(ValueMapMixin, ParagraphMixin, TableMixin, Formatting
     def _delete_unused_table_variants(self, psur: Dict[str, Any]):
         """Delete the unused annual/biennial table variant from the template.
 
-        FormQAR-054 contains BOTH annual and biennial variants for Table 1
+        RG-PSUR-001 contains BOTH annual and biennial variants for Table 1
         and Table 7. We determine cadence and remove the wrong one.
         """
         # Determine cadence from PSUR data
@@ -268,7 +268,7 @@ class PSURTemplateRenderer(ValueMapMixin, ParagraphMixin, TableMixin, Formatting
 def main():
     """CLI: render a PSUR JSON into a filled DOCX."""
     import argparse
-    parser = argparse.ArgumentParser(description="Render PSUR JSON into FormQAR-054 template")
+    parser = argparse.ArgumentParser(description="Render PSUR JSON into RG-PSUR-001 template")
     parser.add_argument("json_path", help="Path to PSUR JSON file")
     parser.add_argument("-o", "--output", default="PSUR_RENDERED.docx", help="Output DOCX path")
     parser.add_argument("-t", "--template", default=None, help="Template DOCX path")
