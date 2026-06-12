@@ -13,7 +13,16 @@ checked out alongside this repo, get it added before starting.
 
 This file summarizes only what gets built **in this repo**:
 
-1. **Event emitter** (`psur-generator/events.py`) — `ProgressEmitter` with
+1. **De-brand the pipeline (prerequisite)** — the bundled DOCX template in
+   `psur-generator/constraints/*_template.docx` is a proprietary third-party
+   form; its identifier appears across code, prompts, constraints JSON,
+   skills, and docs (grep for the identifier in the template's filename).
+   Replace it with a neutral, in-house DOCX template aligned to
+   MDCG 2022-21's PSUR content requirements (same A–M section structure and
+   tables, original layout), update `template_schema.json` /
+   `section_guidance.json` / rendering / validation, and purge the
+   identifier from every file and output. It must never reappear.
+2. **Event emitter** (`psur-generator/events.py`) — `ProgressEmitter` with
    `progress` (phase/section lifecycle) and `decision` events
    (`{decision, inputs_summary, output, reason, regulatory_basis}`).
    Instrument: denominator selection, PSUR-vs-PMSR cadence (UK MDR
@@ -22,21 +31,22 @@ This file summarizes only what gets built **in this repo**:
    outcomes, final 331-point validation. Wired through `main.py` and
    `agents/orchestrator.py` as an optional parameter; CLI unchanged with a
    no-op emitter. Never invent regulatory citations.
-2. **FastAPI service** (`psur-generator/server/`) — `POST /runs` (content
+3. **FastAPI service** (`psur-generator/server/`) — `POST /runs` (content
    editable, **structure strictly validated** against `data/templates/`
    specs; Pydantic per input type), `GET /runs/{id}/events` (SSE,
    replay-from-start), `GET /runs/{id}/artifacts*` (DOCX/JSON/statistics/
    traceability/validation report). Sync pipeline on a worker thread;
    `MAX_CONCURRENT_RUNS` env.
-3. **Mock data pack audit** — inputs must exercise every FormQAR-054 section
-   A–M plus the UK MDR path: serious incidents, FSCA, a real Western Electric
+4. **Mock data pack audit** — inputs must exercise every MDCG 2022-21 PSUR
+   section A–M plus the UK MDR path: serious incidents, FSCA, a real Western Electric
    trend trip, UK sales rows, ≥1 uncoded complaint, and a Section J
    literature-results input (add template + mock if missing). Update
    `data/templates/INPUT_README.md` for anything added.
-4. **Tests** — introduce `pytest`: emitter ordering, structural validation
+5. **Tests** — introduce `pytest`: emitter ordering, structural validation
    accept/reject, end-to-end mock run with a stubbed LLM client asserting the
    expected decision-event set.
 
 Hard constraints (from the canonical file): deterministic-first statistics
 stays intact; editable content / locked structure enforced server-side; LLM
-keys server-side only; no stubs.
+keys server-side only; no stubs; no proprietary third-party form identifiers
+anywhere in code, prompts, docs, outputs, or UI.
