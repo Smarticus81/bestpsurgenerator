@@ -1,4 +1,4 @@
-"""Smarticus PSUR Generation Harness (urn:coopersurgical:smarticus:psur-harness:v3).
+"""Smarticus PSUR Generation Harness (urn:regground:smarticus:psur-harness:v3).
 
 Implements the four-block harness specification:
 
@@ -107,7 +107,7 @@ _NAMED_REGIONS = {
 
 
 def map_country_to_region(country: str) -> str:
-    """Map a raw country name to the FormQAR-054 regional bucket."""
+    """Map a raw country name to the RG-PSUR-001 regional bucket."""
     if not country:
         return "Rest of World"
     key = str(country).strip().upper()
@@ -795,7 +795,7 @@ def agent_data_ingestion(
 # ---------------------------------------------------------------------------
 
 # F10: BSI 0086 is the legacy MDD Notified Body number; the current EU MDR
-# Notified Body for INSORB (and all CooperSurgical Class III devices going
+# Notified Body for INSORB (and all of the manufacturer's Class III devices going
 # through BSI Netherlands) is 2797.
 _NB_NUMBER_LEGACY_TO_MDR = {
     "0086": "2797",
@@ -852,7 +852,7 @@ def apply_skill_reconciliations(
     # ---------------- F3: preceding-period sales ---------------------------
     # SKILL: Table 1 preceding column MUST be populated from the previous PSUR
     # data when the source provides it. UnitsShippedByRegionAndYear is the
-    # canonical structure used by CooperSurgical previous PSURs.
+    # canonical structure used by previous PSURs.
     sales_data = context.get("sales_data") or {}
     units_by_region_year = section_b.get("UnitsShippedByRegionAndYear", {}) or {}
     if units_by_region_year:
@@ -2054,7 +2054,7 @@ def run_harness(
 
     context = HarnessContext()
     context.set("harness_meta", {
-        "spec_id": "urn:coopersurgical:smarticus:psur-harness:v3",
+        "spec_id": "urn:regground:smarticus:psur-harness:v3",
         "version": "3.0.0",
         "executed_at": datetime.utcnow().isoformat() + "Z",
         "input_dir": str(in_dir),
@@ -2485,7 +2485,7 @@ def sanitize_skill_render_content(psur: Dict[str, Any], context: HarnessContext)
             result = result.replace("section we", "Section I")
             result = re.sub(
                 r"BSI\s*\(UK Approved Body\s*0086\)[^.,;]*",
-                "CE transitional arrangements with CooperSurgical UK Limited as UK Responsible Person",
+                "CE transitional arrangements with the manufacturer's UK Responsible Person entity as UK Responsible Person",
                 result,
                 flags=re.IGNORECASE,
             )

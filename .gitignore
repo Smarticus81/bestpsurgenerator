@@ -15,3 +15,7 @@ Thumbs.db
 # IDE
 .vscode/
 *.code-workspace
+
+# Generated outputs / per-run demo workspaces
+psur-generator/data/output/
+psur-generator/data/runs/

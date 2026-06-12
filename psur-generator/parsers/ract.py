@@ -33,6 +33,8 @@ def parse_ract(filepath: Path) -> Dict[str, Any]:
         }
     """
     ext = filepath.suffix.lower()
+    if ext == ".json":
+        return _parse_ract_json(filepath)
     if ext == ".csv":
         df = _read_csv(filepath)
     elif ext in (".xlsx", ".xls"):
@@ -68,6 +70,69 @@ def parse_ract(filepath: Path) -> Dict[str, Any]:
         f"risk summary: {risk_summary}"
     )
 
+    return result
+
+
+def _parse_ract_json(filepath: Path) -> Dict[str, Any]:
+    """Parse a structured RACT JSON file.
+
+    Expected schema (see data/templates / data/input mock pack):
+        {
+          "device_model": str, "device_name": str,
+          "hazards": [
+            {"hazard_id", "name", "description", "harm", "severity",
+             "max_expected_rate", "controls": [str]}
+          ],
+          "global_thresholds": {...}
+        }
+    """
+    import json as _json
+    with open(filepath, "r", encoding="utf-8") as fh:
+        raw = _json.load(fh)
+
+    hazards: List[Dict[str, Any]] = []
+    max_rates: Dict[str, float] = {}
+    for hz in raw.get("hazards", []) or []:
+        if not isinstance(hz, dict):
+            continue
+        name = str(hz.get("name", "")).strip()
+        rate = hz.get("max_expected_rate")
+        if rate is None and hz.get("max_rate_per_1000") is not None:
+            try:
+                rate = float(hz["max_rate_per_1000"]) / 1000.0
+            except (TypeError, ValueError):
+                rate = None
+        hazard = {
+            "hazard_id": hz.get("hazard_id", ""),
+            "hazard_category": name,
+            "description": hz.get("description", ""),
+            "harm": hz.get("harm", ""),
+            "severity": hz.get("severity", ""),
+            "medical_device_problem": name,
+            "max_expected_rate": rate,
+            "risk_controls": hz.get("controls", []) or [],
+            "risk_level_after": hz.get("risk_level_after", ""),
+        }
+        hazards.append(hazard)
+        if name and rate is not None:
+            try:
+                max_rates[name] = float(rate)
+            except (TypeError, ValueError):
+                pass
+
+    result = {
+        "source_file": filepath.name,
+        "device_name": raw.get("device_name", ""),
+        "hazards": hazards,
+        "max_expected_rates": max_rates,
+        "risk_summary": _compute_risk_summary(hazards),
+        "global_thresholds": raw.get("global_thresholds", {}) or {},
+        "total_hazards": len(hazards),
+    }
+    logger.info(
+        f"RACT (JSON) parsed: {len(hazards)} hazards, "
+        f"{len(max_rates)} max expected rates"
+    )
     return result
 
 

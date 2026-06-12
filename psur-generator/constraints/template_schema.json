@@ -1,6 +1,6 @@
 {
   "meta": {
-    "id": "FormQAR-054_UI_SCHEMA_PACK",
+    "id": "RG-PSUR-001_UI_SCHEMA_PACK",
     "source_file": "template.py",
     "revision": "C",
     "renderer_targets": [
@@ -12,9 +12,9 @@
   },
   "schema": {
   "$schema": "http://json-schema.org/draft-07/schema#",
-  "$id": "https://thinkerton.ai/schemas/psur/formqar-054-rev-c.json",
-  "title": "PSUR FormQAR-054 Rev C",
-  "description": "Authoritative JSON Schema for Periodic Safety Update Reports conforming to FormQAR-054 Revision C. Covers 13 sections (A-M) per EU MDR Article 86, MDCG 2022-21, MEDDEV 2.7/1 Rev 4, and ISO 14971:2019. This schema defines the canonical data contract between PSUR content generation agents and the Template-Clone-and-Fill renderer.",
+  "$id": "https://thinkerton.ai/schemas/psur/rg-psur-001.json",
+  "title": "PSUR RG-PSUR-001",
+  "description": "Authoritative JSON Schema for Periodic Safety Update Reports conforming to RG-PSUR-001. Covers 13 sections (A-M) per EU MDR Article 86, MDCG 2022-21, MEDDEV 2.7/1 Rev 4, and ISO 14971:2019. This schema defines the canonical data contract between PSUR content generation agents and the Template-Clone-and-Fill renderer.",
   "version": "1.0.0",
   "type": "object",
   "required": [
@@ -36,7 +36,7 @@
       "properties": {
         "form_id": {
           "type": "string",
-          "const": "FormQAR-054",
+          "const": "RG-PSUR-001",
           "description": "Template identifier."
         },
         "form_title": {
@@ -221,7 +221,7 @@
     },
     "sections": {
       "type": "object",
-      "description": "All 13 PSUR sections A through M per FormQAR-054 Rev C and MDCG 2022-21.",
+      "description": "All 13 PSUR sections A through M per RG-PSUR-001 and MDCG 2022-21.",
       "required": [
         "A_executive_summary",
         "B_scope_and_device_description",

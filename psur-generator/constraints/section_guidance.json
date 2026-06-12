@@ -1,12 +1,12 @@
 {
   "$schema": "https://json-schema.org/draft/2020-12/schema",
-  "$id": "urn:coopersurgical:psur:agent-guidance:FormQAR-054:v1",
-  "title": "PSUR Agent Guidance — FormQAR-054 Field-by-Field Instructions",
-  "description": "This JSON provides field-level generation instructions for each element of FormQAR-054 Rev C. It is consumed by the GENERATE_SECTIONS and LLM_ENHANCE_SECTIONS agents in the RegulatoryOS pipeline. Every narrative field includes structured guidance for Description, Analysis, Conclusion, Benefit-Risk linkage, trend/action callouts, and a clearly marked example. Agents must not cite specific regulation article numbers, standard clause numbers, or guidance document section references in generated narratives — the compliance obligation is embedded in the template structure itself.",
+  "$id": "urn:regground:psur:agent-guidance:RG-PSUR-001:v1",
+  "title": "PSUR Agent Guidance — RG-PSUR-001 Field-by-Field Instructions",
+  "description": "This JSON provides field-level generation instructions for each element of RG-PSUR-001. It is consumed by the GENERATE_SECTIONS and LLM_ENHANCE_SECTIONS agents in the RegulatoryOS pipeline. Every narrative field includes structured guidance for Description, Analysis, Conclusion, Benefit-Risk linkage, trend/action callouts, and a clearly marked example. Agents must not cite specific regulation article numbers, standard clause numbers, or guidance document section references in generated narratives — the compliance obligation is embedded in the template structure itself.",
   "meta": {
     "version": "1.0.0",
     "compatible_with": "RegulatoryOS v1 Agent Pipeline (GENERATE_SECTIONS, LLM_ENHANCE_SECTIONS)",
-    "template_source": "FormQAR-054_FINAL.docx Rev C"
+    "template_source": "rg_psur_001_template.docx"
   },
 
   "psur_cover_page": {
@@ -16,14 +16,14 @@
     "fields": {
       "manufacturer_information": {
         "company_name": {
-          "field_description": "The legal entity name of the device manufacturer as registered with regulatory authorities. For CooperSurgical products, this is always 'CooperSurgical, Inc.'",
+          "field_description": "The legal entity name of the device manufacturer as registered with regulatory authorities. For the manufacturer's products, this is always 'Example Medical Devices, Inc.'",
           "data_source": "Static — from company registration records",
-          "default_value": "CooperSurgical, Inc."
+          "default_value": "Example Medical Devices, Inc."
         },
         "address_lines": {
           "field_description": "The complete registered business address of the manufacturer. This is the address on file with EUDAMED and competent authorities.",
           "data_source": "Static — from company registration records",
-          "default_value": ["CooperSurgical, Inc.", "95 Corporate Drive, Trumbull, CT 06611", "United States of America"]
+          "default_value": ["Example Medical Devices, Inc.", "1 Example Way, Example City", "United States of America"]
         },
         "manufacturer_srn": {
           "field_description": "The Single Registration Number assigned to the manufacturer in EUDAMED. Format is country code + entity type + numeric sequence.",
@@ -39,7 +39,7 @@
           },
           "name": {
             "field_description": "Legal name of the authorized representative registered in EUDAMED.",
-            "default_value": "CooperSurgical Distribution B.V."
+            "default_value": "Example Medical Distribution B.V."
           },
           "address_lines": {
             "field_description": "Registered address of the authorized representative within the EU/EEA.",
@@ -564,7 +564,7 @@
               "conclusion": "Summarize the sales trajectory and its implications for population exposure in the upcoming period.",
               "benefit_risk_linkage": "Explain how changes in sales volume and geographic distribution affect the representativeness of complaint and incident rates. Larger sales volumes provide more statistical power for trend detection. New market entries may introduce different use patterns."
             },
-            "example": "NOTE: Example only. — During the current data collection period (Jan-2024 to Dec-2024), CooperSurgical distributed 8,547 units of the Fischer Cone Biopsy Excisor family worldwide, representing a 21.3% increase from the preceding period (7,045 units, Jan-2023 to Dec-2023). The United States remained the primary market at 54.4% of global sales (4,650 units), followed by the EEA region at 17.8% (1,520 units). The year-over-year growth trajectory has been consistent at approximately 15 to 21% per period over the four periods shown, reflecting sustained adoption of the device. Two new markets were entered during the reporting period: Australia contributed 285 units (3.3%) and Japan contributed 95 units (1.1%) following regulatory approvals in those markets. The increasing global distribution and growing sales volume provide a robust denominator for complaint rate calculations and improve the statistical sensitivity for trend detection in the vigilance and complaint analyses presented in Sections D through G. The broader geographic distribution also increases the diversity of the population exposure, which strengthens the generalizability of the safety conclusions."
+            "example": "NOTE: Example only. — During the current data collection period (Jan-2024 to Dec-2024), the manufacturer distributed 8,547 units of the Fischer Cone Biopsy Excisor family worldwide, representing a 21.3% increase from the preceding period (7,045 units, Jan-2023 to Dec-2023). The United States remained the primary market at 54.4% of global sales (4,650 units), followed by the EEA region at 17.8% (1,520 units). The year-over-year growth trajectory has been consistent at approximately 15 to 21% per period over the four periods shown, reflecting sustained adoption of the device. Two new markets were entered during the reporting period: Australia contributed 285 units (3.3%) and Japan contributed 95 units (1.1%) following regulatory approvals in those markets. The increasing global distribution and growing sales volume provide a robust denominator for complaint rate calculations and improve the statistical sensitivity for trend detection in the vigilance and complaint analyses presented in Sections D through G. The broader geographic distribution also increases the diversity of the population exposure, which strengthens the generalizability of the safety conclusions."
           }
         },
         "size_and_characteristics_of_population_using_device": {
@@ -970,7 +970,7 @@
             "benefit_risk_linkage": "Explicitly state the impact of external database findings on the benefit-risk assessment. Regulatory actions affecting similar devices may signal risks applicable to the subject device.",
             "trends_and_actions": "If new risks were identified, describe any resulting updates to the Risk Management File."
           },
-          "example": "NOTE: Example only. — External databases and registries were reviewed for the period January 2024 to December 2024 to identify adverse events, recalls, and regulatory actions related to the Fischer Cone Biopsy Excisor and similar electrosurgical cervical excision devices. The databases reviewed included the FDA MAUDE database (searched by product code GEI and brand name), the BfArM vigilance database (searched by GMDN code 35585), and the MHRA medical device alerts database (searched by device type 'electrosurgical excision'). The FDA MAUDE database returned 47 total reports for electrosurgical cervical excision devices during the review period, of which 12 were for CooperSurgical devices and 35 were for similar devices from other manufacturers. The most commonly reported device problems across all manufacturers were electrode breakage (18 reports, 38.3%), thermal injury (9 reports, 19.1%), and generator incompatibility (7 reports, 14.9%). These failure modes are consistent with the hazardous situations documented in the Risk Management File. No new failure modes, hazardous situations, or harms were identified from the external database review that are not already captured in the Risk Management File. One recall was identified affecting a competitor device due to inadequate sterilization packaging validation; this failure mode is addressed in the Fischer Cone Biopsy Excisor's design and manufacturing controls through validated sterilization packaging with routine integrity testing."
+          "example": "NOTE: Example only. — External databases and registries were reviewed for the period January 2024 to December 2024 to identify adverse events, recalls, and regulatory actions related to the Fischer Cone Biopsy Excisor and similar electrosurgical cervical excision devices. The databases reviewed included the FDA MAUDE database (searched by product code GEI and brand name), the BfArM vigilance database (searched by GMDN code 35585), and the MHRA medical device alerts database (searched by device type 'electrosurgical excision'). The FDA MAUDE database returned 47 total reports for electrosurgical cervical excision devices during the review period, of which 12 were for the manufacturer's devices and 35 were for similar devices from other manufacturers. The most commonly reported device problems across all manufacturers were electrode breakage (18 reports, 38.3%), thermal injury (9 reports, 19.1%), and generator incompatibility (7 reports, 14.9%). These failure modes are consistent with the hazardous situations documented in the Risk Management File. No new failure modes, hazardous situations, or harms were identified from the external database review that are not already captured in the Risk Management File. One recall was identified affecting a competitor device due to inadequate sterilization packaging validation; this failure mode is addressed in the Fischer Cone Biopsy Excisor's design and manufacturing controls through validated sterilization packaging with routine integrity testing."
         },
         "table_10_adverse_events_and_recalls": {
           "field_description": "A summary table of external database findings showing each registry reviewed, total matches, relevant findings, benchmarking versus similar devices, regulatory actions, and RMF update references.",
@@ -981,15 +981,15 @@
               {
                 "database_or_registry": "FDA MAUDE",
                 "total_matches": 47,
-                "relevant_findings": "12 reports for CooperSurgical devices (consistent with company vigilance data); 35 reports for similar devices from other manufacturers. Most common: electrode breakage (38.3%), thermal injury (19.1%).",
-                "benchmark_vs_similar_devices": "CooperSurgical device malfunction rate (0.023%) is lower than industry average derived from MAUDE data (estimated 0.05-0.12%).",
+                "relevant_findings": "12 reports for the manufacturer's devices (consistent with company vigilance data); 35 reports for similar devices from other manufacturers. Most common: electrode breakage (38.3%), thermal injury (19.1%).",
+                "benchmark_vs_similar_devices": "manufacturer device malfunction rate (0.023%) is lower than industry average derived from MAUDE data (estimated 0.05-0.12%).",
                 "regulatory_actions_affecting_similar_devices": "One Class II recall for competitor device (sterilization packaging validation failure). Not applicable to Fischer Cone Biopsy Excisor.",
                 "rmf_update_reference": "No RMF update required — all identified failure modes already addressed."
               },
               {
                 "database_or_registry": "BfArM Vigilance Database",
                 "total_matches": 8,
-                "relevant_findings": "8 vigilance reports for electrosurgical cervical excision devices. 2 reports for CooperSurgical devices (already included in Section D). No new failure modes identified.",
+                "relevant_findings": "8 vigilance reports for electrosurgical cervical excision devices. 2 reports for the manufacturer's devices (already included in Section D). No new failure modes identified.",
                 "benchmark_vs_similar_devices": "Comparable incident rates across manufacturers.",
                 "regulatory_actions_affecting_similar_devices": "None identified.",
                 "rmf_update_reference": "No RMF update required."

@@ -828,7 +828,7 @@ def fix_manufacturer_consistency(value: Any, manufacturer_name: str) -> Any:
     """Replace fabricated manufacturer names with the correct one.
 
     The LLM sometimes invents alternative manufacturer names (e.g.,
-    "Neotech Products LLC" instead of "CooperSurgical, Inc."). This
+    "Neotech Products LLC" instead of "Example Medical Devices, Inc."). This
     function scans all string fields and replaces known fabricated names.
     """
     if not manufacturer_name or not manufacturer_name.strip():

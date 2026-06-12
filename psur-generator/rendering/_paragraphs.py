@@ -64,7 +64,7 @@ class ParagraphMixin:
     def _insert_unplaced_charts(self, values: Dict[str, str]):
         """Insert generated charts into their report sections.
 
-        The FormQAR-054 template is inconsistent about chart placeholders, so
+        The RG-PSUR-001 template is inconsistent about chart placeholders, so
         the renderer must place generated PNGs deterministically by section
         anchor instead of relying only on literal {{...}} placeholders.
         """

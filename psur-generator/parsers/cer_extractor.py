@@ -330,7 +330,7 @@ Return a single JSON object with these top-level keys:
 
 {{
   "manufacturer": {{
-    "company_name": "string (legal manufacturer name, e.g. 'CooperSurgical, Inc.')",
+    "company_name": "string (legal manufacturer name, e.g. 'Example Medical Devices, Inc.')",
     "address_lines": ["string (each line of the manufacturer address)"],
     "manufacturer_srn": "string (SRN if mentioned, e.g. 'US-MF-000002607')",
     "country": "string (manufacturer country)",

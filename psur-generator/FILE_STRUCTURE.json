@@ -1,5 +1,5 @@
 {
-  "$schema": "urn:coopersurgical:smarticus:file-structure:v1",
+  "$schema": "urn:regground:smarticus:file-structure:v1",
   "generated": "2026-05-05",
   "root": "psur-generator/",
   "tree": {
@@ -306,7 +306,7 @@
       "__init__.py": {"type": "python", "role": "Exports PSURTemplateRenderer."},
       "renderer.py": {
         "type": "python",
-        "role": "PSURTemplateRenderer facade. Clones FormQAR-054 template, fills placeholders/tables/charts.",
+        "role": "PSURTemplateRenderer facade. Clones RG-PSUR-001 template, fills placeholders/tables/charts.",
         "classes": ["PSURTemplateRenderer"]
       },
       "_value_map.py": {
@@ -373,9 +373,9 @@
         "columns": ["type", "code", "parent_code", "term", "category", "description"],
         "lines": 138
       },
-      "FormQAR-054_template.docx": {
+      "rg_psur_001_template.docx": {
         "type": "docx",
-        "role": "DOCX template cloned during rendering. US Letter, Arial, CooperSurgical headers/footers."
+        "role": "DOCX template cloned during rendering. US Letter, Arial, neutral headers/footers."
       }
     },
 
@@ -426,7 +426,7 @@
       "output/": {
         "_note": "Generated artifacts (gitignored). Typical contents per run:",
         "PSUR_<device>_<year>.json": "Complete PSUR as JSON matching template_schema.json.",
-        "PSUR_<device>_<year>.docx": "Rendered DOCX from FormQAR-054 template.",
+        "PSUR_<device>_<year>.docx": "Rendered DOCX from RG-PSUR-001 template.",
         "PSUR_<device>_<year>_statistics.json": "Full PSURStatistics dataclass as JSON.",
         "PSUR_<device>_<year>_harness_context.json": "16-slot harness context payload.",
         "charts/": {
@@ -451,7 +451,7 @@
     "7_section_generation": "agents/orchestrator.py runs 13 section agents with filtered stats per section",
     "8_postprocessing": "agents/postprocessing.py applies 30+ deterministic fixes to LLM output",
     "9_validation": "validation/validator.py runs 331-point checklist (6 mixin classes)",
-    "10_rendering": "rendering/renderer.py clones FormQAR-054 template, fills placeholders/tables/charts",
+    "10_rendering": "rendering/renderer.py clones RG-PSUR-001 template, fills placeholders/tables/charts",
     "11_output": "PSUR_<device>_<year>.json + .docx in data/output/"
   },
 

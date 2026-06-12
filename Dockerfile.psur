@@ -1,0 +1,26 @@
+# PSUR Generator service — FastAPI wrapper around the generation pipeline.
+# Build from the repo root:
+#   docker build -f Dockerfile.psur -t psur-service .
+# Railway-style: binds the injected $PORT (default 8000).
+FROM python:3.11-slim
+
+ENV PYTHONUNBUFFERED=1 \
+    PYTHONDONTWRITEBYTECODE=1 \
+    PIP_NO_CACHE_DIR=1
+
+WORKDIR /app
+
+# System deps for matplotlib / pdfplumber / python-docx wheels
+RUN apt-get update \
+    && apt-get install -y --no-install-recommends libglib2.0-0 libgomp1 \
+    && rm -rf /var/lib/apt/lists/*
+
+COPY psur-generator/requirements.txt ./requirements.txt
+RUN pip install -r requirements.txt
+
+COPY psur-generator/ ./
+
+# LLM keys (ANTHROPIC_API_KEY / OPENAI_API_KEY) are injected via the
+# environment at deploy time — never baked into the image.
+EXPOSE 8000
+CMD ["sh", "-c", "uvicorn server.app:app --host 0.0.0.0 --port ${PORT:-8000}"]

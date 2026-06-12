@@ -39,7 +39,7 @@ def build_global_context(
 
     device_name = device_context.get("device_name", "UNKNOWN DEVICE")
     mfr_info = device_context.get("manufacturer_info", {})
-    manufacturer = mfr_info.get("company_name", "CooperSurgical")
+    manufacturer = mfr_info.get("company_name", "the manufacturer")
     nb_info = device_context.get("notified_body", {})
     known_ids = device_context.get("known_identifiers", {})
 
@@ -54,7 +54,7 @@ def build_global_context(
     # ── 1. IDENTITY & VOICE ──────────────────────────────────────────
     if class_i_no_nb:
         doc_type_note = (
-            "This document uses a PSUR template (FormQAR-054 Rev C) as a "
+            "This document uses a PSUR template (RG-PSUR-001) as a "
             "structured format for the manufacturer's post-market surveillance "
             "report. Under the EU MDR, Class I non-sterile/non-measuring devices "
             "are subject to PMS Report requirements, not mandatory PSUR requirements. "
@@ -72,7 +72,7 @@ def build_global_context(
     else:
         doc_type_note = (
             "You are drafting a Periodic Safety Update Report (PSUR) using form "
-            "FormQAR-054 Rev C."
+            "RG-PSUR-001."
         )
         audience_text = (
             "AUDIENCE: Notified Body and Competent Authority reviewers who will "

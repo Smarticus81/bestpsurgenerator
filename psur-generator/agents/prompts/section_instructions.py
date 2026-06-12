@@ -36,7 +36,7 @@ belong to other sections — each section owns specific data.
 
 5. **BENEFIT-RISK THREAD**: Each section ends with ONE brief sentence connecting \
 findings to the overall benefit-risk profile. Do NOT restate quantitative data \
-in this sentence. Example: "CooperSurgical considers these findings in the overall \
+in this sentence. Example: "The manufacturer considers these findings in the overall \
 benefit-risk evaluation."
 
 6. **IMDRF DESCRIPTIVE TERMS ONLY**: Use descriptive terms \
@@ -55,7 +55,7 @@ Never copy them verbatim.
 9. **CONCISE ANALYTICAL CONTENT**: Write like a safety assessor summarising \
 evidence, not like a system explaining how it generated a report. State each \
 fact once, interpret it once, move on. Refer to the manufacturer as \
-'CooperSurgical' — never use 'we', 'our', or 'I'. The length of your analysis must be \
+the manufacturer's legal entity name — never use 'we', 'our', or 'I'. The length of your analysis must be \
 proportional to the risk signal: a null finding gets 1–2 sentences, not a \
 paragraph. A significant safety signal gets a full paragraph with root cause, \
 corrective action, and outcome. NEVER explain what a PSUR is, how this report \
@@ -509,10 +509,10 @@ array [].
 - Do NOT fabricate survey results, response rates, training session counts, or satisfaction \
 scores.
 - Even when no feedback data exists, the summary narrative must still be substantive and should:
-  1. Describe what types of customer feedback mechanisms CooperSurgical maintains
+  1. Describe what types of customer feedback mechanisms the manufacturer maintains
   2. Explain that during this reporting period, no structured feedback separate from \
 the complaint system was collected
-  3. Describe CooperSurgical's approach to gathering user feedback in general
+  3. Describe the manufacturer's approach to gathering user feedback in general
   4. Note whether any indirect feedback (e.g., from sales representatives, training \
 sessions, or user groups) was received
   5. Conclude with how this section's findings contribute to the benefit-risk assessment""",
@@ -677,7 +677,7 @@ If Section G (PRIOR SECTION FINDINGS) describes corrective actions such as proce
 improvements, lot quarantine, production changes, or investigation — you MUST address \
 whether these warranted formal CAPA initiation. Provide EXPLICIT risk-based rationale:
 - If the actions described in G did NOT result in a formal CAPA, explain WHY (e.g., \
-"The process adjustments described in Section G were managed through CooperSurgical's routine \
+"The process adjustments described in Section G were managed through the manufacturer's routine \
 quality system and did not meet the severity/recurrence threshold for a formal \
 corrective and preventive action").
 - If Section H describes FSCAs, address whether CAPAs were linked to those FSCAs.
@@ -725,7 +725,7 @@ The LLM MUST NOT generate, fabricate, or infer any external database findings.
 ### What you MUST do:
 - Set registries_reviewed_summary to: "External database and registry review results \
 are maintained separately and will be incorporated by the regulatory affairs team. \
-CooperSurgical's external database review protocol covers the following databases: FDA MAUDE, \
+the manufacturer's external database review protocol covers the following databases: FDA MAUDE, \
 EU Vigilance/Eudamed, MHRA, BfArM, TGA DAEN, and Health Canada. Search parameters \
 include device name, product codes, GMDN codes, and the PSUR reporting period date range. \
 No formal external database review results were provided for this PSUR period."
@@ -752,10 +752,10 @@ The LLM MUST NOT generate, fabricate, or infer any PMCF study results.
 
 ### What you MUST do:
 - Set summary_or_na_statement to: "PMCF data and results are maintained separately \
-and will be incorporated by the regulatory affairs team. CooperSurgical's PMCF approach for this \
+and will be incorporated by the regulatory affairs team. the manufacturer's PMCF approach for this \
 device is documented in the PMCF Plan [reference plan document from device context \
 if available]. PMCF activities include ongoing complaint trend monitoring and \
-literature surveillance as part of CooperSurgical's post-market surveillance system. No formal \
+literature surveillance as part of the manufacturer's post-market surveillance system. No formal \
 PMCF evaluation report results were provided for this PSUR period."
 - Table 11 should list ONLY general PMCF activity categories (complaint monitoring, \
 literature review) with status "Ongoing" — no invented findings or results.

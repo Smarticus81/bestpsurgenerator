@@ -1,6 +1,6 @@
 ---
 name: psur-validate
-description: Validate all PSUR tables against FormQAR-054 requirements. Run after all tables are built to catch template debris, arithmetic errors, classification failures, missing data, and formatting issues before the document is finalized. Reports pass/fail for each check.
+description: Validate all PSUR tables against RG-PSUR-001 requirements. Run after all tables are built to catch template debris, arithmetic errors, classification failures, missing data, and formatting issues before the document is finalized. Reports pass/fail for each check.
 when_to_use: Trigger after building PSUR tables, before finalizing the PSUR document, when checking PSUR quality, or when the user asks to validate the PSUR.
 disable-model-invocation: true
 allowed-tools: Bash(python3 *) Read Grep

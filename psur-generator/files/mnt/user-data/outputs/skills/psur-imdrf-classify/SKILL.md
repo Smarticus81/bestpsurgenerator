@@ -49,7 +49,7 @@ This is the fallback — it is always better than "Unknown."
 
 ## Symptom Code → IMDRF Mapping Table
 
-This table covers known CSI Symptom Codes for CooperSurgical surgical devices. For device families not listed, apply the keyword matching in Step 3.
+This table covers known CSI Symptom Codes for the manufacturer's surgical devices. For device families not listed, apply the keyword matching in Step 3.
 
 | CSI Symptom Code | IMDRF Harm | IMDRF Medical Device Problem |
 |---|---|---|

@@ -956,7 +956,7 @@
       "framework": "EU_MDR",
       "criticality": "MINOR",
       "keywords": [],
-      "guidance_ref": "FormQAR-054 writing rules"
+      "guidance_ref": "RG-PSUR-001 writing rules"
     },
     {
       "req_id": "R.02",
@@ -966,7 +966,7 @@
       "framework": "EU_MDR",
       "criticality": "MINOR",
       "keywords": [],
-      "guidance_ref": "FormQAR-054 writing rules"
+      "guidance_ref": "RG-PSUR-001 writing rules"
     },
     {
       "req_id": "R.03",

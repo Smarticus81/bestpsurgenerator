@@ -4,7 +4,7 @@ This file provides guidance to Claude Code (claude.ai/code) when working with co
 
 ## Project Overview
 
-Automated generator for **Periodic Safety Update Reports (PSURs)** for medical devices. Produces EU MDR Article 86 / MDCG 2022-21 compliant PSURs with UK MDR 2024 (Part 4A) support. Outputs both structured JSON and formatted DOCX (from FormQAR-054 template).
+Automated generator for **Periodic Safety Update Reports (PSURs)** for medical devices. Produces EU MDR Article 86 / MDCG 2022-21 compliant PSURs with UK MDR 2024 (Part 4A) support. Outputs both structured JSON and formatted DOCX (from RG-PSUR-001 template).
 
 LLM-powered multi-agent pipeline: 13 section agents generate regulatory prose from parsed input data, with deterministic pre-computed statistics to prevent fabrication.
 
@@ -32,18 +32,24 @@ python main.py render path/to/PSUR.json [-o output.docx]
 
 # Audit PSUR against MDCG 2022-21 + UK MDR 2024
 python main.py audit path/to/PSUR.docx [--no-uk-mdr] [--no-llm] [-o report.json]
+
+# Run the FastAPI demo service (streams progress/decision events via SSE)
+uvicorn server.app:app          # MAX_CONCURRENT_RUNS env caps parallel runs (default 1)
+
+# Run the test suite (LLM fully stubbed — no network)
+pytest
 ```
 
-No test suite exists. Validation is the built-in 331-point checklist via `python main.py validate`.
+Tests live in `psur-generator/tests/` (emitter, structural validation, stubbed end-to-end run). The 331-point checklist remains available via `python main.py validate`.
 
 ## Architecture
 
-### Pipeline Phases (main.py orchestrates)
+### Pipeline Phases (pipeline/run.py — shared by CLI and server)
 
 ```
 Input files (CSV/Excel/PDF/DOCX/JSON) in data/input/
   → pipeline/discovery.py    — auto-discover & classify by filename keywords
-  → pipeline/input_parsing.py — delegate to parsers/ (universal, sales, complaints, capa, ract, etc.)
+  → pipeline/input_parsing.py — delegate to parsers/ (universal, sales, complaints, capa, ract, literature, etc.)
   → pipeline/device_context.py — extract device metadata (JSON fast-path or LLM fallback)
   → imdrf_coder.py           — auto-code uncoded complaints with IMDRF Annex A/F terms
   → statistics.py             — deterministic pre-computation of ALL metrics (rates, UCL, cross-tabs)
@@ -54,11 +60,20 @@ Input files (CSV/Excel/PDF/DOCX/JSON) in data/input/
   → Output: PSUR_<device>_<year>.json + .docx in data/output/
 ```
 
+`main.py generate` and the FastAPI service (`server/app.py`) both call `pipeline/run.py::run_generation` — the single pipeline code path. An optional `ProgressEmitter` (`events.py`) streams `progress`/`decision`/`error`/`complete` events; the CLI uses a `NoopEmitter`, the server a `QueueEmitter` (SSE replay + live). Every `decision` event carries a human-readable reason and canonical regulatory citations (see `events.CANONICAL_CITATIONS`) for denominator selection, PSUR/PMSR cadence, UK MDR activation, IMDRF coding, RACT occurrence codes (O1-O5), Western Electric trend verdicts, audit remediation, and the final validation outcome.
+
+### FastAPI Service (server/)
+
+- `GET /defaults` — editable mock pack + locked structure specs (from `data/input/` + `server/specs.py`)
+- `POST /runs` — content editable, structure strictly locked (exact column/key sets; violations → 422); writes a per-run workspace under `data/runs/<id>/` and runs the pipeline on a worker thread
+- `GET /runs/{id}` (status), `GET /runs/{id}/events` (SSE), `GET /runs/{id}/artifacts[/{name}]` (downloads)
+- `Dockerfile.psur` at the repo root builds the service image (binds `$PORT`, default 8000)
+
 ### Key Design Decisions
 
 - **Deterministic-first statistics**: `statistics.py` pre-calculates all metrics and passes them as facts to LLM agents. Agents are instructed to use these numbers verbatim, never calculate their own. The validator detects fabricated statistics.
 - **Agent isolation**: Each of the 13 section agents receives only stats relevant to that section via `agents/stats_filter.py`. Section D sees serious incidents; Section J sees literature.
-- **Template-clone-and-fill**: Rendering clones `constraints/FormQAR-054_template.docx` and fills it via python-docx, preserving exact layout fidelity.
+- **Template-clone-and-fill**: Rendering clones `constraints/rg_psur_001_template.docx` and fills it via python-docx, preserving exact layout fidelity.
 - **LLM routing**: Anthropic Claude (primary) → OpenAI GPT (rate-limit fallback) → Ollama (local override). Managed in `llm_client.py`.
 - **Post-processing over perfection**: Rather than requiring perfect LLM output, `postprocessing.py` applies targeted fixes (repair malformed tables, normalize IMDRF codes, strip NB references for Class I, etc.).
 
@@ -71,7 +86,7 @@ Input files (CSV/Excel/PDF/DOCX/JSON) in data/input/
 | `mdcg_2022_21_knowledge_base.json` | MDCG 2022-21 + UK MDR regulatory requirements |
 | `ract_occurrence_codes.json` | Risk classification O1-O5 with rate thresholds |
 | `harm_mdp_codes.csv` | IMDRF Annex A (Device Problem) and Annex F (Harm) code tables |
-| `FormQAR-054_template.docx` | DOCX template cloned during rendering |
+| `rg_psur_001_template.docx` | DOCX template cloned during rendering |
 
 ### Validation System (validation/)
 

@@ -39,7 +39,7 @@ agents/orchestrator.py (Section C receives deterministic table data)
   ↓
 rendering/_tables.py (renders into DOCX with proper formatting)
   ↓
-Output: PSUR with FormQAR-054 compliant Section C sales table
+Output: PSUR with RG-PSUR-001 compliant Section C sales table
 ```
 
 ## Key Benefits

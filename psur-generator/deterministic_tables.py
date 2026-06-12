@@ -1,4 +1,4 @@
-"""Deterministic FormQAR-054 table construction.
+"""Deterministic RG-PSUR-001 table construction.
 
 This module implements the local PSUR table skills in production code:
 

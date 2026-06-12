@@ -1,5 +1,5 @@
 {
-  "$schema": "urn:coopersurgical:psur:mdcg-2022-21-kb:v1",
+  "$schema": "urn:regground:psur:mdcg-2022-21-kb:v1",
   "title": "MDCG 2022-21 Regulatory Knowledge Base for PSUR Section Agents",
   "description": "Structured extraction of MDCG 2022-21 (December 2022) — Guidance on Periodic Safety Update Report (PSUR) according to Regulation (EU) 2017/745 (MDR). This knowledge base provides each PSUR section agent with the specific regulatory context, requirements, and assessment criteria from the guidance document and its five annexes. Agents use this to understand WHY each PSUR element is required, WHAT the regulatory assessor expects, and HOW data should be presented and assessed.",
   "source_document": {
