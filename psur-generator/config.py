@@ -22,14 +22,16 @@ INPUT_DIR.mkdir(parents=True, exist_ok=True)
 OUTPUT_DIR.mkdir(parents=True, exist_ok=True)
 
 ANTHROPIC_API_KEY = os.environ.get("ANTHROPIC_API_KEY")
-MODEL = "claude-sonnet-4-20250514"
+# claude-sonnet-4-20250514 was retired 2026-06-15; override via ANTHROPIC_MODEL env.
+_DEFAULT_ANTHROPIC_MODEL = "claude-sonnet-4-6"
+MODEL = os.environ.get("ANTHROPIC_MODEL", _DEFAULT_ANTHROPIC_MODEL)
 
 # OpenAI fallback (used when Anthropic quota/rate-limit is hit)
 OPENAI_API_KEY = os.environ.get("OPENAI_API_KEY")
 OPENAI_FALLBACK_MODEL = os.environ.get("OPENAI_FALLBACK_MODEL", "gpt-4.1")
 
 # Reasoning model — used for narratives, tables, and validation/quality
-MODEL_REASONING = os.environ.get("REASONING_MODEL", "claude-sonnet-4-20250514")
+MODEL_REASONING = os.environ.get("REASONING_MODEL", _DEFAULT_ANTHROPIC_MODEL)
 
 # Ollama local model support (native /api/chat endpoint)
 OLLAMA_URL = os.environ.get("OLLAMA_URL", "http://localhost:11434")
