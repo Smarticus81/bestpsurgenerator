@@ -22,16 +22,35 @@ INPUT_DIR.mkdir(parents=True, exist_ok=True)
 OUTPUT_DIR.mkdir(parents=True, exist_ok=True)
 
 ANTHROPIC_API_KEY = os.environ.get("ANTHROPIC_API_KEY")
-# claude-sonnet-4-20250514 was retired 2026-06-15; override via ANTHROPIC_MODEL env.
-_DEFAULT_ANTHROPIC_MODEL = "claude-sonnet-4-6"
-MODEL = os.environ.get("ANTHROPIC_MODEL", _DEFAULT_ANTHROPIC_MODEL)
+
+# Opus-only policy — never Sonnet/Haiku. Override via ANTHROPIC_MODEL / REASONING_MODEL.
+_ALLOWED_ANTHROPIC_MODELS = frozenset({
+    "claude-opus-4-6",
+    "claude-opus-4-7",
+    "claude-opus-4-8",
+})
+_DEFAULT_ANTHROPIC_MODEL = "claude-opus-4-8"
+
+
+def _resolve_anthropic_model(env_var: str) -> str:
+    model = (os.environ.get(env_var) or _DEFAULT_ANTHROPIC_MODEL).strip()
+    if model not in _ALLOWED_ANTHROPIC_MODELS:
+        allowed = ", ".join(sorted(_ALLOWED_ANTHROPIC_MODELS))
+        raise ValueError(
+            f"{env_var}={model!r} is not allowed. "
+            f"PSUR generation uses Opus only ({allowed})."
+        )
+    return model
+
+
+MODEL = _resolve_anthropic_model("ANTHROPIC_MODEL")
 
 # OpenAI fallback (used when Anthropic quota/rate-limit is hit)
 OPENAI_API_KEY = os.environ.get("OPENAI_API_KEY")
 OPENAI_FALLBACK_MODEL = os.environ.get("OPENAI_FALLBACK_MODEL", "gpt-4.1")
 
 # Reasoning model — used for narratives, tables, and validation/quality
-MODEL_REASONING = os.environ.get("REASONING_MODEL", _DEFAULT_ANTHROPIC_MODEL)
+MODEL_REASONING = _resolve_anthropic_model("REASONING_MODEL")
 
 # Ollama local model support (native /api/chat endpoint)
 OLLAMA_URL = os.environ.get("OLLAMA_URL", "http://localhost:11434")

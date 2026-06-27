@@ -22,7 +22,7 @@ def print_performance_summary(
     api_calls = token_usage["api_calls"]
     api_latency = token_usage["total_latency_s"]
 
-    # Pricing: Anthropic Claude Sonnet ($3/$15 per 1M); OpenAI GPT-4.1 ($2/$8 per 1M)
+    # Pricing: Anthropic Claude Opus 4.8 ($5/$25 per 1M); OpenAI GPT-4.1 ($2/$8 per 1M)
     # Ollama is local/free
     provider = get_active_provider()
     if provider == "ollama":
@@ -32,8 +32,8 @@ def print_performance_summary(
         cost_input = (input_tk / 1_000_000) * 2.0
         cost_output = (output_tk / 1_000_000) * 8.0
     else:
-        cost_input = (input_tk / 1_000_000) * 3.0
-        cost_output = (output_tk / 1_000_000) * 15.0
+        cost_input = (input_tk / 1_000_000) * 5.0
+        cost_output = (output_tk / 1_000_000) * 25.0
     cost_total = cost_input + cost_output
 
     console.print(f"\n{'─' * 56}")
