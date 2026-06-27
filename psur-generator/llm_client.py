@@ -250,9 +250,10 @@ def create_message(
             kwargs: Dict[str, Any] = dict(
                 model=model,
                 max_tokens=max_tokens,
-                temperature=temperature,
                 messages=messages,
             )
+            if _anthropic_supports_temperature(model):
+                kwargs["temperature"] = temperature
             if system:
                 kwargs["system"] = system
 
@@ -296,6 +297,17 @@ def _is_reasoning_model(model: str) -> bool:
         m.startswith("o1") or m.startswith("o3") or m.startswith("o4")
         or m.startswith("gpt-5")
     )
+
+
+def _anthropic_supports_temperature(model: str) -> bool:
+    """Return False when Anthropic rejects the temperature parameter."""
+    m = model.lower()
+    if not m.startswith("claude-opus-4-"):
+        return True
+    suffix = m[len("claude-opus-4-"):]
+    if suffix.isdigit():
+        return int(suffix) < 6
+    return True
 
 
 def _call_openai(
