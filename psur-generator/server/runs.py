@@ -1,5 +1,7 @@
 """In-memory run registry + worker-thread execution of the real pipeline."""
 import os
+import re
+import shutil
 import threading
 import uuid
 from dataclasses import dataclass, field
@@ -15,6 +17,10 @@ from pipeline.run import run_generation
 PIPELINE_RUNNER = run_generation
 
 RUNS_DIR = BASE_DIR / "data" / "runs"
+
+# Run ids are uuid4().hex[:12] (see RunRegistry.create). The same pattern
+# gates on-disk workspace deletion so a path can never escape RUNS_DIR.
+_RUN_ID_RE = re.compile(r"^[0-9a-f]{12}$")
 
 
 def max_concurrent_runs() -> int:
@@ -76,6 +82,29 @@ class RunRegistry:
         with self._lock:
             return self._runs.get(run_id)
 
+    def list_all(self) -> List[RunRecord]:
+        with self._lock:
+            return list(self._runs.values())
+
+    def known_ids(self) -> set:
+        with self._lock:
+            return set(self._runs)
+
+    def remove(self, run_id: str) -> str:
+        """Remove a finished run from the registry.
+
+        Returns "removed", "active" (queued/running — not removable),
+        or "missing" (not known to this process).
+        """
+        with self._lock:
+            record = self._runs.get(run_id)
+            if record is None:
+                return "missing"
+            if record.status in ("queued", "running"):
+                return "active"
+            del self._runs[run_id]
+            return "removed"
+
     def active_count(self) -> int:
         with self._lock:
             return sum(1 for r in self._runs.values()
@@ -127,3 +156,35 @@ class RunRegistry:
 
 
 REGISTRY = RunRegistry()
+
+
+def is_valid_run_id(run_id: str) -> bool:
+    return bool(_RUN_ID_RE.fullmatch(run_id))
+
+
+def orphaned_workspaces() -> List[Path]:
+    """On-disk run workspaces with no in-memory record — left behind by a
+    previous server process (the registry does not survive restarts).
+    Newest first."""
+    if not RUNS_DIR.is_dir():
+        return []
+    known = REGISTRY.known_ids()
+    return sorted(
+        (p for p in RUNS_DIR.iterdir()
+         if p.is_dir() and _RUN_ID_RE.fullmatch(p.name) and p.name not in known),
+        key=lambda p: p.stat().st_mtime,
+        reverse=True,
+    )
+
+
+def delete_workspace(run_id: str) -> bool:
+    """Remove a run's on-disk workspace. Returns True if a directory was
+    removed. Ids that don't match the run-id pattern are refused so the
+    path can never point outside RUNS_DIR."""
+    if not is_valid_run_id(run_id):
+        return False
+    path = RUNS_DIR / run_id
+    if path.is_dir():
+        shutil.rmtree(path)
+        return True
+    return False

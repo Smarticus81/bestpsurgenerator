@@ -3,7 +3,9 @@
 Endpoints:
   GET  /defaults                      — editable mock pack + locked structure specs
   POST /runs                          — validate inputs, start a run (worker thread)
+  GET  /runs                          — run history (this process + orphaned workspaces)
   GET  /runs/{run_id}                 — run status
+  DELETE /runs/{run_id}               — delete a finished run + its workspace
   GET  /runs/{run_id}/events          — SSE stream (replay from seq 0, then live)
   GET  /runs/{run_id}/artifacts       — list generated artifacts
   GET  /runs/{run_id}/artifacts/{name}— download one artifact
@@ -12,6 +14,7 @@ Start with:  uvicorn server.app:app  (from psur-generator/)
 LLM API keys are read server-side from the environment / .env, as for the CLI.
 """
 import json
+from datetime import datetime, timezone
 from typing import Any, Dict, Iterator
 
 from fastapi import FastAPI, HTTPException
@@ -20,10 +23,18 @@ from fastapi.responses import FileResponse, StreamingResponse
 from server.models import (
     ArtifactList,
     RunCreated,
+    RunDeleted,
+    RunList,
     RunRequest,
     RunStatus,
+    RunSummary,
 )
-from server.runs import REGISTRY, RunRecord
+from server.runs import (
+    REGISTRY,
+    RunRecord,
+    delete_workspace,
+    orphaned_workspaces,
+)
 from server.specs import (
     JSON_SPECS,
     TABLE_SPECS,
@@ -100,6 +111,50 @@ def create_run(request: RunRequest) -> RunCreated:
     # ── Run the real pipeline on a worker thread ─────────────────────
     REGISTRY.start(record)
     return RunCreated(run_id=record.run_id)
+
+
+@app.get("/runs", response_model=RunList)
+def list_runs() -> RunList:
+    """Run history: every run known to this process, plus orphaned on-disk
+    workspaces left by previous processes (status "orphaned"). Newest first."""
+    summaries = []
+    for record in REGISTRY.list_all():
+        result = record.result or {}
+        summaries.append(RunSummary(
+            run_id=record.run_id,
+            status=record.status,
+            created_at=record.created_at,
+            finished_at=record.finished_at,
+            device_name=result.get("device_name"),
+            report_type=result.get("report_type"),
+        ))
+    for path in orphaned_workspaces():
+        summaries.append(RunSummary(
+            run_id=path.name,
+            status="orphaned",
+            created_at=datetime.fromtimestamp(
+                path.stat().st_mtime, timezone.utc).isoformat(),
+        ))
+    summaries.sort(key=lambda s: s.created_at or "", reverse=True)
+    return RunList(runs=summaries)
+
+
+@app.delete("/runs/{run_id}", response_model=RunDeleted)
+def delete_run(run_id: str) -> RunDeleted:
+    """Delete a finished run: drop it from the registry and remove its
+    on-disk workspace. Also deletes orphaned workspaces from previous
+    processes. Queued/running runs cannot be deleted (409)."""
+    outcome = REGISTRY.remove(run_id)
+    if outcome == "active":
+        raise HTTPException(
+            status_code=409,
+            detail=f"run '{run_id}' is still queued or running — "
+                   "wait for it to finish before deleting",
+        )
+    workspace_removed = delete_workspace(run_id)
+    if outcome == "missing" and not workspace_removed:
+        raise HTTPException(status_code=404, detail=f"unknown run '{run_id}'")
+    return RunDeleted(run_id=run_id, workspace_removed=workspace_removed)
 
 
 def _get_record_or_404(run_id: str) -> RunRecord:
