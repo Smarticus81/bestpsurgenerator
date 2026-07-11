@@ -1,37 +1,85 @@
 date,device_model,device_name,region,units_sold
-2023-01-01,Stapler-X100,Laparoscopic Stapler X100,NorthAmerica,269
-2023-01-01,Stapler-X100,Laparoscopic Stapler X100,Europe,446
-2023-02-01,Stapler-X100,Laparoscopic Stapler X100,NorthAmerica,432
-2023-02-01,Stapler-X100,Laparoscopic Stapler X100,Europe,893
-2023-03-01,Stapler-X100,Laparoscopic Stapler X100,NorthAmerica,827
-2023-03-01,Stapler-X100,Laparoscopic Stapler X100,Europe,163
-2023-04-01,Stapler-X100,Laparoscopic Stapler X100,NorthAmerica,662
-2023-04-01,Stapler-X100,Laparoscopic Stapler X100,Europe,473
-2023-05-01,Stapler-X100,Laparoscopic Stapler X100,NorthAmerica,991
-2023-05-01,Stapler-X100,Laparoscopic Stapler X100,Europe,409
-2023-06-01,Stapler-X100,Laparoscopic Stapler X100,NorthAmerica,812
-2023-06-01,Stapler-X100,Laparoscopic Stapler X100,Europe,292
-2023-07-01,Stapler-X100,Laparoscopic Stapler X100,NorthAmerica,218
-2023-07-01,Stapler-X100,Laparoscopic Stapler X100,Europe,438
-2023-08-01,Stapler-X100,Laparoscopic Stapler X100,NorthAmerica,242
-2023-08-01,Stapler-X100,Laparoscopic Stapler X100,Europe,381
-2023-09-01,Stapler-X100,Laparoscopic Stapler X100,NorthAmerica,509
-2023-09-01,Stapler-X100,Laparoscopic Stapler X100,Europe,794
-2023-10-01,Stapler-X100,Laparoscopic Stapler X100,NorthAmerica,379
-2023-10-01,Stapler-X100,Laparoscopic Stapler X100,Europe,463
-2023-11-01,Stapler-X100,Laparoscopic Stapler X100,NorthAmerica,601
-2023-11-01,Stapler-X100,Laparoscopic Stapler X100,Europe,565
-2023-12-01,Stapler-X100,Laparoscopic Stapler X100,NorthAmerica,193
-2023-12-01,Stapler-X100,Laparoscopic Stapler X100,Europe,585
-2023-01-01,Stapler-X100,Laparoscopic Stapler X100,United Kingdom,110
-2023-02-01,Stapler-X100,Laparoscopic Stapler X100,United Kingdom,140
-2023-03-01,Stapler-X100,Laparoscopic Stapler X100,United Kingdom,120
-2023-04-01,Stapler-X100,Laparoscopic Stapler X100,United Kingdom,130
-2023-05-01,Stapler-X100,Laparoscopic Stapler X100,United Kingdom,150
-2023-06-01,Stapler-X100,Laparoscopic Stapler X100,United Kingdom,125
-2023-07-01,Stapler-X100,Laparoscopic Stapler X100,United Kingdom,105
-2023-08-01,Stapler-X100,Laparoscopic Stapler X100,United Kingdom,100
-2023-09-01,Stapler-X100,Laparoscopic Stapler X100,United Kingdom,135
-2023-10-01,Stapler-X100,Laparoscopic Stapler X100,United Kingdom,115
-2023-11-01,Stapler-X100,Laparoscopic Stapler X100,United Kingdom,130
-2023-12-01,Stapler-X100,Laparoscopic Stapler X100,United Kingdom,108
+2023-01-01,Stapler-X100,Laparoscopic Stapler X100,United States,269
+2023-01-01,Stapler-X100,Laparoscopic Stapler X100,Germany,180
+2023-01-01,Stapler-X100,Laparoscopic Stapler X100,France,133
+2023-01-01,Stapler-X100,Laparoscopic Stapler X100,Italy,89
+2023-01-01,Stapler-X100,Laparoscopic Stapler X100,Netherlands,44
+2023-02-01,Stapler-X100,Laparoscopic Stapler X100,United States,432
+2023-02-01,Stapler-X100,Laparoscopic Stapler X100,Germany,359
+2023-02-01,Stapler-X100,Laparoscopic Stapler X100,France,267
+2023-02-01,Stapler-X100,Laparoscopic Stapler X100,Italy,178
+2023-02-01,Stapler-X100,Laparoscopic Stapler X100,Netherlands,89
+2023-03-01,Stapler-X100,Laparoscopic Stapler X100,United States,827
+2023-03-01,Stapler-X100,Laparoscopic Stapler X100,Germany,67
+2023-03-01,Stapler-X100,Laparoscopic Stapler X100,France,48
+2023-03-01,Stapler-X100,Laparoscopic Stapler X100,Italy,32
+2023-03-01,Stapler-X100,Laparoscopic Stapler X100,Netherlands,16
+2023-04-01,Stapler-X100,Laparoscopic Stapler X100,United States,662
+2023-04-01,Stapler-X100,Laparoscopic Stapler X100,Germany,191
+2023-04-01,Stapler-X100,Laparoscopic Stapler X100,France,141
+2023-04-01,Stapler-X100,Laparoscopic Stapler X100,Italy,94
+2023-04-01,Stapler-X100,Laparoscopic Stapler X100,Netherlands,47
+2023-05-01,Stapler-X100,Laparoscopic Stapler X100,United States,991
+2023-05-01,Stapler-X100,Laparoscopic Stapler X100,Germany,166
+2023-05-01,Stapler-X100,Laparoscopic Stapler X100,France,122
+2023-05-01,Stapler-X100,Laparoscopic Stapler X100,Italy,81
+2023-05-01,Stapler-X100,Laparoscopic Stapler X100,Netherlands,40
+2023-06-01,Stapler-X100,Laparoscopic Stapler X100,United States,812
+2023-06-01,Stapler-X100,Laparoscopic Stapler X100,Germany,118
+2023-06-01,Stapler-X100,Laparoscopic Stapler X100,France,87
+2023-06-01,Stapler-X100,Laparoscopic Stapler X100,Italy,58
+2023-06-01,Stapler-X100,Laparoscopic Stapler X100,Netherlands,29
+2023-07-01,Stapler-X100,Laparoscopic Stapler X100,United States,218
+2023-07-01,Stapler-X100,Laparoscopic Stapler X100,Germany,177
+2023-07-01,Stapler-X100,Laparoscopic Stapler X100,France,131
+2023-07-01,Stapler-X100,Laparoscopic Stapler X100,Italy,87
+2023-07-01,Stapler-X100,Laparoscopic Stapler X100,Netherlands,43
+2023-08-01,Stapler-X100,Laparoscopic Stapler X100,United States,242
+2023-08-01,Stapler-X100,Laparoscopic Stapler X100,Germany,153
+2023-08-01,Stapler-X100,Laparoscopic Stapler X100,France,114
+2023-08-01,Stapler-X100,Laparoscopic Stapler X100,Italy,76
+2023-08-01,Stapler-X100,Laparoscopic Stapler X100,Netherlands,38
+2023-09-01,Stapler-X100,Laparoscopic Stapler X100,United States,509
+2023-09-01,Stapler-X100,Laparoscopic Stapler X100,Germany,319
+2023-09-01,Stapler-X100,Laparoscopic Stapler X100,France,238
+2023-09-01,Stapler-X100,Laparoscopic Stapler X100,Italy,158
+2023-09-01,Stapler-X100,Laparoscopic Stapler X100,Netherlands,79
+2023-10-01,Stapler-X100,Laparoscopic Stapler X100,United States,379
+2023-10-01,Stapler-X100,Laparoscopic Stapler X100,Germany,187
+2023-10-01,Stapler-X100,Laparoscopic Stapler X100,France,138
+2023-10-01,Stapler-X100,Laparoscopic Stapler X100,Italy,92
+2023-10-01,Stapler-X100,Laparoscopic Stapler X100,Netherlands,46
+2023-11-01,Stapler-X100,Laparoscopic Stapler X100,United States,601
+2023-11-01,Stapler-X100,Laparoscopic Stapler X100,Germany,227
+2023-11-01,Stapler-X100,Laparoscopic Stapler X100,France,169
+2023-11-01,Stapler-X100,Laparoscopic Stapler X100,Italy,113
+2023-11-01,Stapler-X100,Laparoscopic Stapler X100,Netherlands,56
+2023-12-01,Stapler-X100,Laparoscopic Stapler X100,United States,193
+2023-12-01,Stapler-X100,Laparoscopic Stapler X100,Germany,235
+2023-12-01,Stapler-X100,Laparoscopic Stapler X100,France,175
+2023-12-01,Stapler-X100,Laparoscopic Stapler X100,Italy,117
+2023-12-01,Stapler-X100,Laparoscopic Stapler X100,Netherlands,58
+2023-01-01,Stapler-X100,Laparoscopic Stapler X100,Northern Ireland,3
+2023-01-01,Stapler-X100,Laparoscopic Stapler X100,United Kingdom,107
+2023-02-01,Stapler-X100,Laparoscopic Stapler X100,Northern Ireland,4
+2023-02-01,Stapler-X100,Laparoscopic Stapler X100,United Kingdom,136
+2023-03-01,Stapler-X100,Laparoscopic Stapler X100,Northern Ireland,4
+2023-03-01,Stapler-X100,Laparoscopic Stapler X100,United Kingdom,116
+2023-04-01,Stapler-X100,Laparoscopic Stapler X100,Northern Ireland,4
+2023-04-01,Stapler-X100,Laparoscopic Stapler X100,United Kingdom,126
+2023-05-01,Stapler-X100,Laparoscopic Stapler X100,Northern Ireland,4
+2023-05-01,Stapler-X100,Laparoscopic Stapler X100,United Kingdom,146
+2023-06-01,Stapler-X100,Laparoscopic Stapler X100,Northern Ireland,4
+2023-06-01,Stapler-X100,Laparoscopic Stapler X100,United Kingdom,121
+2023-07-01,Stapler-X100,Laparoscopic Stapler X100,Northern Ireland,3
+2023-07-01,Stapler-X100,Laparoscopic Stapler X100,United Kingdom,102
+2023-08-01,Stapler-X100,Laparoscopic Stapler X100,Northern Ireland,3
+2023-08-01,Stapler-X100,Laparoscopic Stapler X100,United Kingdom,97
+2023-09-01,Stapler-X100,Laparoscopic Stapler X100,Northern Ireland,4
+2023-09-01,Stapler-X100,Laparoscopic Stapler X100,United Kingdom,131
+2023-10-01,Stapler-X100,Laparoscopic Stapler X100,Northern Ireland,3
+2023-10-01,Stapler-X100,Laparoscopic Stapler X100,United Kingdom,112
+2023-11-01,Stapler-X100,Laparoscopic Stapler X100,Northern Ireland,4
+2023-11-01,Stapler-X100,Laparoscopic Stapler X100,United Kingdom,126
+2023-12-01,Stapler-X100,Laparoscopic Stapler X100,Northern Ireland,3
+2023-12-01,Stapler-X100,Laparoscopic Stapler X100,United Kingdom,105

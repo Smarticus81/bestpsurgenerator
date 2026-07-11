@@ -13,7 +13,7 @@
   "date_submitted": "2023-04-15",
   "benefit_risk_evaluation": {
     "verdict": "favorable",
-    "comments": "Benefit outweighs risks based on stable incidence rates."
+    "comments": "Benefit outweighs risks based on stable incidence rates. Prior-cycle actions (D8): FSCA01 (field safety corrective action for device breakage) completed, effectiveness verified; CAPA01 (packaging improvement following mechanical-jam complaints) completed and verified effective, carried into the current period's CAPA listing. One signal remained open at period end — a stapler misfire cluster in the United States — and is under continued trend surveillance in the current period. No notified-body review actions were outstanding. Period note (D7): the manufacturer re-aligned the PSUR cycle to the calendar year; the current PSUR covers 2023-01-01 to 2023-12-31, overlapping PSUR001 (period ended 2023-03-31) by three months. Data for the overlapping months are identical in source and methodology in both reports, so trend comparisons remain valid; the overlap is disclosed and not double-counted in any cumulative table."
   },
   "previous_actions": [
     "FSCA01",
