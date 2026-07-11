@@ -72,6 +72,27 @@ class RunStatus(BaseModel):
     validation: Optional[Dict[str, Any]] = None
 
 
+class RunSummary(BaseModel):
+    """One entry in the run history. Status "orphaned" marks an on-disk
+    workspace left by a previous server process (deletable, not resumable)."""
+    run_id: str
+    status: Literal["queued", "running", "completed", "failed", "orphaned"]
+    created_at: Optional[str] = None
+    finished_at: Optional[str] = None
+    device_name: Optional[str] = None
+    report_type: Optional[str] = None
+
+
+class RunList(BaseModel):
+    runs: List[RunSummary]
+
+
+class RunDeleted(BaseModel):
+    run_id: str
+    deleted: bool = True
+    workspace_removed: bool
+
+
 class ArtifactInfo(BaseModel):
     name: str
     content_type: str
