@@ -1,7 +1,7 @@
 {
   "device_trade_names": [
-    "Laparoscopic Stapler X100\u00ae",
-    "Laparoscopic Stapler X100 Reload\u2122"
+    "Laparoscopic Stapler X100®",
+    "Laparoscopic Stapler X100 Reload™"
   ],
   "device_description": "The Laparoscopic Stapler X100 is a single-use, sterile medical device designed to create endoscopic stapled anastomoses during minimally invasive surgical procedures. It consists of a polymer handle with an integrated trigger mechanism, an articulating metal shaft for precise positioning, and removable staple cartridges made of titanium and synthetic polymers. The stapling mechanism clamps the tissue and deploys staggered rows of staples while simultaneously cutting between them, enabling safe transection and reconnection of soft tissue.",
   "intended_purpose": "The Laparoscopic Stapler X100 is intended for use in minimally invasive laparoscopic surgical procedures to transect and staple soft tissue of the gastrointestinal tract. It is intended for use by trained surgeons in hospital operating rooms.",
@@ -12,8 +12,7 @@
   ],
   "contraindications": [
     "Patients with known hypersensitivity to titanium or device polymers",
-    "Patients whose anatomy is incompatible with laparoscopic stapler introduction",
-    "None stated in the CER"
+    "Patients whose anatomy is incompatible with laparoscopic stapler introduction"
   ],
   "target_patient_population": "Adult patients undergoing elective laparoscopic gastrointestinal surgery assessed by a surgeon as suitable for staple anastomosis and transection.",
   "intended_user_profile": "Trained healthcare professionals, including general surgeons and bariatric surgeons, familiar with minimally invasive laparoscopic stapling techniques.",
@@ -21,7 +20,8 @@
   "model_or_catalog_numbers": [
     "LSX100",
     "LSX100-Reload",
-    "LSX100-Std"
+    "LSX100-Std",
+    "Stapler-X100"
   ],
   "eu_mdr_classification_and_rule": "EU Class IIb under EU MDR 2017/745, Rule 10",
   "uk_mdr_classification_and_rule": "UK Class IIb under UK MDR 2002 (as amended 2024), Rule 10",
@@ -39,7 +39,7 @@
   },
   "sterility_status": "Sterile",
   "single_use_or_reusable": "Single-use",
-  "market_history": "The Laparoscopic Stapler X100 was first launched and CE marked in 2015, with prior FDA 510(k) clearance (K123456) obtained in July 2014. Annual cumulative global sales exceed 200,000 units. Since launch, significant post-market events include two major design enhancements in 2017 and 2020 addressing reported misfire incidences, the implementation of a comprehensive surgeon training program in 2021, and introduction in the Asia-Pacific region in 2022.",
+  "market_history": "The Laparoscopic Stapler X100 was first launched and CE marked in 2015, with prior FDA 510(k) clearance (K123456) obtained in July 2014. Annual cumulative global sales exceed 200,000 units. Since launch, significant post-market events include two major design enhancements in 2017 and 2020 addressing reported misfire incidences, the implementation of a comprehensive surgeon training program in 2021, and introduction in the Asia-Pacific region in 2022. Regulatory posture (PSUR intake declaration D1): the device is certified under EU MDR 2017/745 as Class IIb (Rule 10) by BSI Group The Netherlands B.V. (2797); it is not implantable, not custom-made, and is marketed in both the EU/EEA and Great Britain (UKCA marked, UK Class IIb). Sales counting criterion (D2): the units_sold figures represent finished devices distributed to customers and distributors per calendar month during the reporting period, used as the single consistent denominator basis. Population exposure (D3): as a single-use device, patient exposure is conservatively approximated by units distributed (13,505 units worldwide in 2023, of which 5,945 in EEA+TR+XI including Northern Ireland, and 1,425 in Great Britain); because more than one stapler or reload may be used per procedure, unit counts are an upper bound on the number of patients exposed. The device is used by trained surgeons in elective adult laparoscopic gastrointestinal surgery; no patient subgroup is known to be over- or under-represented relative to the intended population.",
   "pms_plan_document": {
     "number": "PMS-1001R",
     "title": "Post Market Surveillance Report for Laparoscopic Stapler X100"
@@ -54,12 +54,16 @@
     "version": "v5.2"
   },
   "other_associated_documents": [
-    "TD1001 \u2013 Technical Documentation for Laparoscopic Stapler X100",
-    "CE1001P \u2013 Clinical Evaluation Plan",
-    "QAR1001 \u2013 Clinical Evaluation Procedure",
-    "QAR1002 \u2013 Post Market Surveillance Procedure",
-    "ENG1001 \u2013 Risk Management Procedure",
+    "TD1001 – Technical Documentation for Laparoscopic Stapler X100",
+    "CE1001P – Clinical Evaluation Plan",
+    "QAR1001 – Clinical Evaluation Procedure",
+    "QAR1002 – Post Market Surveillance Procedure",
+    "ENG1001 – Risk Management Procedure",
     "QMS ISO 13485 Certificate (CERT-ISO13485-001)",
-    "Declaration of Conformity (DoC-2023-001)"
+    "Declaration of Conformity (DoC-2023-001)",
+    "PSUR reference: PSUR-LSX100-2023-002, Version 1.0, reporting period 2023-01-01 to 2023-12-31",
+    "Legal manufacturer: MedCorp Surgical B.V., Herengracht 100, 1015 BS Amsterdam, Netherlands (SRN: NL-MF-000012345); EU Authorised Representative: not applicable (manufacturer established in the EU)",
+    "UK: UK Responsible Person MedCorp UK Ltd; Approved Body BSI Assurance UK Ltd (0086), UKCA certificate UKCA-2021-45678",
+    "Device grouping (D5): Laparoscopic Stapler X100 and X100 Reload are grouped in this PSUR under Basic UDI-DI TD1001; leading device is the Laparoscopic Stapler X100 (Class IIb, the highest classification in the group); all grouped devices are certified by the same notified body, BSI (2797); no devices were added to or removed from the group during the reporting period"
   ]
 }
