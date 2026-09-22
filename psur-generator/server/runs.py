@@ -110,6 +110,14 @@ class RunRegistry:
             return sum(1 for r in self._runs.values()
                        if r.status in ("queued", "running"))
 
+    def discard_unstarted(self, record: RunRecord) -> None:
+        """Release an intake reservation after upload failure, before execution."""
+        with self._lock:
+            if (self._runs.get(record.run_id) is record and record.status == "queued"
+                    and (record.thread is None or not record.thread.is_alive())):
+                del self._runs[record.run_id]
+                record.emitter.close()
+
     def create(self, period: Dict[str, str]) -> Optional[RunRecord]:
         """Create a run record, or None when the service is saturated."""
         with self._lock:
@@ -126,13 +134,13 @@ class RunRegistry:
             self._runs[run_id] = record
             return record
 
-    def start(self, record: RunRecord) -> None:
+    def start(self, record: RunRecord, *, runner=None) -> None:
         """Run the real pipeline on a worker thread."""
         def _worker() -> None:
             record.status = "running"
             record.started_at = _utc_now()
             try:
-                result = PIPELINE_RUNNER(
+                result = (runner or PIPELINE_RUNNER)(
                     start_date=record.period["start"],
                     end_date=record.period["end"],
                     input_dir=record.input_dir,

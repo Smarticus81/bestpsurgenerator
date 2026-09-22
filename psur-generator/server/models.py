@@ -70,6 +70,7 @@ class RunStatus(BaseModel):
     report_type: Optional[str] = None
     error: Optional[str] = None
     validation: Optional[Dict[str, Any]] = None
+    inference: Optional[Dict[str, str]] = None
 
 
 class RunSummary(BaseModel):

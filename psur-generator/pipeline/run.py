@@ -21,6 +21,7 @@ from typing import Any, Dict, List, Optional
 from rich.console import Console
 
 from config import INPUT_DIR, OUTPUT_DIR
+from llm_client import get_inference_config
 from events import ProgressEmitter, NoopEmitter
 from statistics import compute_psur_statistics
 from agents.orchestrator import generate_psur
@@ -824,4 +825,5 @@ def _run_generation_inner(
         "is_valid": bool(is_valid),
         "errors": errors,
         "elapsed_seconds": _total_elapsed,
+        "inference": get_inference_config(),
     }

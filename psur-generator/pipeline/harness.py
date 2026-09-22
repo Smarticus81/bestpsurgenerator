@@ -34,6 +34,7 @@ from rich.console import Console
 
 # Existing pipeline modules (re-used, never duplicated).
 from config import INPUT_DIR, OUTPUT_DIR
+from llm_client import get_inference_config
 from pipeline.discovery import auto_discover_inputs, print_discovered_files
 from pipeline.device_context import (
     load_device_context_file,
@@ -2022,6 +2023,7 @@ def run_harness(
     is_first_psur: bool = False,
     resume: bool = False,
     confirm_first_psur_explicit: bool = False,
+    interactive: bool = True,
 ) -> HarnessResult:
     """Execute the full eight-stage Smarticus PSUR harness."""
     t0 = time.time()
@@ -2036,7 +2038,7 @@ def run_harness(
     console.print(f"Input directory: {in_dir}")
     console.print(f"Output directory: {out_dir}")
 
-    discovered = auto_discover_inputs(in_dir)
+    discovered = auto_discover_inputs(in_dir, interactive=interactive)
     print_discovered_files(discovered)
 
     # ---- Block 1 input validation ----
@@ -2060,6 +2062,7 @@ def run_harness(
         "input_dir": str(in_dir),
         "output_dir": str(out_dir),
         "is_first_psur": is_first_psur,
+        "inference": get_inference_config(),
     })
 
     # ---- Device context (informs stage 1 + stage 2 + later sections) ----

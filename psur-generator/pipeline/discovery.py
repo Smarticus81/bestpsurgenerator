@@ -138,7 +138,7 @@ Reply with ONLY the category key (e.g., "sales", "complaints", "cer", "chart_sal
         return None
 
 
-def auto_discover_inputs(input_dir: Path) -> Dict[str, List[Path]]:
+def auto_discover_inputs(input_dir: Path, *, interactive: bool = True) -> Dict[str, List[Path]]:
     """
     Scan input_dir for all files and classify each.
 
@@ -227,6 +227,9 @@ def auto_discover_inputs(input_dir: Path) -> Dict[str, List[Path]]:
 
     # Phase 3: ask user for remaining unmatched files
     if unmatched:
+        if not interactive:
+            raise ValueError("Cannot classify source files; rename them with a supported "
+                             "category keyword: " + ", ".join(f.name for f in unmatched))
         category_choices = list(FILE_TYPE_KEYWORDS.keys()) + ["extra"]
         for f in unmatched:
             console.print(f"\n  [yellow]Cannot auto-classify: {f.name}[/yellow]")

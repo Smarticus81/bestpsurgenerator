@@ -43,14 +43,21 @@ def _resolve_anthropic_model(env_var: str) -> str:
     return model
 
 
-MODEL = _resolve_anthropic_model("ANTHROPIC_MODEL")
+LLM_PROVIDER = os.environ.get("LLM_PROVIDER", "openai").strip().lower()
+if LLM_PROVIDER not in {"openai", "anthropic"}:
+    raise ValueError("LLM_PROVIDER must be 'openai' or 'anthropic'")
 
-# OpenAI fallback (used when Anthropic quota/rate-limit is hit)
+# OpenAI is the default; Anthropic remains an explicit opt-in.
 OPENAI_API_KEY = os.environ.get("OPENAI_API_KEY")
-OPENAI_FALLBACK_MODEL = os.environ.get("OPENAI_FALLBACK_MODEL", "gpt-4.1")
+OPENAI_MODEL = os.environ.get("OPENAI_MODEL", "gpt-6-astra")
+OPENAI_REASONING_MODEL = os.environ.get("OPENAI_REASONING_MODEL", OPENAI_MODEL)
+OPENAI_FALLBACK_MODEL = os.environ.get("OPENAI_FALLBACK_MODEL", OPENAI_MODEL)
+MODEL = (OPENAI_MODEL if LLM_PROVIDER == "openai"
+         else _resolve_anthropic_model("ANTHROPIC_MODEL"))
 
 # Reasoning model — used for narratives, tables, and validation/quality
-MODEL_REASONING = _resolve_anthropic_model("REASONING_MODEL")
+MODEL_REASONING = (OPENAI_REASONING_MODEL if LLM_PROVIDER == "openai"
+                   else _resolve_anthropic_model("REASONING_MODEL"))
 
 # Ollama local model support (native /api/chat endpoint)
 OLLAMA_URL = os.environ.get("OLLAMA_URL", "http://localhost:11434")
