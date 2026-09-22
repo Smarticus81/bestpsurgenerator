@@ -14,11 +14,16 @@ Start with:  uvicorn server.app:app  (from psur-generator/)
 LLM API keys are read server-side from the environment / .env, as for the CLI.
 """
 import json
-from datetime import datetime, timezone
+from datetime import date, datetime, timezone
+from functools import partial
 from typing import Any, Dict, Iterator
 
-from fastapi import FastAPI, HTTPException
+from fastapi import FastAPI, HTTPException, Request
 from fastapi.responses import FileResponse, StreamingResponse
+from starlette.concurrency import run_in_threadpool
+
+from server.harness import run_uploaded_harness
+from server import uploads
 
 from server.models import (
     ArtifactList,
@@ -52,6 +57,52 @@ app = FastAPI(
     ),
     version="1.0.0",
 )
+
+
+@app.post("/runs/upload", response_model=RunCreated, status_code=201)
+async def upload_run(request: Request, start: date, end: date,
+                     first_psur: bool = False) -> RunCreated:
+    """Upload a raw application/zip body and run the mandatory-input harness."""
+    if start > end:
+        raise HTTPException(422, "start must not be after end")
+    if request.headers.get("content-type", "").split(";")[0].strip().lower() != "application/zip":
+        raise HTTPException(415, "Send a raw application/zip request body")
+    length = request.headers.get("content-length")
+    if length is not None:
+        try:
+            if int(length) < 0:
+                raise ValueError
+            if int(length) > uploads.MAX_UPLOAD_BYTES:
+                raise HTTPException(413, "ZIP upload exceeds 100 MiB")
+        except ValueError:
+            raise HTTPException(400, "Invalid Content-Length")
+    record = REGISTRY.create(period={"start": start.isoformat(), "end": end.isoformat()})
+    if record is None:
+        raise HTTPException(409, "demo_busy")
+    submitted = False
+    try:
+        record.workspace.mkdir(parents=True, exist_ok=False)
+        archive = record.workspace / "source-pack.zip"
+        size = 0
+        with archive.open("xb") as target:
+            async for chunk in request.stream():
+                size += len(chunk)
+                if size > uploads.MAX_UPLOAD_BYTES:
+                    raise HTTPException(413, "ZIP upload exceeds 100 MiB")
+                target.write(chunk)
+        await run_in_threadpool(uploads.extract_source_pack, archive, record.input_dir)
+        archive.unlink()
+        REGISTRY.start(record, runner=partial(run_uploaded_harness, first_psur=first_psur))
+        submitted = True
+        return RunCreated(run_id=record.run_id)
+    except uploads.UploadError as exc:
+        raise HTTPException(422, str(exc)) from exc
+    finally:
+        if not submitted:
+            try:
+                delete_workspace(record.run_id)
+            finally:
+                REGISTRY.discard_unstarted(record)
 
 
 @app.get("/healthz")
@@ -184,6 +235,7 @@ def get_run(run_id: str) -> RunStatus:
         report_type=result.get("report_type"),
         error=record.error,
         validation=validation,
+        inference=result.get("inference"),
     )
 
 

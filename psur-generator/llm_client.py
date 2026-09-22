@@ -1,9 +1,7 @@
-"""Unified LLM client with Anthropic → OpenAI → Ollama routing.
+"""Unified LLM client with OpenAI Responses and optional Anthropic/Ollama routing.
 
-Tries Anthropic (Claude) first. If Anthropic fails due to rate-limit, quota
-exhaustion, overload, or authentication errors, automatically falls back to
-OpenAI (gpt-4.1). Also supports local Ollama models via the OpenAI-compatible
-API (http://localhost:11434/v1).
+The configured model defaults to GPT-6 Astra. Explicit Anthropic models retain
+OpenAI fallback on quota/rate-limit errors. Ollama overrides use /api/chat.
 
 All callers get back a response object matching Anthropic's interface:
     response.content[0].text
@@ -20,18 +18,15 @@ Usage:
     response = client.messages.create(model=MODEL, max_tokens=4096, ...)
 """
 
-import os
 import sys
 from dataclasses import dataclass, field
 from typing import Any, Dict, List, Optional
 
-from config import ANTHROPIC_API_KEY, OLLAMA_URL, OLLAMA_MODEL, OLLAMA_REASONING_MODEL, OLLAMA_NUM_CTX
-
-# ---------------------------------------------------------------------------
-# OpenAI config
-# ---------------------------------------------------------------------------
-OPENAI_API_KEY = os.environ.get("OPENAI_API_KEY")
-OPENAI_FALLBACK_MODEL = os.environ.get("OPENAI_FALLBACK_MODEL", "gpt-4.1")
+from config import (
+    ANTHROPIC_API_KEY, OLLAMA_URL, OLLAMA_MODEL, OLLAMA_REASONING_MODEL,
+    OLLAMA_NUM_CTX, OPENAI_API_KEY, OPENAI_FALLBACK_MODEL, LLM_PROVIDER,
+    MODEL, MODEL_REASONING,
+)
 
 # ---------------------------------------------------------------------------
 # Ollama config  (set at module level; overridden by set_ollama_override())
@@ -78,16 +73,27 @@ def _effective_ollama_model(model: str) -> str:
 
 def _is_openai_model(model: str) -> bool:
     """Return True if the model name indicates a direct OpenAI call (gpt-*)."""
-    return model.lower().startswith("gpt-") or model.lower().startswith("o")
+    return (model in {MODEL, MODEL_REASONING} and LLM_PROVIDER == "openai"
+            or model.lower().startswith(("gpt-", "o1", "o3", "o4")))
 
 # Track which provider is active so callers can log it
-_active_provider = "anthropic"
+_active_provider = LLM_PROVIDER
 _anthropic_disabled = False  # Sticky flag: once Anthropic fails with quota, skip it
 
 
 def get_active_provider() -> str:
-    """Return 'anthropic' or 'openai' depending on which is currently active."""
+    """Return the provider used by the most recent successful call."""
     return _active_provider
+
+
+def get_inference_config() -> Dict[str, str]:
+    """Configured routing, not a claim about per-call provider/model usage."""
+    return {
+        "provider": "ollama" if _ollama_override else LLM_PROVIDER,
+        "generation_model": _ollama_override or MODEL,
+        "reasoning_model": _ollama_override or MODEL_REASONING,
+        "openai_fallback_model": OPENAI_FALLBACK_MODEL,
+    }
 
 
 # ---------------------------------------------------------------------------
@@ -157,7 +163,7 @@ def _translate_messages_for_openai(
     system: Optional[str],
     messages: List[Dict[str, Any]],
 ) -> List[Dict[str, Any]]:
-    """Convert Anthropic-style messages to OpenAI chat format."""
+    """Convert Anthropic-style messages to Responses API input items."""
     oai_messages = []
 
     # System prompt → system role message
@@ -175,24 +181,23 @@ def _translate_messages_for_openai(
             parts = []
             for block in content:
                 if isinstance(block, str):
-                    parts.append({"type": "text", "text": block})
+                    parts.append({"type": "output_text" if role == "assistant" else "input_text", "text": block})
                 elif isinstance(block, dict):
                     block_type = block.get("type", "")
                     if block_type == "text":
-                        parts.append({"type": "text", "text": block.get("text", "")})
+                        parts.append({"type": "output_text" if role == "assistant" else "input_text", "text": block.get("text", "")})
                     elif block_type == "image":
                         # Anthropic image format → OpenAI image_url format
                         source = block.get("source", {})
                         media_type = source.get("media_type", "image/png")
                         data = source.get("data", "")
                         parts.append({
-                            "type": "image_url",
-                            "image_url": {
-                                "url": f"data:{media_type};base64,{data}"
-                            }
+                            "type": "input_image",
+                            "image_url": (source["url"] if source.get("type") == "url"
+                                          else f"data:{media_type};base64,{data}"),
                         })
                     else:
-                        parts.append({"type": "text", "text": str(block)})
+                        raise ValueError(f"Unsupported OpenAI content block: {block_type}")
             oai_messages.append({"role": role, "content": parts})
         else:
             oai_messages.append({"role": role, "content": str(content)})
@@ -290,12 +295,13 @@ def create_message(
 
 
 def _is_reasoning_model(model: str) -> bool:
-    """Return True if the model is a reasoning/o-series model that uses max_completion_tokens."""
+    """Omit temperature for reasoning models and unknown configured aliases."""
     m = model.lower()
-    # o1, o3, o4-mini, gpt-5.x series all require max_completion_tokens and don't support temperature
     return (
         m.startswith("o1") or m.startswith("o3") or m.startswith("o4")
-        or m.startswith("gpt-5")
+        or m.startswith(("gpt-5", "gpt-6"))
+        or (model in {MODEL, MODEL_REASONING, OPENAI_FALLBACK_MODEL}
+            and not m.startswith("gpt-4"))
     )
 
 
@@ -331,31 +337,35 @@ def _call_openai(
         from openai import OpenAI
 
         oai_client = OpenAI(api_key=OPENAI_API_KEY)
-        oai_messages = _translate_messages_for_openai(system, messages)
+        oai_messages = _translate_messages_for_openai(None, messages)
 
-        # Reasoning models (o-series, gpt-5.x) use max_completion_tokens
-        # and do not support the temperature parameter
+        # Reasoning models omit temperature. The output budget includes reasoning.
         kwargs: Dict[str, Any] = dict(
             model=model,
-            messages=oai_messages,
+            input=oai_messages,
+            max_output_tokens=max_tokens,
+            store=False,
         )
-        if _is_reasoning_model(model):
-            kwargs["max_completion_tokens"] = max_tokens
-        else:
-            kwargs["max_tokens"] = max_tokens
+        if system:
+            kwargs["instructions"] = system
+        if not _is_reasoning_model(model):
             kwargs["temperature"] = temperature
 
-        oai_resp = oai_client.chat.completions.create(**kwargs)
+        oai_resp = oai_client.responses.create(**kwargs)
+        if oai_resp.status != "completed":
+            raise RuntimeError(f"Response did not complete: {oai_resp.status}; "
+                               f"{getattr(oai_resp, 'incomplete_details', None)}")
+        if not oai_resp.output_text:
+            raise RuntimeError("OpenAI response contained no output text")
 
         _active_provider = "openai"
-        choice = oai_resp.choices[0]
         usage = oai_resp.usage
 
         return _NormalisedResponse(
-            content=[_ContentBlock(text=choice.message.content or "")],
+            content=[_ContentBlock(text=oai_resp.output_text)],
             usage=_Usage(
-                input_tokens=getattr(usage, "prompt_tokens", 0),
-                output_tokens=getattr(usage, "completion_tokens", 0),
+                input_tokens=getattr(usage, "input_tokens", 0),
+                output_tokens=getattr(usage, "output_tokens", 0),
             ),
             model=oai_resp.model or model,
             provider="openai",

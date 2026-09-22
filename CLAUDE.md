@@ -16,7 +16,7 @@ All commands run from `psur-generator/`:
 cd psur-generator
 pip install -r requirements.txt
 
-# Generate a full PSUR (requires ANTHROPIC_API_KEY in .env)
+# Generate a full PSUR (requires OPENAI_API_KEY in .env by default)
 python main.py generate --start 2025-01-01 --end 2025-12-31
 
 # Generate with options
@@ -74,7 +74,7 @@ Input files (CSV/Excel/PDF/DOCX/JSON) in data/input/
 - **Deterministic-first statistics**: `statistics.py` pre-calculates all metrics and passes them as facts to LLM agents. Agents are instructed to use these numbers verbatim, never calculate their own. The validator detects fabricated statistics.
 - **Agent isolation**: Each of the 13 section agents receives only stats relevant to that section via `agents/stats_filter.py`. Section D sees serious incidents; Section J sees literature.
 - **Template-clone-and-fill**: Rendering clones `constraints/rg_psur_001_template.docx` and fills it via python-docx, preserving exact layout fidelity.
-- **LLM routing**: Anthropic Claude (primary) → OpenAI GPT (rate-limit fallback) → Ollama (local override). Managed in `llm_client.py`.
+- **LLM routing**: OpenAI GPT-6 Astra via Responses by default; `LLM_PROVIDER=anthropic` opts into Claude with OpenAI fallback. Ollama remains a local override. Managed in `llm_client.py`.
 - **Post-processing over perfection**: Rather than requiring perfect LLM output, `postprocessing.py` applies targeted fixes (repair malformed tables, normalize IMDRF codes, strip NB references for Class I, etc.).
 
 ### Regulatory Constraint Files (constraints/)
@@ -143,8 +143,11 @@ Six mixin classes composed in `validator.py`:
 
 Requires `.env` in `psur-generator/` with:
 ```
-ANTHROPIC_API_KEY=sk-...        # Required (primary LLM)
-OPENAI_API_KEY=sk-...           # Optional (fallback)
+OPENAI_API_KEY=sk-...          # Required for default OpenAI routing
+LLM_PROVIDER=openai
+OPENAI_MODEL=gpt-6-astra
+OPENAI_REASONING_MODEL=gpt-6-astra
+ANTHROPIC_API_KEY=sk-...       # Optional; select LLM_PROVIDER=anthropic to use
 OLLAMA_MODEL=qwen3:32b          # Optional (local override)
 ```
 
